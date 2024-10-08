@@ -1,0 +1,89 @@
+body {
+  background-image: url('../img/fondo.avif'); 
+  background-size: cover; 
+  background-position: center; 
+  background-repeat: no-repeat; 
+  font-family: 'Poppins', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.card {
+  margin-top: 40px;
+  background-color: rgba(34, 34, 34, 0.85); /*Hace que el fondo de la carte sea transparente*/
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+
+.card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+}
+
+.form-control {
+  border-radius: 30px;
+  padding: 10px 20px;
+  background-color: #333333; 
+  color: #ffffff;
+  border: 1px solid #555555; 
+}
+
+.form-control:focus {
+  background-color: #444444; 
+  color: #ffffff;
+  border-color: #ffffff; 
+  outline: none; 
+}
+
+.form-control::placeholder {
+  color: #bbbbbb; 
+}
+
+.form-control:focus {
+  background-color: #444444;
+  color: #ffffff;
+}
+
+.btn-primary {
+  background-color: #ff0000;
+  border: none;
+  border-radius: 30px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #5f0000; 
+}
+
+.form-check-input {
+  border-radius: 50%;
+}
+
+.text-center h3 {
+  color: #ffffff; 
+}
+
+footer {
+  background-color: #000000; 
+  color: #ffffff; 
+}
+
+a {
+  color: #ff0000; 
+}
+
+a:hover {
+  color: #cc0000; 
+}
+
+.mt-auto {
+  margin-top: auto !important;
+}
+
+.txtLogin{
+  color: #ffffff;
+}
+
