@@ -7,14 +7,14 @@
     <thead>
         <tr>
             <th>Talla</th>
-            <th>Cantidad</th> <!-- Suponiendo que deseas mostrar la cantidad -->
+            <th>Cantidad</th> 
         </tr>
     </thead>
     <tbody>
         <?php foreach ($tallas as $talla): ?>
             <tr>
                 <td><?= htmlspecialchars($talla['talla']) ?></td>
-                <td><?= htmlspecialchars($talla['cantidad']) ?></td> <!-- Suponiendo que tienes un campo cantidad -->
+                <td><?= htmlspecialchars($talla['cantidad']) ?></td> 
             </tr>
         <?php endforeach; ?>
     </tbody>

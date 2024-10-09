@@ -35,25 +35,30 @@ class ActionController {
     
     public function viewSecuencia($id) {
         $secuencia = $this->actionModel->getSecuenciaById($id);
-        $tallas = $this->actionModel->getTallasBySecuenciaId($id); // Obtener tallas asociadas a la secuencia
-        require '../../views/produccion/viewSecuencia.php'; // Carga la vista para una secuencia específica
+        $tallas = $this->actionModel->getTallasBySecuenciaId($id); 
+        require '../../views/produccion/viewSecuencia.php'; 
     }    
 
     public function createSequence() {
-        // Aquí procesas la creación de la secuencia
         $idop = $_POST['idop'];
         $numSecuencia = $_POST['numSecuencia'];
         $fechaInicio = $_POST['fechaInicio'];
         $fechaFinal = $_POST['fechaFinal'];
         $prendasArealizar = $_POST['prendasArealizar'];
-    
-        // Llama a tu modelo para guardar la secuencia
+        $tallas = isset($_POST['tallas']) ? $_POST['tallas'] : [];
+        $cantidades = isset($_POST['cantidad']) ? $_POST['cantidad'] : [];
+        
         $this->actionModel->createSequence($idop, $numSecuencia, $fechaInicio, $fechaFinal, $prendasArealizar);
+        
+        // Obtener el ID de la última secuencia creada
+        $lastSequenceId = $this->actionModel->getLastInsertedSequenceId();
     
-        // Redirigir a la página anterior
+        foreach ($tallas as $talla) {
+            $cantidad = isset($cantidades[$talla]) ? $cantidades[$talla] : 0; 
+            $this->actionModel->createTalla($lastSequenceId, $talla, $cantidad);
+        }  
         header("Location: " . $_SERVER['HTTP_REFERER'] . "?success=1");
         exit();
     }
-    
     
 }

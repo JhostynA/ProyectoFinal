@@ -52,8 +52,7 @@ class ActionModel {
     }    
     
     public function createSequence($idop, $numSecuencia, $fechaInicio, $fechaFinal, $prendasArealizar) {
-        // Aquí también puedes inicializar prendasFaltantes si es necesario, por ejemplo a 0
-        $prendasFaltantes = $prendasArealizar; // Suponiendo que al principio todas las prendas faltan
+        $prendasFaltantes = $prendasArealizar; 
 
         $stmt = $this->db->prepare("INSERT INTO secuencias (idop, numSecuencia, fechaInicio, fechaFinal, prendasArealizar, prendasFaltantes) VALUES (:idop, :numSecuencia, :fechaInicio, :fechaFinal, :prendasArealizar, :prendasFaltantes)");
         $stmt->bindParam(':idop', $idop);
@@ -61,8 +60,21 @@ class ActionModel {
         $stmt->bindParam(':fechaInicio', $fechaInicio);
         $stmt->bindParam(':fechaFinal', $fechaFinal);
         $stmt->bindParam(':prendasArealizar', $prendasArealizar);
-        $stmt->bindParam(':prendasFaltantes', $prendasFaltantes); // Puedes ajustar esto según tu lógica
+        $stmt->bindParam(':prendasFaltantes', $prendasFaltantes); 
 
-        return $stmt->execute(); // Esto debería retornar true o false
+        return $stmt->execute(); 
     }
+
+    public function getLastInsertedSequenceId() {
+        return $this->db->lastInsertId();
+    }
+    
+    public function createTalla($secuenciaId, $talla, $cantidad) {
+        $stmt = $this->db->prepare("INSERT INTO tallas (secuencia_id, talla, cantidad) VALUES (:secuencia_id, :talla, :cantidad)");
+        $stmt->bindParam(':secuencia_id', $secuenciaId);
+        $stmt->bindParam(':talla', $talla);
+        $stmt->bindParam(':cantidad', $cantidad);
+        return $stmt->execute();
+    }
+    
 }

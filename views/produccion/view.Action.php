@@ -55,8 +55,8 @@ $idop = isset($_GET['id']) ? intval($_GET['id']) : 0;
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="?action=createSequence"> <!-- Cambia la acción aquí -->
-                    <input type="hidden" name="idop" value="<?= $idop ?>"> <!-- Campo oculto para idop -->
+                <form method="POST" action="?action=createSequence"> 
+                    <input type="hidden" name="idop" value="<?= $idop ?>"> 
                     <div class="form-group">
                         <label for="numSecuencia">Número de Secuencia:</label>
                         <input type="number" class="form-control" name="numSecuencia" required>
@@ -69,10 +69,23 @@ $idop = isset($_GET['id']) ? intval($_GET['id']) : 0;
                         <label for="fechaFinal">Fecha Final:</label>
                         <input type="date" class="form-control" name="fechaFinal" required>
                     </div>
-                    <div class="form-group">
-                        <label for="prendasArealizar">Prendas a Realizar:</label>
-                        <input type="number" class="form-control" name="prendasArealizar" required>
+                    <div class="form-group" style="display: none;">
+                        <input type="number" class="form-control" name="prendasArealizar" id="prendasArealizar" required readonly>
                     </div>
+
+
+                   
+                    <label>Tallas:</label>
+                    <?php
+                    $tallasDisponibles = ['S', 'M', 'L', 'XL']; 
+                    foreach ($tallasDisponibles as $talla): ?>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="tallas[]" value="<?= $talla ?>" id="talla<?= $talla ?>" onchange="toggleQuantityInput(this)">
+                            <label class="form-check-label" for="talla<?= $talla ?>"><?= $talla ?></label>
+                            <input type="number" class="form-control mt-2" name="cantidad[<?= $talla ?>]" placeholder="Cantidad" disabled id="cantidad<?= $talla ?>" oninput="updatePrendasArealizar()">
+                        </div>
+                    <?php endforeach; ?>
+
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </form>
             </div>
@@ -81,17 +94,36 @@ $idop = isset($_GET['id']) ? intval($_GET['id']) : 0;
 </div>
 
 
-
-
-
-
-
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
+    <script>
+    function toggleQuantityInput(checkbox) {
+        const talla = checkbox.value;
+        const cantidadInput = document.getElementById('cantidad' + talla);
+        cantidadInput.disabled = !checkbox.checked;
 
+        if (!checkbox.checked) {
+            cantidadInput.value = 0; 
+            updatePrendasArealizar();
+        }
+    }
 
+    function updatePrendasArealizar() {
+        const tallasDisponibles = ['S', 'M', 'L', 'XL'];
+        let total = 0;
+
+        tallasDisponibles.forEach(talla => {
+            const cantidadInput = document.getElementById('cantidad' + talla);
+            if (!cantidadInput.disabled) {
+                total += parseInt(cantidadInput.value) || 0; 
+            }
+        });
+
+        document.getElementById('prendasArealizar').value = total; 
+    }
+</script>
 
     <?php require_once '../../footer.php'; ?>
 
