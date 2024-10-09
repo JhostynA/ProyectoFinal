@@ -6,7 +6,7 @@
 
     <div class="d-flex justify-content-between mb-3">
         <div class="input-group search-container">
-            <input type="text" id="searchInput" class="form-control" placeholder="Search..." aria-label="Search">
+            <input type="text" id="searchInput" class="form-control" placeholder="Buscar..." aria-label="Search">
         </div>
 
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createActionModal">
@@ -91,8 +91,6 @@
         </div>
     </div>
 
-
-
 </div>
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
@@ -114,38 +112,47 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+    // Obtenemos la fecha actual
+    const factual = new Date();
+    const anho = factual.getFullYear();
+    const mes = String(factual.getMonth() + 1).padStart(2, '0'); 
+    const dia = String(factual.getDate()).padStart(2, '0'); 
+    
+    const FechaActual = `${anho}-${mes}-${dia}`;
 
-        //Para la fecha
-        const today = new Date().toISOString().split('T')[0];
-        const fechaInicioInput = document.querySelector('input[name="fecha_inicio"]');
-        const fechaEntregaInput = document.querySelector('input[name="fecha_entrega"]');
+    const fechaInicioInput = document.querySelector('input[name="fecha_inicio"]');
+    const fechaEntregaInput = document.querySelector('input[name="fecha_entrega"]');
 
-        //Para la cantidad de prendas
-        const cantidadPrendasInput = document.querySelector('input[name="cantidad_prendas"]');
-        const form = cantidadPrendasInput.closest('form');
+    fechaInicioInput.setAttribute('min', FechaActual);
 
+    
+    fechaInicioInput.addEventListener('change', function () {
+        const selectedFechaInicio = new Date(this.value); 
 
-        //Fecha
-        fechaInicioInput.setAttribute('min', today);
-
-        fechaInicioInput.addEventListener('change', function () {
-            const selectedFechaInicio = new Date(this.value);
+        if (!isNaN(selectedFechaInicio.getTime())) {
             const fechaMinimaEntrega = selectedFechaInicio.toISOString().split('T')[0];
             fechaEntregaInput.setAttribute('min', fechaMinimaEntrega);
-            if (fechaEntregaInput.value < fechaMinimaEntrega) {
-                fechaEntregaInput.value = ''; 
-            }
-        });
 
-        //Cantidad de prendas
-        form.addEventListener('submit', function(event) {
-            const cantidadPrendas = parseInt(cantidadPrendasInput.value, 10);
-            if (cantidadPrendas <= 0) {
-                event.preventDefault();
-                alert('La cantidad de prendas debe ser mayor a 0.');
+            if (new Date(fechaEntregaInput.value) < selectedFechaInicio) {
+                fechaEntregaInput.value = '';
             }
-        });
+        }
     });
+
+    // Validar la cantidad de prendas antes de enviar el formulario
+    const cantidadPrendasInput = document.querySelector('input[name="cantidad_prendas"]');
+    const form = cantidadPrendasInput.closest('form');
+
+    form.addEventListener('submit', function(event) {
+        const cantidadPrendas = parseInt(cantidadPrendasInput.value, 10);
+        if (cantidadPrendas <= 0) {
+            event.preventDefault();
+            alert('La cantidad de prendas debe ser mayor a 0');
+        }
+    });
+});
+
+
 </script>
 
 
