@@ -1,4 +1,7 @@
-<?php require_once '../../contenido.php'; ?>
+<?php require_once '../../contenido.php'; 
+$idop = isset($_GET['id']) ? intval($_GET['id']) : 0;
+?>
+
 
 
 <div class="container mt-5">
@@ -41,7 +44,7 @@
     <a href="indexP.php" class="btn btn-secondary mt-3">Regresar</a>
 </div>
 
-<!-- Modal para registrar nueva secuencia -->
+<!-- Modal para registrar una nueva secuencia -->
 <div class="modal fade" id="createSequenceModal" tabindex="-1" role="dialog" aria-labelledby="createSequenceModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -52,7 +55,8 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="<?= $host ?>/views/produccion/indexP.php?action=createSequence">
+                <form method="POST" action="?action=createSequence"> <!-- Cambia la acción aquí -->
+                    <input type="hidden" name="idop" value="<?= $idop ?>"> <!-- Campo oculto para idop -->
                     <div class="form-group">
                         <label for="numSecuencia">Número de Secuencia:</label>
                         <input type="number" class="form-control" name="numSecuencia" required>
@@ -69,31 +73,14 @@
                         <label for="prendasArealizar">Prendas a Realizar:</label>
                         <input type="number" class="form-control" name="prendasArealizar" required>
                     </div>
-                    <div class="form-group">
-                        <label>Tallas:</label><br>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="tallas[]" value="S" id="tallaS">
-                            <label class="form-check-label" for="tallaS">S</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="tallas[]" value="M" id="tallaM">
-                            <label class="form-check-label" for="tallaM">M</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="tallas[]" value="X" id="tallaX">
-                            <label class="form-check-label" for="tallaX">X</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="tallas[]" value="XL" id="tallaXL">
-                            <label class="form-check-label" for="tallaXL">XL</label>
-                        </div>
-                    </div>
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+
 
 
 

@@ -39,5 +39,21 @@ class ActionController {
         require '../../views/produccion/viewSecuencia.php'; // Carga la vista para una secuencia específica
     }    
 
+    public function createSequence() {
+        // Aquí procesas la creación de la secuencia
+        $idop = $_POST['idop'];
+        $numSecuencia = $_POST['numSecuencia'];
+        $fechaInicio = $_POST['fechaInicio'];
+        $fechaFinal = $_POST['fechaFinal'];
+        $prendasArealizar = $_POST['prendasArealizar'];
+    
+        // Llama a tu modelo para guardar la secuencia
+        $this->actionModel->createSequence($idop, $numSecuencia, $fechaInicio, $fechaFinal, $prendasArealizar);
+    
+        // Redirigir a la página anterior
+        header("Location: " . $_SERVER['HTTP_REFERER'] . "?success=1");
+        exit();
+    }
+    
     
 }

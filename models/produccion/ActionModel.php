@@ -51,5 +51,18 @@ class ActionModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }    
     
-    
+    public function createSequence($idop, $numSecuencia, $fechaInicio, $fechaFinal, $prendasArealizar) {
+        // Aquí también puedes inicializar prendasFaltantes si es necesario, por ejemplo a 0
+        $prendasFaltantes = $prendasArealizar; // Suponiendo que al principio todas las prendas faltan
+
+        $stmt = $this->db->prepare("INSERT INTO secuencias (idop, numSecuencia, fechaInicio, fechaFinal, prendasArealizar, prendasFaltantes) VALUES (:idop, :numSecuencia, :fechaInicio, :fechaFinal, :prendasArealizar, :prendasFaltantes)");
+        $stmt->bindParam(':idop', $idop);
+        $stmt->bindParam(':numSecuencia', $numSecuencia);
+        $stmt->bindParam(':fechaInicio', $fechaInicio);
+        $stmt->bindParam(':fechaFinal', $fechaFinal);
+        $stmt->bindParam(':prendasArealizar', $prendasArealizar);
+        $stmt->bindParam(':prendasFaltantes', $prendasFaltantes); // Puedes ajustar esto según tu lógica
+
+        return $stmt->execute(); // Esto debería retornar true o false
+    }
 }

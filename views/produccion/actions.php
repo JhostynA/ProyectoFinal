@@ -9,8 +9,8 @@
             <input type="number" id="searchInput" class="form-control" placeholder="Buscar..." aria-label="Search">
         </div>
 
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createSequenceModal">
-            Nueva Secuencia
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createActionModal">
+            Nueva Producción
         </button>
 
     </div>
