@@ -1,24 +1,21 @@
 <?php require_once '../../contenido.php'; ?>
 
 <div class="container mt-5">
-    <h1 class="mb-4" style="text-align: center;">PRODUCCIÓN</h1>
+    <h1 class="mb-4 text-center">PRODUCCIÓN</h1>
 
-
-    <div class="d-flex justify-content-between mb-3">
-        <div class="input-group search-container">
-            <input type="number" id="searchInput" class="form-control" placeholder="Buscar..." aria-label="Search">
+    <div class="d-flex justify-content-between mb-3 align-items-center">
+        <div class="input-group search-container" style="max-width: 200px;">
+            <input type="number" id="searchInput" class="form-control border-primary" placeholder="Buscar..." aria-label="Search">
         </div>
 
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createActionModal">
+        <button type="button" class="btn btn-success shadow" data-toggle="modal" data-target="#createActionModal">
             Nueva Producción
         </button>
-
     </div>
 
-    <table class="table table-hover" id="actionsTable">
-        <thead>
+    <table id="actionsTable" class="table table-hover table-bordered shadow-lg">
+        <thead class="thead-dark">
             <tr>
-                <!-- <th>ID</th>   QUITAMOS EL ID DE LA TABLA -->
                 <th>OP</th>
                 <th>Fecha Inicio</th>
                 <th>Fecha Entrega</th>
@@ -29,14 +26,17 @@
         <tbody>
             <?php foreach ($actions as $action): ?>
                 <tr>
-                   <!-- <td><?#= htmlspecialchars($action['id']) ?></td> -->    <!-- FORMA PARA QUE EL ID APAREZCA EN LA TABLA(DESACTIVADO EN ESTE MOMENTO) --> 
-                    <td><a href="<?= $host ?>/views/produccion/indexP.php?action=view&id=<?= $action['id'] ?>" class="text-primary"><?= htmlspecialchars($action['nombre']) ?></a></td>
+                    <td>
+                        <a href="<?= $host ?>/views/produccion/indexP.php?action=view&id=<?= $action['id'] ?>" class="text-success">
+                            <?= htmlspecialchars($action['nombre']) ?>
+                        </a>
+                    </td>
                     <td><?= htmlspecialchars($action['fecha_inicio']) ?></td>
                     <td><?= htmlspecialchars($action['fecha_entrega']) ?></td>
                     <td><?= htmlspecialchars($action['cantidad_prendas']) ?></td>
                     <td>
-                        <div class="progress">
-                            <div class="progress-bar 
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated
                                 <?php if ($action['porcentaje'] <= 40) echo 'bg-danger'; ?>
                                 <?php if ($action['porcentaje'] > 40 && $action['porcentaje'] <= 80) echo 'bg-warning'; ?>
                                 <?php if ($action['porcentaje'] > 80) echo 'bg-success'; ?>" 
@@ -53,9 +53,12 @@
             <?php endforeach; ?>
         </tbody>
     </table>
-
-
 </div>
+
+<!-- Agrega estos enlaces al final de tu archivo antes de cerrar el body -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 
 <!-- Modal para crear nueva producción -->
 <div class="modal fade" id="createActionModal" tabindex="-1">

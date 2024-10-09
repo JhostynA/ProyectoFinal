@@ -31,6 +31,10 @@ $host = "http://localhost/LinoFino";
     <script src="https://cdn.datatables.net/1.13.5/js/dataTables.bootstrap5.min.js"></script>
     <!-- Librería de iconos (botón de hamburguesa) -->
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+
+    <!-- Hoja de estilos de github (para el diseño de las tablas) -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
    
 </head>
 
