@@ -31,5 +31,25 @@ class ActionModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function getSecuenciasByActionId($actionId) {
+        $query = "SELECT * FROM secuencias WHERE idop = :actionId";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':actionId', $actionId);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }    
+    
+    public function getSecuenciaById($id) {
+        $stmt = $this->db->prepare("SELECT * FROM secuencias WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    
+    public function getTallasBySecuenciaId($id) {
+        $stmt = $this->db->prepare("SELECT * FROM tallas WHERE secuencia_id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }    
+    
     
 }

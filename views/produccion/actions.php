@@ -6,29 +6,30 @@
 
     <div class="d-flex justify-content-between mb-3">
         <div class="input-group search-container">
-            <input type="text" id="searchInput" class="form-control" placeholder="Buscar..." aria-label="Search">
+            <input type="number" id="searchInput" class="form-control" placeholder="Buscar..." aria-label="Search">
         </div>
 
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createActionModal">
-            Nueva Producción
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createSequenceModal">
+            Nueva Secuencia
         </button>
+
     </div>
 
     <table class="table table-hover" id="actionsTable">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Nombre</th>
+                <!-- <th>ID</th>   QUITAMOS EL ID DE LA TABLA -->
+                <th>OP</th>
                 <th>Fecha Inicio</th>
                 <th>Fecha Entrega</th>
-                <th>Cantidad Prendas</th>
+                <th>Total Prendas</th>
                 <th>Progreso</th>
             </tr>
         </thead>
         <tbody>
             <?php foreach ($actions as $action): ?>
                 <tr>
-                    <td><?= htmlspecialchars($action['id']) ?></td>
+                   <!-- <td><?#= htmlspecialchars($action['id']) ?></td> -->    <!-- FORMA PARA QUE EL ID APAREZCA EN LA TABLA(DESACTIVADO EN ESTE MOMENTO) --> 
                     <td><a href="<?= $host ?>/views/produccion/indexP.php?action=view&id=<?= $action['id'] ?>" class="text-primary"><?= htmlspecialchars($action['nombre']) ?></a></td>
                     <td><?= htmlspecialchars($action['fecha_inicio']) ?></td>
                     <td><?= htmlspecialchars($action['fecha_entrega']) ?></td>
@@ -69,8 +70,8 @@
                 <div class="modal-body">
                     <form method="POST" action="<?= $host ?>/views/produccion/indexP.php?action=create">
                         <div class="form-group">
-                            <label for="name">Nombre de la nueva producción:</label>
-                            <input type="text" class="form-control" name="nombre" required>
+                            <label for="name">OP:</label>
+                            <input type="number" class="form-control" name="nombre" required>
                         </div>
                         <div class="form-group">
                             <label for="fecha_inicio">Fecha de Inicio:</label>
@@ -97,16 +98,17 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script>
     document.getElementById('searchInput').addEventListener('keyup', function() {
-        var input = document.getElementById('searchInput').value.toLowerCase();
-        var rows = document.getElementById('actionsTable').getElementsByTagName('tr');
+    var input = document.getElementById('searchInput').value.toLowerCase();
+    var rows = document.getElementById('actionsTable').getElementsByTagName('tr');
 
-        for (var i = 1; i < rows.length; i++) {
-            var nombre = rows[i].getElementsByTagName('td')[1];
-            if (nombre) {
-                var txtValue = nombre.textContent || nombre.innerText;
-                rows[i].style.display = txtValue.toLowerCase().indexOf(input) > -1 ? "" : "none";
-            }
+    for (var i = 1; i < rows.length; i++) {
+        var nombre = rows[i].getElementsByTagName('td')[0];
+        if (nombre) {
+            var txtValue = nombre.textContent || nombre.innerText;
+            rows[i].style.display = txtValue.toLowerCase().indexOf(input) > -1 ? "" : "none";
         }
+    }
+
     });
 </script>
 
@@ -150,6 +152,16 @@
             alert('La cantidad de prendas debe ser mayor a 0');
         }
     });
+
+    //Validar que el OP sea mayor a 0
+    const opInput = document.querySelector('input[name="nombre"]');
+    form.addEventListener('submit', function(event){
+        const op = parseInt(opInput.value, 10);
+        if(op <= 0){
+            event.preventDefault();
+            alert('La OP debe ser mayor a 0');
+        }
+    })
 });
 
 

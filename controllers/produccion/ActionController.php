@@ -24,13 +24,20 @@ class ActionController {
 
     public function showActions() {
         $actions = $this->actionModel->getActions();
-        require '../../views/produccion/actions.php'; // Carga la vista con las acciones
+        require '../../views/produccion/actions.php'; 
     }
 
     public function viewAction($id) {
         $action = $this->actionModel->getActionById($id);
-        require '../../views/produccion/view.Action.php'; // Carga la vista para una acción específica
+        $secuencias = $this->actionModel->getSecuenciasByActionId($id);
+        require '../../views/produccion/view.Action.php';
     }
+    
+    public function viewSecuencia($id) {
+        $secuencia = $this->actionModel->getSecuenciaById($id);
+        $tallas = $this->actionModel->getTallasBySecuenciaId($id); // Obtener tallas asociadas a la secuencia
+        require '../../views/produccion/viewSecuencia.php'; // Carga la vista para una secuencia específica
+    }    
 
     
 }

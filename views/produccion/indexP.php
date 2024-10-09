@@ -11,6 +11,8 @@ if (isset($_GET['action'])) {
         $actionController->createAction();
     } elseif ($_GET['action'] === 'view' && isset($_GET['id'])) {
         $actionController->viewAction($_GET['id']);
+    } elseif ($_GET['action'] === 'viewSecuencia' && isset($_GET['id'])) { 
+        $actionController->viewSecuencia($_GET['id']);  
     }
 } else {
     $actionController->showActions();
