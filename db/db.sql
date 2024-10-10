@@ -68,6 +68,13 @@ CREATE TABLE colaboradores (
     FOREIGN KEY (idpersona) REFERENCES personas(idpersona)
 );
 
+
+
+
+
+
+
+DROP TABLE actions;
 CREATE TABLE actions (
     id 					INT AUTO_INCREMENT PRIMARY KEY,
     nombre 				VARCHAR(255) NOT NULL,
@@ -78,6 +85,57 @@ CREATE TABLE actions (
     created_at 			TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 SELECT * FROM actions;
+
+
+CREATE TABLE secuencias (
+    id 					INT AUTO_INCREMENT PRIMARY KEY,
+    idop 				INT, 
+    numSecuencia 		INT NOT NULL,
+    fechaInicio 		DATE NOT NULL,
+    fechaFinal 			DATE NOT NULL,
+    prendasArealizar 	INT NOT NULL,
+    prendasFaltantes 	INT NOT NULL,
+    FOREIGN KEY (idop) REFERENCES actions(id) 
+);
+
+INSERT INTO secuencias (idop, numSecuencia, fechaInicio, fechaFinal, prendasArealizar, prendasFaltantes)
+VALUES (1, 3, '2024-10-01', '2024-10-05', 100, 50);
+
+CREATE TABLE tallas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    secuencia_id INT,
+    talla ENUM('S', 'M', 'L', 'XL') NOT NULL,
+    cantidad INT NOT NULL,
+    FOREIGN KEY (secuencia_id) REFERENCES secuencias(id) ON DELETE CASCADE
+);
+
+
+-- Insertar una nueva secuencia
+INSERT INTO secuencias (idop, numSecuencia, fechaInicio, fechaFinal, prendasArealizar, prendasFaltantes) 
+VALUES (1, 5, '2024-10-01', '2024-10-10', 100, 20);
+-- Obtener el ID de la secuencia recién creada (asumiendo que es el último ID)
+SET @secuencia_id = LAST_INSERT_ID();
+-- Insertar tallas para la nueva secuencia
+INSERT INTO tallas (secuencia_id, talla, cantidad) 
+VALUES 
+(@secuencia_id, 'S', 30),
+(@secuencia_id, 'M', 40);
+
+
+
+
+SELECT s.id, s.numSecuencia, s.fechaInicio, s.fechaFinal, 
+       t.talla, t.cantidad 
+FROM secuencias s 
+LEFT JOIN tallas t ON s.id = t.secuencia_id 
+ORDER BY s.numSecuencia;
+
+
+
+
+
+
+
 
 DELIMITER //
 CREATE PROCEDURE actualizarPorcentaje
