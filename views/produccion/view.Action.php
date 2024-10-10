@@ -99,6 +99,12 @@ $idop = isset($_GET['id']) ? intval($_GET['id']) : 0;
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script>
+
+    $('#createSequenceModal').on('hidden.bs.modal', function () {
+        $(this).find('form')[0].reset(); 
+    });
+
+
     function toggleQuantityInput(checkbox) {
         const talla = checkbox.value;
         const cantidadInput = document.getElementById('cantidad' + talla);

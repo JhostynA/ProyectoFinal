@@ -87,6 +87,12 @@
 
 <script>
 $(document).ready(function() {
+
+  var modalAgregar = document.getElementById('modalAgregar');
+    modalAgregar.addEventListener('hidden.bs.modal', function () {
+        document.getElementById('formAgregar').reset();
+    });
+
     var table = $('#tablaDatos').DataTable({
         "ajax": {
             "url": "../../controllers/operaciones/listar.controllers.php",

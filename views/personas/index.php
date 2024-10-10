@@ -97,6 +97,13 @@
 
 
 <script>
+
+    var modalAgregar = document.getElementById('modalAgregar');
+        modalAgregar.addEventListener('hidden.bs.modal', function () {
+        document.getElementById('formAgregar').reset();
+    });
+
+
     $(document).ready(function(){
         var table = $('#tablaDatos').DataTable({
             "ajax": {

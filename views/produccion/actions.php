@@ -62,42 +62,47 @@
 
 <!-- Modal para crear nueva producción -->
 <div class="modal fade" id="createActionModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Nueva Producción</h5>
-                    <button type="button" class="close" data-dismiss="modal">
-                        <span>&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form method="POST" action="<?= $host ?>/views/produccion/indexP.php?action=create">
-                        <div class="form-group">
-                            <label for="name">OP:</label>
-                            <input type="number" class="form-control" name="nombre" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="fecha_inicio">Fecha de Inicio:</label>
-                            <input type="date" class="form-control" name="fecha_inicio" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="fecha_entrega">Fecha de Entrega:</label>
-                            <input type="date" class="form-control" name="fecha_entrega" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="cantidad_prendas">Cantidad de Prendas:</label>
-                            <input type="number" class="form-control" name="cantidad_prendas" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Guardar</button>
-                    </form>
-                </div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nueva Producción</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="formCreateAction" method="POST" action="<?= $host ?>/views/produccion/indexP.php?action=create">
+                    <div class="form-group">
+                        <label for="name">OP:</label>
+                        <input type="number" class="form-control" name="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="fecha_inicio">Fecha de Inicio:</label>
+                        <input type="date" class="form-control" name="fecha_inicio" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="fecha_entrega">Fecha de Entrega:</label>
+                        <input type="date" class="form-control" name="fecha_entrega" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cantidad_prendas">Cantidad de Prendas:</label>
+                        <input type="number" class="form-control" name="cantidad_prendas" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </form>
             </div>
         </div>
     </div>
+</div>
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script>
+
+    $('#createActionModal').on('hidden.bs.modal', function () {
+        $(this).find('form')[0].reset(); // Limpiar los campos del formulario
+    });
+
     document.getElementById('searchInput').addEventListener('keyup', function() {
     var input = document.getElementById('searchInput').value.toLowerCase();
     var rows = document.getElementById('actionsTable').getElementsByTagName('tr');
@@ -115,7 +120,6 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-    // Obtenemos la fecha actual
     const factual = new Date();
     const anho = factual.getFullYear();
     const mes = String(factual.getMonth() + 1).padStart(2, '0'); 
