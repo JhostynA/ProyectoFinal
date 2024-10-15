@@ -16,10 +16,15 @@ $stmtSecuencias = $conexion->prepare($querySecuencias);
 $stmtSecuencias->execute([$idop]);
 $secuencia = $stmtSecuencias->fetch(PDO::FETCH_ASSOC);
 $totalPrendasAsignadas = $secuencia['totalPrendasAsignadas'];
+
+$querySecuenciasListado = "SELECT * FROM secuencias WHERE idop = ?";
+$stmtSecuenciasListado = $conexion->prepare($querySecuenciasListado);
+$stmtSecuenciasListado->execute([$idop]);
+$secuencias = $stmtSecuenciasListado->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <div class="container mt-5">
-    <h1 class="mb-4" style="text-align: center;">SECUENCIAS - OP <?= htmlspecialchars($action['nombre']) ?></h1>
+    <h1 class="mb-4" style="text-align: center;">SECUENCIAS</h1>
 
     <div class="d-flex justify-content-between mb-3">
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createSequenceModal">
@@ -67,7 +72,7 @@ $totalPrendasAsignadas = $secuencia['totalPrendasAsignadas'];
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="?action=createSequence" onsubmit="return validarFechas();"> 
+                <form method="POST" action="?action=createSequence" onsubmit="return validarFechas() && validarPrendasArealizar();">
                     <input type="hidden" name="idop" value="<?= $idop ?>"> 
                     <div class="form-group">
                         <label for="numSecuencia">Número de Secuencia:</label>
@@ -132,11 +137,6 @@ $totalPrendasAsignadas = $secuencia['totalPrendasAsignadas'];
         });
     });
 
-    var modalAgregar = document.getElementById('createSequenceModal');
-    modalAgregar.addEventListener('hidden.bs.modal', function () {
-        document.getElementById('formAgregar').reset();
-    });
-
     let totalPrendasAsignadas = <?= $totalPrendasAsignadas; ?>; 
     let totalPrendasProduccion = <?= $totalPrendasProduccion; ?>; 
 
@@ -145,7 +145,7 @@ $totalPrendasAsignadas = $secuencia['totalPrendasAsignadas'];
         const sumaTotalPrendas = totalPrendasAsignadas + prendasNuevaSecuencia;
 
         if (sumaTotalPrendas > totalPrendasProduccion) {
-            alert('La cantidad total de prendas a realizar: ' + sumaTotalPrendas + ' supera las prendas de la producción: ' + totalPrendasProduccion + '.');
+            alert('La cantidad total de prendas a realizar (' + sumaTotalPrendas + ') supera las prendas de la producción (' + totalPrendasProduccion + ').');
             return false; 
         }
 
@@ -175,7 +175,7 @@ $totalPrendasAsignadas = $secuencia['totalPrendasAsignadas'];
         });
 
         if (total > totalPrendasProduccion) {
-            alert('La cantidad total de prendas a realizar no puede superar las prendas de la producción ' + totalPrendasProduccion + '.');
+            alert('La cantidad total de prendas a realizar no puede superar las prendas de la producción (' + totalPrendasProduccion + ').');
             return false;
         }
 
