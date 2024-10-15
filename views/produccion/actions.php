@@ -124,15 +124,12 @@
     const anho = factual.getFullYear();
     const mes = String(factual.getMonth() + 1).padStart(2, '0'); 
     const dia = String(factual.getDate()).padStart(2, '0'); 
-    
     const FechaActual = `${anho}-${mes}-${dia}`;
-
     const fechaInicioInput = document.querySelector('input[name="fecha_inicio"]');
     const fechaEntregaInput = document.querySelector('input[name="fecha_entrega"]');
 
     fechaInicioInput.setAttribute('min', FechaActual);
 
-    
     fechaInicioInput.addEventListener('change', function () {
         const selectedFechaInicio = new Date(this.value); 
 

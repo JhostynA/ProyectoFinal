@@ -20,7 +20,7 @@ class ActionModel {
     }    
 
     public function getActions() {
-        $stmt = $this->db->query("SELECT * FROM actions");
+        $stmt = $this->db->query("SELECT * FROM actions ORDER BY created_at DESC;");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
