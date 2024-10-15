@@ -71,10 +71,6 @@ CREATE TABLE colaboradores (
 
 
 
-
-
-
-DROP TABLE actions;
 CREATE TABLE actions (
     id 					INT AUTO_INCREMENT PRIMARY KEY,
     nombre 				VARCHAR(255) NOT NULL,
@@ -84,7 +80,6 @@ CREATE TABLE actions (
     porcentaje 			FLOAT NOT NULL DEFAULT 0,
     created_at 			TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-SELECT * FROM actions;
 
 
 CREATE TABLE secuencias (
@@ -98,9 +93,6 @@ CREATE TABLE secuencias (
     FOREIGN KEY (idop) REFERENCES actions(id) 
 );
 
-INSERT INTO secuencias (idop, numSecuencia, fechaInicio, fechaFinal, prendasArealizar, prendasFaltantes)
-VALUES (1, 3, '2024-10-01', '2024-10-05', 100, 50);
-
 CREATE TABLE tallas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     secuencia_id INT,
@@ -110,34 +102,9 @@ CREATE TABLE tallas (
 );
 
 
--- Insertar una nueva secuencia
-INSERT INTO secuencias (idop, numSecuencia, fechaInicio, fechaFinal, prendasArealizar, prendasFaltantes) 
-VALUES (1, 5, '2024-10-01', '2024-10-10', 100, 20);
--- Obtener el ID de la secuencia recién creada (asumiendo que es el último ID)
-SET @secuencia_id = LAST_INSERT_ID();
--- Insertar tallas para la nueva secuencia
-INSERT INTO tallas (secuencia_id, talla, cantidad) 
-VALUES 
-(@secuencia_id, 'S', 30),
-(@secuencia_id, 'M', 40);
 
 
 
-
-SELECT s.id, s.numSecuencia, s.fechaInicio, s.fechaFinal, 
-       t.talla, t.cantidad 
-FROM secuencias s 
-LEFT JOIN tallas t ON s.id = t.secuencia_id 
-ORDER BY s.numSecuencia;
-
-
-
-
-
-
-
-
-DELIMITER //
 CREATE PROCEDURE actualizarPorcentaje
 (
 	IN action_id INT, 
@@ -153,7 +120,6 @@ BEGIN
     END IF;
 END //
 
-CALL actualizarPorcentaje(1, 0);
 
 
 DELIMITER $$
