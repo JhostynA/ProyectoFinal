@@ -9,7 +9,6 @@ CREATE TABLE operaciones
     CONSTRAINT uk_operacion_ope UNIQUE (operacion)
 );
 
-
 INSERT INTO operaciones (operacion,precio) VALUES
 	('Cerrado de cuello',0.03),
     ('Bordeado de Cuello',0.07),
@@ -28,7 +27,6 @@ INSERT INTO operaciones (operacion,precio) VALUES
     ('Etiqueta',0.03),
     ('Costos fijos',0.336);
 
-
 CREATE TABLE productividad (
     idproductividad 	INT PRIMARY KEY AUTO_INCREMENT,
     nombretarea 		VARCHAR(255) NOT NULL,  
@@ -37,7 +35,6 @@ CREATE TABLE productividad (
     totalprendas 		INT NOT NULL,           
     fecharegistro 		DATETIME NOT NULL DEFAULT NOW()  
 );
-
 
 CREATE TABLE personas (
     idpersona 		INT PRIMARY KEY AUTO_INCREMENT,
@@ -50,6 +47,7 @@ CREATE TABLE personas (
 
 INSERT INTO personas (apepaterno, apematerno, nombres)
 VALUES 
+('Aburto', 'Acevedo', 'Jhostyn'),
 ('Quispe', 'Huamán', 'Juan Carlos'),
 ('Gonzales', 'Cahuana', 'María Elena'),
 ('Soto', 'Yupanqui', 'José Antonio'),
@@ -66,10 +64,6 @@ CREATE TABLE colaboradores (
     CONSTRAINT uk_nomusuario_per UNIQUE (nomusuario),
     FOREIGN KEY (idpersona) REFERENCES personas(idpersona)
 );
-
-
-
-
 
 
 
@@ -151,6 +145,7 @@ BEGIN
 END $$
 DELIMITER $$
 
+CALL spu_colaboradores_registrar(1,'JhostynA','$2y$10$shfcJOApvH8mxR/vm4PupOQ9b5v9vGBXMQnfwDKeJhbOuvWurw/qi');
 
 DELIMITER $$
 CREATE PROCEDURE spu_productividad_registrar(

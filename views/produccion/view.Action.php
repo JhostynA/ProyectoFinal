@@ -24,7 +24,7 @@ $secuencias = $stmtSecuenciasListado->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <div class="container mt-5">
-    <h1 class="mb-4" style="text-align: center;">SECUENCIAS</h1>
+    <h1 class="mb-4" style="text-align: center;">SECUENCIAS - OP <?= htmlspecialchars($action['nombre']) ?></h1>
 
     <div class="d-flex justify-content-between mb-3">
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createSequenceModal">
@@ -76,7 +76,7 @@ $secuencias = $stmtSecuenciasListado->fetchAll(PDO::FETCH_ASSOC);
                     <input type="hidden" name="idop" value="<?= $idop ?>"> 
                     <div class="form-group">
                         <label for="numSecuencia">Número de Secuencia:</label>
-                        <input type="number" class="form-control" name="numSecuencia" required>
+                        <input type="number" class="form-control" name="numSecuencia" min="1" required>
                     </div>
                     <div class="form-group">
                         <label for="fechaInicio">Fecha de Inicio:</label>
@@ -145,7 +145,7 @@ $secuencias = $stmtSecuenciasListado->fetchAll(PDO::FETCH_ASSOC);
         const sumaTotalPrendas = totalPrendasAsignadas + prendasNuevaSecuencia;
 
         if (sumaTotalPrendas > totalPrendasProduccion) {
-            alert('La cantidad total de prendas a realizar (' + sumaTotalPrendas + ') supera las prendas de la producción (' + totalPrendasProduccion + ').');
+            alert('La cantidad total de prendas a realizar: ' + sumaTotalPrendas + ' supera las prendas de la producción: ' + totalPrendasProduccion + '.');
             return false; 
         }
 
