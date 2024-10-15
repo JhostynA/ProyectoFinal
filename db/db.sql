@@ -56,7 +56,6 @@ VALUES
 ('Rojas', 'Chávez', 'Ana Lucía'),
 ('Flores', 'Pachacutec', 'Luis Alberto');
 
-
 CREATE TABLE colaboradores (
     idcolaboradores INT PRIMARY KEY AUTO_INCREMENT,
     idpersona 		INT,
@@ -67,6 +66,9 @@ CREATE TABLE colaboradores (
     CONSTRAINT uk_nomusuario_per UNIQUE (nomusuario),
     FOREIGN KEY (idpersona) REFERENCES personas(idpersona)
 );
+
+
+
 
 
 
@@ -93,6 +95,7 @@ CREATE TABLE secuencias (
     FOREIGN KEY (idop) REFERENCES actions(id) 
 );
 
+
 CREATE TABLE tallas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     secuencia_id INT,
@@ -104,7 +107,7 @@ CREATE TABLE tallas (
 
 
 
-
+DELIMITER //
 CREATE PROCEDURE actualizarPorcentaje
 (
 	IN action_id INT, 
