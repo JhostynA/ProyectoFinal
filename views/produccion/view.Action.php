@@ -2,18 +2,24 @@
 $idop = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
 $conexion = (new Conexion())->getConexion();
-$idProduccion = $_GET['id'];
-$queryProduccion = "SELECT fecha_inicio, fecha_entrega FROM actions WHERE id = ?";
+$queryProduccion = "SELECT fecha_inicio, fecha_entrega, cantidad_prendas FROM actions WHERE id = ?";
 $stmt = $conexion->prepare($queryProduccion);
-$stmt->execute([$idProduccion]);
+$stmt->execute([$idop]);
 $produccion = $stmt->fetch(PDO::FETCH_ASSOC);
 
 $fechaInicioProduccion = $produccion['fecha_inicio'];
 $fechaFinalProduccion = $produccion['fecha_entrega'];
+$totalPrendasProduccion = $produccion['cantidad_prendas']; 
+
+$querySecuencias = "SELECT COALESCE(SUM(prendasArealizar), 0) AS totalPrendasAsignadas FROM secuencias WHERE idop = ?";
+$stmtSecuencias = $conexion->prepare($querySecuencias);
+$stmtSecuencias->execute([$idop]);
+$secuencia = $stmtSecuencias->fetch(PDO::FETCH_ASSOC);
+$totalPrendasAsignadas = $secuencia['totalPrendasAsignadas'];
 ?>
 
 <div class="container mt-5">
-    <h1 class="mb-4" style="text-align: center;">SECUENCIAS</h1>
+    <h1 class="mb-4" style="text-align: center;">SECUENCIAS - OP <?= htmlspecialchars($action['nombre']) ?></h1>
 
     <div class="d-flex justify-content-between mb-3">
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createSequenceModal">
@@ -107,8 +113,7 @@ $fechaFinalProduccion = $produccion['fecha_entrega'];
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script>
-
-document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
         const fechaInicioProduccion = "<?= $fechaInicioProduccion; ?>";
         const fechaFinalProduccion = "<?= $fechaFinalProduccion; ?>";
         const fechaInicioInput = document.querySelector('input[name="fechaInicio"]');
@@ -127,9 +132,25 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    $('#createSequenceModal').on('hidden.bs.modal', function () {
-        $(this).find('form')[0].reset(); 
+    var modalAgregar = document.getElementById('createSequenceModal');
+    modalAgregar.addEventListener('hidden.bs.modal', function () {
+        document.getElementById('formAgregar').reset();
     });
+
+    let totalPrendasAsignadas = <?= $totalPrendasAsignadas; ?>; 
+    let totalPrendasProduccion = <?= $totalPrendasProduccion; ?>; 
+
+    function validarPrendasArealizar() {
+        const prendasNuevaSecuencia = parseInt(document.getElementById('prendasArealizar').value) || 0;
+        const sumaTotalPrendas = totalPrendasAsignadas + prendasNuevaSecuencia;
+
+        if (sumaTotalPrendas > totalPrendasProduccion) {
+            alert('La cantidad total de prendas a realizar: ' + sumaTotalPrendas + ' supera las prendas de la producción: ' + totalPrendasProduccion + '.');
+            return false; 
+        }
+
+        return true; 
+    }
 
     function toggleQuantityInput(checkbox) {
         const talla = checkbox.value;
@@ -153,7 +174,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
+        if (total > totalPrendasProduccion) {
+            alert('La cantidad total de prendas a realizar no puede superar las prendas de la producción ' + totalPrendasProduccion + '.');
+            return false;
+        }
+
         document.getElementById('prendasArealizar').value = total; 
+        return true;
     }
 
     function validarFechas() {
@@ -162,10 +189,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (fechaFinal <= fechaInicio) {
             alert('La fecha final debe ser mayor que la fecha de inicio.');
-            return false; // Evita el envío del formulario
+            return false; 
         }
-        return true; // Permite el envío del formulario
-    }
+        return true; 
+    } 
+
+    
+
 </script>
 
 <?php require_once '../../footer.php'; ?>

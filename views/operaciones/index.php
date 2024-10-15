@@ -189,58 +189,58 @@ $(document).ready(function() {
     });
 
 
-  //PARA ACTUALIZAR UN REGISTRO
+    //PARA ACTUALIZAR UN REGISTRO
 
-  $('#tablaDatos tbody').on('click', '.btnEditar', function() {
-    var idoperacion = $(this).data('idoperacion');
-    
-    $.ajax({
-      url: '../../controllers/operaciones/registroporid.controllers.php',
-      type: 'POST',
-      data: { idoperacion: idoperacion },
-      success: function(response) {
-        var data = JSON.parse(response);
-        
-        if (data.status === 'success') {
-          $('#idEditar').val(data.registro.idoperacion);
-          $('#operacionEditar').val(data.registro.operacion);
-          $('#precioEditar').val(data.registro.precio);
+    $('#tablaDatos tbody').on('click', '.btnEditar', function() {
+      var idoperacion = $(this).data('idoperacion');
+      
+      $.ajax({
+        url: '../../controllers/operaciones/registroporid.controllers.php',
+        type: 'POST',
+        data: { idoperacion: idoperacion },
+        success: function(response) {
+          var data = JSON.parse(response);
           
-          $('#modalEditar').modal('show');
-        } else {
-          alert(data.message);
+          if (data.status === 'success') {
+            $('#idEditar').val(data.registro.idoperacion);
+            $('#operacionEditar').val(data.registro.operacion);
+            $('#precioEditar').val(data.registro.precio);
+            
+            $('#modalEditar').modal('show');
+          } else {
+            alert(data.message);
+          }
         }
-      }
+      });
     });
-  });
 
-  $('#formEditar').submit(function(event) {
-    event.preventDefault();
-    
-    var idoperacion = $('#idEditar').val();
-    var operacion = $('#operacionEditar').val();
-    var precio = $('#precioEditar').val();
-    
-    $.ajax({
-      url: '../../controllers/operaciones/actualizar.controllers.php',
-      type: 'POST',
-      data: {
-        idoperacion: idoperacion,
-        operacion: operacion,
-        precio: precio
-      },
-      success: function(response) {
-        var data = JSON.parse(response);
-        
-        if (data.status === 'success') {
-          $('#modalEditar').modal('hide');
-          table.ajax.reload();
-        } else {
-          alert(data.message);
+    $('#formEditar').submit(function(event) {
+      event.preventDefault();
+      
+      var idoperacion = $('#idEditar').val();
+      var operacion = $('#operacionEditar').val();
+      var precio = $('#precioEditar').val();
+      
+      $.ajax({
+        url: '../../controllers/operaciones/actualizar.controllers.php',
+        type: 'POST',
+        data: {
+          idoperacion: idoperacion,
+          operacion: operacion,
+          precio: precio
+        },
+        success: function(response) {
+          var data = JSON.parse(response);
+          
+          if (data.status === 'success') {
+            $('#modalEditar').modal('hide');
+            table.ajax.reload();
+          } else {
+            alert(data.message);
+          }
         }
-      }
+      });
     });
-  });
 
 
 });
