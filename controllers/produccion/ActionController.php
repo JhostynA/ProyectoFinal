@@ -14,13 +14,16 @@ class ActionController {
             $fecha_inicio = $_POST['fecha_inicio'];
             $fecha_entrega = $_POST['fecha_entrega'];
             $cantidad_prendas = $_POST['cantidad_prendas'];
-            
-            $this->actionModel->createAction($nombre, $fecha_inicio, $fecha_entrega, $cantidad_prendas);
-            header('Location: ../../views/produccion/indexP.php');
-            exit();
+
+            if ($this->actionModel->createAction($nombre, $fecha_inicio, $fecha_entrega, $cantidad_prendas)) {
+                header('Location: ../../views/produccion/indexP.php?success=1');
+                exit();
+            } else {
+                header('Location: ../../views/produccion/indexP.php?error=NombreYaExiste');
+                exit();
+            }
         }
     }
-
 
     public function showActions() {
         $actions = $this->actionModel->getActions();

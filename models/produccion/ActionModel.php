@@ -11,13 +11,22 @@ class ActionModel {
     }
 
     public function createAction($nombre, $fecha_inicio, $fecha_entrega, $cantidad_prendas) {
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM actions WHERE nombre = :nombre");
+        $stmt->bindParam(':nombre', $nombre);
+        $stmt->execute();
+        $count = $stmt->fetchColumn();
+    
+        if ($count > 0) {
+            return false;
+        }
+    
         $stmt = $this->db->prepare("INSERT INTO actions (nombre, fecha_inicio, fecha_entrega, cantidad_prendas) VALUES (:nombre, :fecha_inicio, :fecha_entrega, :cantidad_prendas)");
         $stmt->bindParam(':nombre', $nombre);
         $stmt->bindParam(':fecha_inicio', $fecha_inicio);
         $stmt->bindParam(':fecha_entrega', $fecha_entrega);
         $stmt->bindParam(':cantidad_prendas', $cantidad_prendas);
         return $stmt->execute();
-    }    
+    }  
 
     public function getActions() {
         $stmt = $this->db->query("SELECT * FROM actions ORDER BY created_at DESC;");

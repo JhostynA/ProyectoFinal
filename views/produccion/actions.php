@@ -1,6 +1,10 @@
 <?php require_once '../../contenido.php'; ?>
 
 <div class="container mt-5">
+
+    <!-- Alerta por el momento para informar que el numero de OP ya existe -->
+    <div id="customAlert" style="display:none;"></div>
+
     <h1 class="mb-4 text-center">PRODUCCIÓN</h1>
 
     <div class="d-flex justify-content-between mb-3 align-items-center">
@@ -45,7 +49,7 @@
                                 aria-valuenow="<?= $action['porcentaje'] ?>" 
                                 aria-valuemin="0" 
                                 aria-valuemax="100">
-                                <?= $action['porcentaje'] ?>%
+                                <?= $action['porcentaje'] ?>
                             </div>
                         </div>
                     </td>
@@ -55,7 +59,6 @@
     </table>
 </div>
 
-<!-- Agrega estos enlaces al final de tu archivo antes de cerrar el body -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
@@ -97,7 +100,18 @@
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('error') && urlParams.get('error') === 'NombreYaExiste') {
+            alert('Ya existe una OP con ese numero');
+
+            //Con esto limpiamos la URL, eliminando los parametros
+            const newUrl = window.location.origin + window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+        }
+    });
 
     $('#createActionModal').on('hidden.bs.modal', function () {
         $(this).find('form')[0].reset(); // Limpiar los campos del formulario
