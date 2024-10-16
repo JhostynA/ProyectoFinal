@@ -24,7 +24,7 @@ $secuencias = $stmtSecuenciasListado->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <div class="container mt-5">
-    <h1 class="mb-4" style="text-align: center;">SECUENCIAS - OP <?= htmlspecialchars($action['nombre']) ?></h1>
+    <h1 class="mb-4" style="text-align: center;">OP - <?= htmlspecialchars($action['nombre']) ?></h1>
 
     <div class="d-flex justify-content-between mb-3">
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createSequenceModal">
@@ -128,6 +128,11 @@ $secuencias = $stmtSecuenciasListado->fetchAll(PDO::FETCH_ASSOC);
             window.history.replaceState({}, document.title, newUrl);
         }
     });
+
+    $('#createSequenceModal').on('hidden.bs.modal', function () {
+        $(this).find('form')[0].reset(); // Limpiar los campos del formulario
+    });
+    
 </script>
 
 <script>

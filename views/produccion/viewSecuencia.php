@@ -31,8 +31,8 @@
     </table>
                
     <a href="<?= $host ?>/views/produccion/indexP.php?action=view&id=<?= $secuencia['idop'] ?>" class="btn btn-secondary">Regresar a Secuencias</a>
-
 </div>
+
 
 
 
