@@ -2,9 +2,6 @@
 
 <div class="container mt-5">
 
-    <!-- Alerta por el momento para informar que el numero de OP ya existe -->
-    <div id="customAlert" style="display:none;"></div>
-
     <h1 class="mb-4 text-center">PRODUCCIÓN</h1>
 
     <div class="d-flex justify-content-between mb-3 align-items-center">
@@ -105,7 +102,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('error') && urlParams.get('error') === 'NombreYaExiste') {
-            alert('Ya existe una OP con ese numero');
+            alert('Ya existe una OP con ese número');
 
             //Con esto limpiamos la URL, eliminando los parametros
             const newUrl = window.location.origin + window.location.pathname;

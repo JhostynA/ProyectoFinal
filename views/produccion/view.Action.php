@@ -102,7 +102,7 @@ $secuencias = $stmtSecuenciasListado->fetchAll(PDO::FETCH_ASSOC);
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input" name="tallas[]" value="<?= $talla ?>" id="talla<?= $talla ?>" onchange="toggleQuantityInput(this)">
                             <label class="form-check-label" for="talla<?= $talla ?>"><?= $talla ?></label>
-                            <input type="number" class="form-control mt-2" name="cantidad[<?= $talla ?>]" placeholder="Cantidad" disabled id="cantidad<?= $talla ?>" oninput="updatePrendasArealizar()">
+                            <input type="number" class="form-control mt-2" name="cantidad[<?= $talla ?>]" placeholder="Cantidad" min="1" disabled id="cantidad<?= $talla ?>" oninput="updatePrendasArealizar()">
                         </div>
                     <?php endforeach; ?>
 
@@ -116,6 +116,19 @@ $secuencias = $stmtSecuenciasListado->fetchAll(PDO::FETCH_ASSOC);
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('error') && urlParams.get('error') === 'NumSecuenciaDuplicado') {
+            alert('Ya existe una secuencia con ese número.');
+
+            // Limpiar la URL eliminando los parámetros
+            const newUrl = window.location.origin + window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+        }
+    });
+</script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

@@ -50,18 +50,25 @@ class ActionController {
         $prendasArealizar = $_POST['prendasArealizar'];
         $tallas = isset($_POST['tallas']) ? $_POST['tallas'] : [];
         $cantidades = isset($_POST['cantidad']) ? $_POST['cantidad'] : [];
-        
-        $this->actionModel->createSequence($idop, $numSecuencia, $fechaInicio, $fechaFinal, $prendasArealizar);
-        
+    
+        $sequenceCreated = $this->actionModel->createSequence($idop, $numSecuencia, $fechaInicio, $fechaFinal, $prendasArealizar);
+    
+        if (!$sequenceCreated) {
+            header("Location:../../views/produccion/indexP.php?action=view&id=$idop&error=NumSecuenciaDuplicado");
+            exit();
+        }
+    
         // Obtener el ID de la última secuencia creada
         $lastSequenceId = $this->actionModel->getLastInsertedSequenceId();
     
         foreach ($tallas as $talla) {
-            $cantidad = isset($cantidades[$talla]) ? $cantidades[$talla] : 0; 
+            $cantidad = isset($cantidades[$talla]) ? $cantidades[$talla] : 0;
             $this->actionModel->createTalla($lastSequenceId, $talla, $cantidad);
-        }  
-        header("Location: " . $_SERVER['HTTP_REFERER'] . "?success=1");
+        }
+    
+        header("Location:../../views/produccion/indexP.php?action=view&id=$idop");
         exit();
     }
+    
     
 }

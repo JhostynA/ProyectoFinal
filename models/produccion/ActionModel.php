@@ -61,18 +61,29 @@ class ActionModel {
     }    
     
     public function createSequence($idop, $numSecuencia, $fechaInicio, $fechaFinal, $prendasArealizar) {
-        $prendasFaltantes = $prendasArealizar; 
-
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM secuencias WHERE idop = :idop AND numSecuencia = :numSecuencia");
+        $stmt->bindParam(':idop', $idop);
+        $stmt->bindParam(':numSecuencia', $numSecuencia);
+        $stmt->execute();
+        $count = $stmt->fetchColumn();
+        
+        if ($count > 0) {
+            return false; 
+        }
+    
+        $prendasFaltantes = $prendasArealizar;
+    
         $stmt = $this->db->prepare("INSERT INTO secuencias (idop, numSecuencia, fechaInicio, fechaFinal, prendasArealizar, prendasFaltantes) VALUES (:idop, :numSecuencia, :fechaInicio, :fechaFinal, :prendasArealizar, :prendasFaltantes)");
         $stmt->bindParam(':idop', $idop);
         $stmt->bindParam(':numSecuencia', $numSecuencia);
         $stmt->bindParam(':fechaInicio', $fechaInicio);
         $stmt->bindParam(':fechaFinal', $fechaFinal);
         $stmt->bindParam(':prendasArealizar', $prendasArealizar);
-        $stmt->bindParam(':prendasFaltantes', $prendasFaltantes); 
-
-        return $stmt->execute(); 
+        $stmt->bindParam(':prendasFaltantes', $prendasFaltantes);
+    
+        return $stmt->execute();
     }
+    
 
     public function getLastInsertedSequenceId() {
         return $this->db->lastInsertId();
