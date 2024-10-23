@@ -72,6 +72,10 @@ CREATE TABLE actions (
     nombre 				VARCHAR(255) NOT NULL,
     fecha_inicio 		DATE NOT NULL,
     fecha_entrega 		DATE NOT NULL,
+    talla_s 			INT NOT NULL DEFAULT 0,
+	talla_m 			INT NOT NULL DEFAULT 0,
+	talla_l 			INT NOT NULL DEFAULT 0,
+	talla_xl 			INT NOT NULL DEFAULT 0,
     cantidad_prendas 	INT NOT NULL,
     porcentaje 			FLOAT NOT NULL DEFAULT 0,
     created_at 			TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -79,22 +83,28 @@ CREATE TABLE actions (
 
 
 CREATE TABLE secuencias (
-    id 					INT AUTO_INCREMENT PRIMARY KEY,
-    idop 				INT, 
-    numSecuencia 		INT NOT NULL,
-    fechaInicio 		DATE NOT NULL,
-    fechaFinal 			DATE NOT NULL,
-    prendasArealizar 	INT NOT NULL,
-    prendasFaltantes 	INT NOT NULL,
-    FOREIGN KEY (idop) REFERENCES actions(id) 
-);
+    id                     INT AUTO_INCREMENT PRIMARY KEY,
+    idop                   INT,
+    numSecuencia           INT NOT NULL,
+    fechaInicio            DATE NOT NULL,
+    fechaFinal             DATE NOT NULL,
+    prendasArealizar       INT NOT NULL,
+    prendasFaltantes       INT NOT NULL,
+    talla_s                INT NULL DEFAULT 0,  
+    talla_m                INT NULL DEFAULT 0,  
+    talla_l                INT NULL DEFAULT 0, 
+    talla_xl               INT NULL DEFAULT 0, 
+    FOREIGN KEY (idop) REFERENCES actions(id)
+);                          
 
+SELECT * FROM secuencias;
 
 CREATE TABLE tallas (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    secuencia_id INT,
-    talla ENUM('S', 'M', 'L', 'XL') NOT NULL,
-    cantidad INT NOT NULL,
+    id 				INT AUTO_INCREMENT PRIMARY KEY,
+    secuencia_id 	INT,
+    talla 			ENUM('S', 'M', 'L', 'XL') NOT NULL,
+    cantidad 		INT NOT NULL,
+    realizadas 		INT NOT NULL DEFAULT 0,
     FOREIGN KEY (secuencia_id) REFERENCES secuencias(id) ON DELETE CASCADE
 );
 

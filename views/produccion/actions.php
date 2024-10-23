@@ -20,6 +20,10 @@
                 <th>OP</th>
                 <th>Fecha Inicio</th>
                 <th>Fecha Entrega</th>
+                <th>Talla S</th>
+                <th>Talla M</th>
+                <th>Talla L</th>
+                <th>Talla XL</th>
                 <th>Total Prendas</th>
                 <th>Progreso</th>
             </tr>
@@ -34,7 +38,11 @@
                     </td>
                     <td><?= htmlspecialchars($action['fecha_inicio']) ?></td>
                     <td><?= htmlspecialchars($action['fecha_entrega']) ?></td>
-                    <td><?= htmlspecialchars($action['cantidad_prendas']) ?></td>
+                    <td><?= htmlspecialchars($action['talla_s']) ?></td>
+                    <td><?= htmlspecialchars($action['talla_m']) ?></td>
+                    <td><?= htmlspecialchars($action['talla_l']) ?></td>
+                    <td><?= htmlspecialchars($action['talla_xl']) ?></td>
+                    <td><?= htmlspecialchars($action['talla_s'] + $action['talla_m'] + $action['talla_l'] + $action['talla_xl']) ?></td>
                     <td>
                         <div class="progress" style="height: 20px;">
                             <div class="progress-bar progress-bar-striped progress-bar-animated
@@ -58,7 +66,6 @@
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
 
 <!-- Modal para crear nueva producción -->
 <div class="modal fade" id="createActionModal" tabindex="-1">
@@ -85,8 +92,20 @@
                         <input type="date" class="form-control" name="fecha_entrega" required>
                     </div>
                     <div class="form-group">
-                        <label for="cantidad_prendas">Cantidad de Prendas:</label>
-                        <input type="number" class="form-control" name="cantidad_prendas" required>
+                        <label for="talla_s">Cantidad Talla S:</label>
+                        <input type="number" class="form-control" name="talla_s" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="talla_m">Cantidad Talla M:</label>
+                        <input type="number" class="form-control" name="talla_m" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="talla_l">Cantidad Talla L:</label>
+                        <input type="number" class="form-control" name="talla_l" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="talla_xl">Cantidad Talla XL:</label>
+                        <input type="number" class="form-control" name="talla_xl" min="0" required>
                     </div>
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </form>
@@ -94,9 +113,6 @@
         </div>
     </div>
 </div>
-
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -115,71 +131,54 @@
     });
 
     document.getElementById('searchInput').addEventListener('keyup', function() {
-    var input = document.getElementById('searchInput').value.toLowerCase();
-    var rows = document.getElementById('actionsTable').getElementsByTagName('tr');
+        var input = document.getElementById('searchInput').value.toLowerCase();
+        var rows = document.getElementById('actionsTable').getElementsByTagName('tr');
 
-    for (var i = 1; i < rows.length; i++) {
-        var nombre = rows[i].getElementsByTagName('td')[0];
-        if (nombre) {
-            var txtValue = nombre.textContent || nombre.innerText;
-            rows[i].style.display = txtValue.toLowerCase().indexOf(input) > -1 ? "" : "none";
-        }
-    }
-
-    });
-</script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-    const factual = new Date();
-    const anho = factual.getFullYear();
-    const mes = String(factual.getMonth() + 1).padStart(2, '0'); 
-    const dia = String(factual.getDate()).padStart(2, '0'); 
-    const FechaActual = `${anho}-${mes}-${dia}`;
-    const fechaInicioInput = document.querySelector('input[name="fecha_inicio"]');
-    const fechaEntregaInput = document.querySelector('input[name="fecha_entrega"]');
-
-    fechaInicioInput.setAttribute('min', FechaActual);
-
-    fechaInicioInput.addEventListener('change', function () {
-        const selectedFechaInicio = new Date(this.value); 
-
-        if (!isNaN(selectedFechaInicio.getTime())) {
-            const fechaMinimaEntrega = selectedFechaInicio.toISOString().split('T')[0];
-            fechaEntregaInput.setAttribute('min', fechaMinimaEntrega);
-
-            if (new Date(fechaEntregaInput.value) < selectedFechaInicio) {
-                fechaEntregaInput.value = '';
+        for (var i = 1; i < rows.length; i++) {
+            var nombre = rows[i].getElementsByTagName('td')[0];
+            if (nombre) {
+                var txtValue = nombre.textContent || nombre.innerText;
+                rows[i].style.display = txtValue.toLowerCase().indexOf(input) > -1 ? "" : "none";
             }
         }
     });
 
-    // Validar la cantidad de prendas antes de enviar el formulario
-    const cantidadPrendasInput = document.querySelector('input[name="cantidad_prendas"]');
-    const form = cantidadPrendasInput.closest('form');
+    document.addEventListener('DOMContentLoaded', function () {
+        const factual = new Date();
+        const anho = factual.getFullYear();
+        const mes = String(factual.getMonth() + 1).padStart(2, '0'); 
+        const dia = String(factual.getDate()).padStart(2, '0'); 
+        const FechaActual = `${anho}-${mes}-${dia}`;
+        const fechaInicioInput = document.querySelector('input[name="fecha_inicio"]');
+        const fechaEntregaInput = document.querySelector('input[name="fecha_entrega"]');
 
-    form.addEventListener('submit', function(event) {
-        const cantidadPrendas = parseInt(cantidadPrendasInput.value, 10);
-        if (cantidadPrendas <= 0) {
-            event.preventDefault();
-            alert('La cantidad de prendas debe ser mayor a 0');
-        }
+        fechaInicioInput.setAttribute('min', FechaActual);
+
+        fechaInicioInput.addEventListener('change', function () {
+            const selectedFechaInicio = new Date(this.value); 
+
+            if (!isNaN(selectedFechaInicio.getTime())) {
+                const fechaMinimaEntrega = selectedFechaInicio.toISOString().split('T')[0];
+                fechaEntregaInput.setAttribute('min', fechaMinimaEntrega);
+
+                if (new Date(fechaEntregaInput.value) < selectedFechaInicio) {
+                    fechaEntregaInput.value = '';
+                }
+            }
+        });
+
+        // Validar que el OP sea mayor a 0
+        const opInput = document.querySelector('input[name="nombre"]');
+        const form = opInput.closest('form');
+        form.addEventListener('submit', function(event){
+            const op = parseInt(opInput.value, 10);
+            if(op <= 0){
+                event.preventDefault();
+                alert('La OP debe ser mayor a 0');
+            }
+        });
     });
-
-    //Validar que el OP sea mayor a 0
-    const opInput = document.querySelector('input[name="nombre"]');
-    form.addEventListener('submit', function(event){
-        const op = parseInt(opInput.value, 10);
-        if(op <= 0){
-            event.preventDefault();
-            alert('La OP debe ser mayor a 0');
-        }
-    })
-});
-
-
 </script>
-
 
 <?php require_once '../../footer.php'; ?>
 

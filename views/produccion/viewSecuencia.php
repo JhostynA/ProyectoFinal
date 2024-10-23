@@ -18,7 +18,7 @@
                 <tr>
                     <td><?= htmlspecialchars($talla['talla']) ?></td>
                     <td><?= htmlspecialchars($talla['cantidad']) ?></td> 
-                    <td>0</td>
+                    <td><?= htmlspecialchars($talla['realizadas']) ?></td>
                     <td>
                         <button class="btn btn-info btn-sm" onclick="mostrarKardex(<?= htmlspecialchars($talla['id']) ?>)">Kardex</button>
                     </td>

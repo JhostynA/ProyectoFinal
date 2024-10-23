@@ -2,29 +2,36 @@
 $idop = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
 $conexion = (new Conexion())->getConexion();
-$queryProduccion = "SELECT fecha_inicio, fecha_entrega, cantidad_prendas FROM actions WHERE id = ?";
+$queryProduccion = "SELECT fecha_inicio, fecha_entrega, talla_s, talla_m, talla_l, talla_xl FROM actions WHERE id = ?";
 $stmt = $conexion->prepare($queryProduccion);
 $stmt->execute([$idop]);
 $produccion = $stmt->fetch(PDO::FETCH_ASSOC);
 
 $fechaInicioProduccion = $produccion['fecha_inicio'];
-$fechaFinalProduccion = $produccion['fecha_entrega'];
-$totalPrendasProduccion = $produccion['cantidad_prendas']; 
+$fechaFinalProduccion = $produccion['fecha_entrega']; 
+$cantidadTotalTS = $produccion['talla_s'];
+$cantidadTotalTM = $produccion['talla_m'];
+$cantidadTotalTL = $produccion['talla_l'];
+$cantidadTotalTXL = $produccion['talla_xl'];
 
-$querySecuencias = "SELECT COALESCE(SUM(prendasArealizar), 0) AS totalPrendasAsignadas FROM secuencias WHERE idop = ?";
+$querySecuencias = "SELECT * FROM secuencias WHERE idop = ?";
 $stmtSecuencias = $conexion->prepare($querySecuencias);
 $stmtSecuencias->execute([$idop]);
-$secuencia = $stmtSecuencias->fetch(PDO::FETCH_ASSOC);
-$totalPrendasAsignadas = $secuencia['totalPrendasAsignadas'];
+$secuencias = $stmtSecuencias->fetchAll(PDO::FETCH_ASSOC);
 
-$querySecuenciasListado = "SELECT * FROM secuencias WHERE idop = ?";
-$stmtSecuenciasListado = $conexion->prepare($querySecuenciasListado);
-$stmtSecuenciasListado->execute([$idop]);
-$secuencias = $stmtSecuenciasListado->fetchAll(PDO::FETCH_ASSOC);
+$queryPrendasRealizadas = "SELECT SUM(talla_s) as total_talla_s, SUM(talla_m) as total_talla_m, SUM(talla_l) as total_talla_l, SUM(talla_xl) as total_talla_xl FROM secuencias WHERE idop = ?";
+$stmtPrendasRealizadas = $conexion->prepare($queryPrendasRealizadas);
+$stmtPrendasRealizadas->execute([$idop]);
+$prendasRealizadas = $stmtPrendasRealizadas->fetch(PDO::FETCH_ASSOC);
+$prendasRealizadasS = intval($prendasRealizadas['total_talla_s']);
+$prendasRealizadasM = intval($prendasRealizadas['total_talla_m']);
+$prendasRealizadasL = intval($prendasRealizadas['total_talla_l']);
+$prendasRealizadasXL = intval($prendasRealizadas['total_talla_xl']);
+
 ?>
 
 <div class="container mt-5">
-    <h1 class="mb-4" style="text-align: center;">SECUENCIAS - OP <?= htmlspecialchars($action['nombre']) ?></h1>
+    <!-- <h1 class="mb-4" style="text-align: center;">SECUENCIAS - OP <?= htmlspecialchars($produccion['nombre']) ?></h1> -->
 
     <div class="d-flex justify-content-between mb-3">
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createSequenceModal">
@@ -72,7 +79,7 @@ $secuencias = $stmtSecuenciasListado->fetchAll(PDO::FETCH_ASSOC);
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="?action=createSequence" onsubmit="return validarFechas() && validarPrendasArealizar();">
+            <form method="POST" action="?action=createSequence" onsubmit="return validarFechas() && validarTallas();">
                     <input type="hidden" name="idop" value="<?= $idop ?>"> 
                     <div class="form-group">
                         <label for="numSecuencia">Número de Secuencia:</label>
@@ -81,30 +88,35 @@ $secuencias = $stmtSecuenciasListado->fetchAll(PDO::FETCH_ASSOC);
                     <div class="form-group">
                         <label for="fechaInicio">Fecha de Inicio:</label>
                         <input type="date" class="form-control" name="fechaInicio" id="fechaInicio" 
-                            min="<?php echo ($fechaInicioProduccion); ?>" 
-                            max="<?php echo ($fechaFinalProduccion); ?>" 
+                            min="<?= htmlspecialchars($fechaInicioProduccion); ?>" 
+                            max="<?= htmlspecialchars($fechaFinalProduccion); ?>" 
                             required>
                     </div>
                     <div class="form-group">
                         <label for="fechaFinal">Fecha Final:</label>
                         <input type="date" class="form-control" name="fechaFinal" id="fechaFinal" 
-                               min="<?php echo $fechaInicioProduccion; ?>" 
-                               max="<?php echo $fechaFinalProduccion; ?>" 
+                               min="<?= htmlspecialchars($fechaInicioProduccion); ?>" 
+                               max="<?= htmlspecialchars($fechaFinalProduccion); ?>" 
                                required>
                     </div>
-                    <div class="form-group" style="display: none;">
-                        <input type="number" class="form-control" name="prendasArealizar" id="prendasArealizar" required readonly>
+
+                    <div class="form-group">
+                        <input type="checkbox" value="s" onchange="toggleQuantityInput(this)"> Talla S
+                        <input type="number" class="form-control" id="cantidadS" name="talla_s" min="0" disabled>
                     </div>
-                    <label>Tallas:</label>
-                    <?php
-                    $tallasDisponibles = ['S', 'M', 'L', 'XL']; 
-                    foreach ($tallasDisponibles as $talla): ?>
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" name="tallas[]" value="<?= $talla ?>" id="talla<?= $talla ?>" onchange="toggleQuantityInput(this)">
-                            <label class="form-check-label" for="talla<?= $talla ?>"><?= $talla ?></label>
-                            <input type="number" class="form-control mt-2" name="cantidad[<?= $talla ?>]" placeholder="Cantidad" min="1" disabled id="cantidad<?= $talla ?>" oninput="updatePrendasArealizar()">
-                        </div>
-                    <?php endforeach; ?>
+                    <div class="form-group">
+                        <input type="checkbox" value="m" onchange="toggleQuantityInput(this)"> Talla M
+                        <input type="number" class="form-control" id="cantidadM" name="talla_m" min="0" disabled>
+                    </div>
+                    <div class="form-group">
+                        <input type="checkbox" value="l" onchange="toggleQuantityInput(this)"> Talla L
+                        <input type="number" class="form-control" id="cantidadL" name="talla_l" min="0" disabled>
+                    </div>
+                    <div class="form-group">
+                        <input type="checkbox" value="xl" onchange="toggleQuantityInput(this)"> Talla XL
+                        <input type="number" class="form-control" id="cantidadXL" name="talla_xl" min="0" disabled>
+                    </div>
+
 
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </form>
@@ -131,69 +143,10 @@ $secuencias = $stmtSecuenciasListado->fetchAll(PDO::FETCH_ASSOC);
 </script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const fechaInicioProduccion = "<?= $fechaInicioProduccion; ?>";
-        const fechaFinalProduccion = "<?= $fechaFinalProduccion; ?>";
-        const fechaInicioInput = document.querySelector('input[name="fechaInicio"]');
-        const fechaEntregaInput = document.querySelector('input[name="fechaFinal"]');
-
-        [fechaInicioInput, fechaEntregaInput].forEach(input => {
-            input.setAttribute('min', fechaInicioProduccion);
-            input.setAttribute('max', fechaFinalProduccion);
-        });
-
-        fechaInicioInput.addEventListener('change', function() {
-            fechaEntregaInput.setAttribute('min', this.value);
-            if (new Date(fechaEntregaInput.value) < new Date(this.value)) {
-                fechaEntregaInput.value = '';
-            }
-        });
-    });
-
-    let totalPrendasAsignadas = <?= $totalPrendasAsignadas; ?>; 
-    let totalPrendasProduccion = <?= $totalPrendasProduccion; ?>; 
-
-    function validarPrendasArealizar() {
-        const prendasNuevaSecuencia = parseInt(document.getElementById('prendasArealizar').value) || 0;
-        const sumaTotalPrendas = totalPrendasAsignadas + prendasNuevaSecuencia;
-
-        if (sumaTotalPrendas > totalPrendasProduccion) {
-            alert('La cantidad total de prendas a realizar: ' + sumaTotalPrendas + ' supera las prendas de la producción: ' + totalPrendasProduccion + '.');
-            return false; 
-        }
-
-        return true; 
-    }
-
     function toggleQuantityInput(checkbox) {
         const talla = checkbox.value;
-        const cantidadInput = document.getElementById('cantidad' + talla);
+        const cantidadInput = document.getElementById('cantidad' + talla.toUpperCase());
         cantidadInput.disabled = !checkbox.checked;
-
-        if (!checkbox.checked) {
-            cantidadInput.value = 0; 
-            updatePrendasArealizar();
-        }
-    }
-
-    function updatePrendasArealizar() {
-        const tallasDisponibles = ['S', 'M', 'L', 'XL'];
-        let total = 0;
-
-        tallasDisponibles.forEach(talla => {
-            const cantidadInput = document.getElementById('cantidad' + talla);
-            if (!cantidadInput.disabled) {
-                total += parseInt(cantidadInput.value) || 0; 
-            }
-        });
-
-        if (total > totalPrendasProduccion) {
-            alert('La cantidad total de prendas a realizar no puede superar las prendas de la producción (' + totalPrendasProduccion + ').');
-            return false;
-        }
-
-        document.getElementById('prendasArealizar').value = total; 
-        return true;
     }
 
     function validarFechas() {
@@ -207,7 +160,52 @@ $secuencias = $stmtSecuenciasListado->fetchAll(PDO::FETCH_ASSOC);
         return true; 
     } 
 
-    
+    const cantidadTotalTS = <?= $cantidadTotalTS ?>;
+    const cantidadTotalTM = <?= $cantidadTotalTM ?>;
+    const cantidadTotalTL = <?= $cantidadTotalTL ?>;
+    const cantidadTotalTXL = <?= $cantidadTotalTXL ?>;
+
+    const prendasRealizadasS = <?= $prendasRealizadasS ?>;
+    const prendasRealizadasM = <?= $prendasRealizadasM ?>;
+    const prendasRealizadasL = <?= $prendasRealizadasL ?>;
+    const prendasRealizadasXL = <?= $prendasRealizadasXL ?>;
+
+    function validarTallas() {
+        const cantidadS = parseInt(document.getElementById('cantidadS').value) || 0;
+        const cantidadM = parseInt(document.getElementById('cantidadM').value) || 0;
+        const cantidadL = parseInt(document.getElementById('cantidadL').value) || 0;
+        const cantidadXL = parseInt(document.getElementById('cantidadXL').value) || 0;
+
+        // Verificar que la suma de prendas ya realizadas y las que se quieren registrar no exceda el total de la producción
+        if ((prendasRealizadasS + cantidadS) > cantidadTotalTS) {
+            alert('La cantidad de prendas para la talla S supera el total permitido para la producción.');
+            return false;
+        }
+
+        if ((prendasRealizadasM + cantidadM) > cantidadTotalTM) {
+            alert('La cantidad de prendas para la talla M supera el total permitido para la producción.');
+            return false;
+        }
+
+        if ((prendasRealizadasL + cantidadL) > cantidadTotalTL) {
+            alert('La cantidad de prendas para la talla L supera el total permitido para la producción.');
+            return false;
+        }
+
+        if ((prendasRealizadasXL + cantidadXL) > cantidadTotalTXL) {
+            alert('La cantidad de prendas para la talla XL supera el total permitido para la producción.');
+            return false;
+        }
+
+        /* 
+        * DEBO CONVALIDAR QUE SI EL FORMULARIO ESTA VACIDO, NO DEBE GUARDAR NADA
+        */
+
+
+        return true;
+    }
+
+
 
 </script>
 
