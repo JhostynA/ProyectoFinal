@@ -2,7 +2,6 @@
 $idop = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
 $conexion = (new Conexion())->getConexion();
-
 $querySecuencias = "SELECT * FROM tallas WHERE secuencia_id = ?";
 $stmtSecuencias = $conexion->prepare($querySecuencias);
 $stmtSecuencias->execute([$idop]);
