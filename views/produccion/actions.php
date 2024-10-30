@@ -93,19 +93,19 @@
                     </div>
                     <div class="form-group">
                         <label for="talla_s">Cantidad Talla S:</label>
-                        <input type="number" class="form-control" name="talla_s" min="0" required>
+                        <input type="number" class="form-control" name="talla_s" min="0" >
                     </div>
                     <div class="form-group">
                         <label for="talla_m">Cantidad Talla M:</label>
-                        <input type="number" class="form-control" name="talla_m" min="0" required>
+                        <input type="number" class="form-control" name="talla_m" min="0" >
                     </div>
                     <div class="form-group">
                         <label for="talla_l">Cantidad Talla L:</label>
-                        <input type="number" class="form-control" name="talla_l" min="0" required>
+                        <input type="number" class="form-control" name="talla_l" min="0" >
                     </div>
                     <div class="form-group">
                         <label for="talla_xl">Cantidad Talla XL:</label>
-                        <input type="number" class="form-control" name="talla_xl" min="0" required>
+                        <input type="number" class="form-control" name="talla_xl" min="0" >
                     </div>
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </form>

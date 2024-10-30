@@ -97,16 +97,40 @@ CREATE TABLE secuencias (
     FOREIGN KEY (idop) REFERENCES actions(id)
 );                          
 
-SELECT * FROM secuencias;
 
 CREATE TABLE tallas (
     id 				INT AUTO_INCREMENT PRIMARY KEY,
     secuencia_id 	INT,
-    talla 			ENUM('S', 'M', 'L', 'XL') NOT NULL,
+    talla_s         INT NULL DEFAULT 0,  
+    talla_m         INT NULL DEFAULT 0,  
+    talla_l         INT NULL DEFAULT 0, 
+    talla_xl        INT NULL DEFAULT 0, 
     cantidad 		INT NOT NULL,
     realizadas 		INT NOT NULL DEFAULT 0,
     FOREIGN KEY (secuencia_id) REFERENCES secuencias(id) ON DELETE CASCADE
 );
+
+
+CREATE VIEW vista_tallas_secuencia AS
+SELECT 
+    s.id AS secuencia_id,
+    s.numSecuencia,
+    s.fechaInicio,
+    s.fechaFinal,
+    t.id AS talla_id,
+    t.talla_s,
+    t.talla_m,
+    t.talla_l,
+    t.talla_xl,
+    t.cantidad,
+    t.realizadas
+FROM 
+    secuencias s
+JOIN 
+    tallas t ON s.id = t.secuencia_id;
+
+
+SELECT * FROM vista_tallas_secuencia WHERE secuencia_id = 1;
 
 
 

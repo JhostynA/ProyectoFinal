@@ -179,39 +179,38 @@ $prendasRealizadasXL = intval($prendasRealizadas['total_talla_xl']);
     const prendasRealizadasXL = <?= $prendasRealizadasXL ?>;
 
     function validarTallas() {
-        const cantidadS = parseInt(document.getElementById('cantidadS').value) || 0;
-        const cantidadM = parseInt(document.getElementById('cantidadM').value) || 0;
-        const cantidadL = parseInt(document.getElementById('cantidadL').value) || 0;
-        const cantidadXL = parseInt(document.getElementById('cantidadXL').value) || 0;
+    const cantidadS = parseInt(document.getElementById('cantidadS').value) || 0;
+    const cantidadM = parseInt(document.getElementById('cantidadM').value) || 0;
+    const cantidadL = parseInt(document.getElementById('cantidadL').value) || 0;
+    const cantidadXL = parseInt(document.getElementById('cantidadXL').value) || 0;
 
-        // Verificar que la suma de prendas ya realizadas y las que se quieren registrar no exceda el total de la producción
-        if ((prendasRealizadasS + cantidadS) > cantidadTotalTS) {
-            alert('La cantidad de prendas para la talla S supera el total permitido para la producción.');
-            return false;
-        }
-
-        if ((prendasRealizadasM + cantidadM) > cantidadTotalTM) {
-            alert('La cantidad de prendas para la talla M supera el total permitido para la producción.');
-            return false;
-        }
-
-        if ((prendasRealizadasL + cantidadL) > cantidadTotalTL) {
-            alert('La cantidad de prendas para la talla L supera el total permitido para la producción.');
-            return false;
-        }
-
-        if ((prendasRealizadasXL + cantidadXL) > cantidadTotalTXL) {
-            alert('La cantidad de prendas para la talla XL supera el total permitido para la producción.');
-            return false;
-        }
-
-        /* 
-        * DEBO CONVALIDAR QUE SI EL FORMULARIO ESTA VACIDO, NO DEBE GUARDAR NADA
-        */
-
-
-        return true;
+    // Verifica que al menos un campo de talla tenga una cantidad mayor a cero
+    if (cantidadS === 0 && cantidadM === 0 && cantidadL === 0 && cantidadXL === 0) {
+        alert('Debe ingresar una cantidad para al menos una talla.');
+        return false;
     }
+    
+    // Validaciones de cantidad máxima
+    if ((prendasRealizadasS + cantidadS) > cantidadTotalTS) {
+        alert('La cantidad de prendas para la talla S supera el total permitido para la producción.');
+        return false;
+    }
+    if ((prendasRealizadasM + cantidadM) > cantidadTotalTM) {
+        alert('La cantidad de prendas para la talla M supera el total permitido para la producción.');
+        return false;
+    }
+    if ((prendasRealizadasL + cantidadL) > cantidadTotalTL) {
+        alert('La cantidad de prendas para la talla L supera el total permitido para la producción.');
+        return false;
+    }
+    if ((prendasRealizadasXL + cantidadXL) > cantidadTotalTXL) {
+        alert('La cantidad de prendas para la talla XL supera el total permitido para la producción.');
+        return false;
+    }
+
+    return true;
+}
+
 
 
 
