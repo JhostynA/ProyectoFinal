@@ -20,12 +20,20 @@
                 <th>OP</th>
                 <th>Fecha Inicio</th>
                 <th>Fecha Entrega</th>
-                <th>Talla S</th>
-                <th>Talla M</th>
-                <th>Talla L</th>
-                <th>Talla XL</th>
+                <th colspan="4" class="text-center">Tallas</th> <!-- Cabezal para Tallas -->
                 <th>Total Prendas</th>
                 <th>Progreso</th>
+            </tr>
+            <tr>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th>S</th>
+                <th>M</th>
+                <th>L</th>
+                <th>XL</th>
+                <th></th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -93,19 +101,19 @@
                     </div>
                     <div class="form-group">
                         <label for="talla_s">Cantidad Talla S:</label>
-                        <input type="number" class="form-control" name="talla_s" min="0" >
+                        <input type="number" class="form-control" name="talla_s" min="0">
                     </div>
                     <div class="form-group">
                         <label for="talla_m">Cantidad Talla M:</label>
-                        <input type="number" class="form-control" name="talla_m" min="0" >
+                        <input type="number" class="form-control" name="talla_m" min="0">
                     </div>
                     <div class="form-group">
                         <label for="talla_l">Cantidad Talla L:</label>
-                        <input type="number" class="form-control" name="talla_l" min="0" >
+                        <input type="number" class="form-control" name="talla_l" min="0">
                     </div>
                     <div class="form-group">
                         <label for="talla_xl">Cantidad Talla XL:</label>
-                        <input type="number" class="form-control" name="talla_xl" min="0" >
+                        <input type="number" class="form-control" name="talla_xl" min="0">
                     </div>
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </form>
