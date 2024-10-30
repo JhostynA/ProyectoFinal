@@ -74,14 +74,13 @@ class ActionModel {
             return false; 
         }
 
-        // Validar que las cantidades por talla no excedan las disponibles en la producción
         $stmt = $this->db->prepare("SELECT talla_s, talla_m, talla_l, talla_xl FROM actions WHERE id = :idop");
         $stmt->bindParam(':idop', $idop);
         $stmt->execute();
         $action = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($talla_s > $action['talla_s'] || $talla_m > $action['talla_m'] || $talla_l > $action['talla_l'] || $talla_xl > $action['talla_xl']) {
-            return false; // La cantidad de alguna talla excede la cantidad disponible
+            return false;
         }
 
         $prendasFaltantes = $prendasArealizar;

@@ -13,7 +13,6 @@ class ActionController {
             $fecha_inicio = $_POST['fecha_inicio'];
             $fecha_entrega = $_POST['fecha_entrega'];
             
-            // Obtener las cantidades de tallas
             $talla_s = isset($_POST['talla_s']) ? $_POST['talla_s'] : 0;
             $talla_m = isset($_POST['talla_m']) ? $_POST['talla_m'] : 0;
             $talla_l = isset($_POST['talla_l']) ? $_POST['talla_l'] : 0;
@@ -53,7 +52,6 @@ class ActionController {
             $fechaInicio = $_POST['fechaInicio'];
             $fechaFinal = $_POST['fechaFinal'];
     
-            // Obtener las cantidades de tallas, asegurando que se manejen las tallas no ingresadas
             $talla_s = isset($_POST['talla_s']) ? (int)$_POST['talla_s'] : 0;
             $talla_m = isset($_POST['talla_m']) ? (int)$_POST['talla_m'] : 0;
             $talla_l = isset($_POST['talla_l']) ? (int)$_POST['talla_l'] : 0;
@@ -61,7 +59,6 @@ class ActionController {
     
             $prendasArealizar = $talla_s + $talla_m + $talla_l + $talla_xl;
     
-            // Crear la secuencia en el modelo
             $sequenceCreated = $this->actionModel->createSequence($idop, $numSecuencia, $fechaInicio, $fechaFinal, $prendasArealizar, $talla_s, $talla_m, $talla_l, $talla_xl);
     
             if (!$sequenceCreated) {
@@ -72,10 +69,8 @@ class ActionController {
             // Obtener el ID de la última secuencia creada
             $lastSequenceId = $this->actionModel->getLastInsertedSequenceId();
     
-            // Insertar tallas en la tabla tallas solo si el valor es mayor a 0
-            $realizadas = 0; // O el valor que necesites para 'realizadas'
+            $realizadas = 0; 
     
-            // Insertar tallas solo si tienen valores
             $this->actionModel->createTalla($lastSequenceId, $talla_s, $talla_m, $talla_l, $talla_xl, $prendasArealizar, $realizadas);
     
             header("Location:../../views/produccion/indexP.php?action=view&id=$idop");

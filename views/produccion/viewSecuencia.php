@@ -1,4 +1,14 @@
-<?php require_once '../../contenido.php'; ?>
+<?php require_once '../../contenido.php'; 
+$idop = isset($_GET['id']) ? intval($_GET['id']) : 0;
+
+$conexion = (new Conexion())->getConexion();
+
+$querySecuencias = "SELECT * FROM tallas WHERE secuencia_id = ?";
+$stmtSecuencias = $conexion->prepare($querySecuencias);
+$stmtSecuencias->execute([$idop]);
+$tallas = $stmtSecuencias->fetch(PDO::FETCH_ASSOC);
+
+?>
 
 <div class="container mt-5">
     <h1 class="mb-4" style="text-align: center;">TALLAS</h1>
