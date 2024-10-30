@@ -92,6 +92,14 @@ $host = "http://localhost/LinoFino";
                             <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
                             Operaciones
                         </a>
+                        <a class="nav-link" href="<?= $host ?>/views/pagos/">
+                            <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
+                            Pagos
+                        </a>
+                        <a class="nav-link" href="<?= $host ?>/views/apoyo/">
+                            <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
+                            Apoyo
+                        </a>
                     </div>
                 </div>
             </nav>
