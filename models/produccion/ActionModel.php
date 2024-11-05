@@ -48,8 +48,15 @@ class ActionModel {
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':actionId', $actionId);
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }    
+    
+        // Verifica si se recuperan datos
+        $sequences = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if (!$sequences) {
+            error_log("No se encontraron secuencias para la OP con ID: $actionId");
+        }
+        return $sequences;
+    }
+       
     
     public function getSecuenciaById($id) {
         $stmt = $this->db->prepare("SELECT * FROM secuencias WHERE id = ?");
@@ -63,31 +70,42 @@ class ActionModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }    
     
-    public function createSequence($idop, $numSecuencia, $fechaInicio, $fechaFinal, $prendasArealizar, $talla_s, $talla_m, $talla_l, $talla_xl) {
+    public function createSequence($idop, $fechaInicio, $fechaFinal, $prendasArealizar, $talla_s, $talla_m, $talla_l, $talla_xl) {
+        // Obtener el último número de secuencia existente
+        $stmt = $this->db->prepare("SELECT MAX(numSecuencia) FROM secuencias WHERE idop = :idop");
+        $stmt->bindParam(':idop', $idop);
+        $stmt->execute();
+        $lastNumSecuencia = $stmt->fetchColumn();
+        $numSecuencia = $lastNumSecuencia ? $lastNumSecuencia + 1 : 1; // Si no hay secuencias, empieza desde 1
+    
+        // Verificar si el número de secuencia ya existe
         $stmt = $this->db->prepare("SELECT COUNT(*) FROM secuencias WHERE idop = :idop AND numSecuencia = :numSecuencia");
         $stmt->bindParam(':idop', $idop);
         $stmt->bindParam(':numSecuencia', $numSecuencia);
         $stmt->execute();
         $count = $stmt->fetchColumn();
-
+    
         if ($count > 0) {
             return false; 
         }
-
+    
         $stmt = $this->db->prepare("SELECT talla_s, talla_m, talla_l, talla_xl FROM actions WHERE id = :idop");
         $stmt->bindParam(':idop', $idop);
         $stmt->execute();
         $action = $stmt->fetch(PDO::FETCH_ASSOC);
 
+        
+
         if ($talla_s > $action['talla_s'] || $talla_m > $action['talla_m'] || $talla_l > $action['talla_l'] || $talla_xl > $action['talla_xl']) {
             return false;
         }
 
+    
         $prendasFaltantes = $prendasArealizar;
-
+    
         $stmt = $this->db->prepare("INSERT INTO secuencias (idop, numSecuencia, fechaInicio, fechaFinal, prendasArealizar, prendasFaltantes, talla_s, talla_m, talla_l, talla_xl) VALUES (:idop, :numSecuencia, :fechaInicio, :fechaFinal, :prendasArealizar, :prendasFaltantes, :talla_s, :talla_m, :talla_l, :talla_xl)");
         $stmt->bindParam(':idop', $idop);
-        $stmt->bindParam(':numSecuencia', $numSecuencia);
+        $stmt->bindParam(':numSecuencia', $numSecuencia); 
         $stmt->bindParam(':fechaInicio', $fechaInicio);
         $stmt->bindParam(':fechaFinal', $fechaFinal);
         $stmt->bindParam(':prendasArealizar', $prendasArealizar);
@@ -96,9 +114,14 @@ class ActionModel {
         $stmt->bindParam(':talla_m', $talla_m);
         $stmt->bindParam(':talla_l', $talla_l);
         $stmt->bindParam(':talla_xl', $talla_xl);
-
-        return $stmt->execute();
+    
+        if ($stmt->execute()) {
+            return $this->db->lastInsertId(); // Devuelve el ID de la secuencia creada
+        }
+        
+        return false; // Si la inserción falla
     }
+    
 
     public function getLastInsertedSequenceId() {
         return $this->db->lastInsertId();
@@ -120,6 +143,21 @@ class ActionModel {
         
         return $stmt->execute();
     }
+
+    public function getTotalPrendasByActionId($actionId) {
+        $query = "SELECT 
+                    SUM(talla_s) AS talla_s, 
+                    SUM(talla_m) AS talla_m, 
+                    SUM(talla_l) AS talla_l, 
+                    SUM(talla_xl) AS talla_xl 
+                  FROM secuencias 
+                  WHERE idop = :idop";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':idop', $actionId, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    
     
      
 }

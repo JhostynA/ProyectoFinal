@@ -29,7 +29,6 @@ $prendasRealizadasL = intval($prendasRealizadas['total_talla_l']);
 $prendasRealizadasXL = intval($prendasRealizadas['total_talla_xl']);
 
 ?>
-
 <div class="container mt-5">
 
     <!-- <h1 class="mb-4" style="text-align: center;">SECUENCIAS - OP <?= htmlspecialchars($produccion['nombre']) ?></h1> -->
@@ -84,9 +83,9 @@ $prendasRealizadasXL = intval($prendasRealizadas['total_talla_xl']);
             <div class="modal-body">
             <form method="POST" action="?action=createSequence" onsubmit="return validarFechas() && validarTallas();">
                     <input type="hidden" name="idop" value="<?= $idop ?>"> 
-                    <div class="form-group">
+                    <div class="form-group" style="display:none;">
                         <label for="numSecuencia">Número de Secuencia:</label>
-                        <input type="number" class="form-control" name="numSecuencia" min="1" required>
+                        <input type="number" class="form-control" name="numSecuencia" min="1">
                     </div>
                     <div class="form-group">
                         <label for="fechaInicio">Fecha de Inicio:</label>
@@ -104,20 +103,20 @@ $prendasRealizadasXL = intval($prendasRealizadas['total_talla_xl']);
                     </div>
 
                     <div class="form-group">
-                        <input type="checkbox" value="s" onchange="toggleQuantityInput(this)"> Talla S
-                        <input type="number" class="form-control" id="cantidadS" name="talla_s" min="0" disabled>
+                        <label for="title">Talla S</label>
+                        <input type="number" class="form-control" id="cantidadS" name="talla_s" min="0">
                     </div>
                     <div class="form-group">
-                        <input type="checkbox" value="m" onchange="toggleQuantityInput(this)"> Talla M
-                        <input type="number" class="form-control" id="cantidadM" name="talla_m" min="0" disabled>
+                        <label for="title">Talla M</label>
+                        <input type="number" class="form-control" id="cantidadM" name="talla_m" min="0" >
                     </div>
                     <div class="form-group">
-                        <input type="checkbox" value="l" onchange="toggleQuantityInput(this)"> Talla L
-                        <input type="number" class="form-control" id="cantidadL" name="talla_l" min="0" disabled>
+                       <label for="title">Talla L</label> 
+                        <input type="number" class="form-control" id="cantidadL" name="talla_l" min="0" >
                     </div>
                     <div class="form-group">
-                        <input type="checkbox" value="xl" onchange="toggleQuantityInput(this)"> Talla XL
-                        <input type="number" class="form-control" id="cantidadXL" name="talla_xl" min="0" disabled>
+                       <label for="title">Talla XL</label> 
+                        <input type="number" class="form-control" id="cantidadXL" name="talla_xl" min="0" >
                     </div>
 
 
@@ -151,11 +150,7 @@ $prendasRealizadasXL = intval($prendasRealizadas['total_talla_xl']);
 </script>
 
 <script>
-    function toggleQuantityInput(checkbox) {
-        const talla = checkbox.value;
-        const cantidadInput = document.getElementById('cantidad' + talla.toUpperCase());
-        cantidadInput.disabled = !checkbox.checked;
-    }
+    
 
     function validarFechas() {
         const fechaInicio = new Date(document.getElementById('fechaInicio').value);
