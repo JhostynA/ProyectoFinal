@@ -170,7 +170,7 @@ class ActionModel {
             $stmt->bindParam(':talla_id', $talla_id, PDO::PARAM_INT);
             $stmt->bindParam(':fecha', $fecha, PDO::PARAM_STR);
             $stmt->bindParam(':cantidad', $cantidad, PDO::PARAM_INT);
-            $stmt->bindParam(':talla', $talla, PDO::PARAM_STR);  // Aseguramos que la talla se pase correctamente
+            $stmt->bindParam(':talla', $talla, PDO::PARAM_STR);
             
             // Ejecutar la consulta para insertar
             if ($stmt->execute()) {
@@ -196,9 +196,22 @@ class ActionModel {
                 $stmt->bindParam(':cantidad', $cantidad, PDO::PARAM_INT);
                 $stmt->bindParam(':talla_id', $talla_id, PDO::PARAM_INT);
     
-                // Ejecutar la actualización
+                // Ejecutar la actualización en la tabla tallas
                 if ($stmt->execute()) {
-                    return true;  // Éxito
+                    // Actualizar las prendas faltantes en la tabla secuencias
+                    $stmt = $this->db->prepare("UPDATE secuencias 
+                                                SET prendasFaltantes = prendasFaltantes - :cantidad
+                                                WHERE id = (SELECT secuencia_id FROM tallas WHERE id = :talla_id)");
+                    $stmt->bindParam(':cantidad', $cantidad, PDO::PARAM_INT);
+                    $stmt->bindParam(':talla_id', $talla_id, PDO::PARAM_INT);
+    
+                    // Ejecutar la actualización en la tabla secuencias
+                    if ($stmt->execute()) {
+                        return true;  // Éxito
+                    } else {
+                        error_log('Error al ejecutar la actualización en secuencias');
+                        return false;
+                    }
                 } else {
                     error_log('Error al ejecutar la actualización en tallas');
                     return false;
@@ -212,6 +225,7 @@ class ActionModel {
             return false;
         }
     }
+    
 
     public function getActionByIdxPDF($id) {
         $stmt = $this->db->prepare("SELECT * FROM actions WHERE id = :id");

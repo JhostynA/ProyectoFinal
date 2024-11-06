@@ -204,7 +204,7 @@ function guardarKardex() {
     }
     
     if (parseInt(cantidad, 10) + parseInt(getRealizadas(talla), 10) > tallaMaxima[talla]) {
-        alert(`La cantidad para la talla ${talla} no puede superar el límite de ${tallaMaxima[talla]} unidades.`);
+        alert(`La cantidad para la talla ${talla} no puede superar el límite.`);
         return;
     }
 

@@ -23,8 +23,8 @@ $secuenciasModel = new ActionModel();
                 <th style="width: 120px;" class="text-center">Fecha Entrega</th>
                 <th colspan="4" class="text-center">Tallas</th>
                 <th style="width: 100px;">Total Prendas</th>
-                <th>Progreso</th>
-                <th>PDF</th>
+                <th class="text-center">Progreso</th>
+                <th class="text-center">PDF</th>
             </tr>
             <tr>
                 <th colspan="4"></th>
@@ -72,9 +72,11 @@ $secuenciasModel = new ActionModel();
                     </tr>
                     
                     <tr class="details" style="display: none; background-color: #f9f9f9;">
-                        <td colspan="10">
-                            <h5 class="text-center" style="margin-top: 10px; font-size: 1.25rem; color: #333;">Secuencias de la OP <?= htmlspecialchars($action['nombre']) ?></h5>
-                            <button class="btn btn-primary btn-sm" 
+                    <td colspan="10">
+                        <!-- Contenedor con clase d-flex para la alineación -->
+                        <div class="d-flex align-items-center">
+                            <!-- Botón a la izquierda -->
+                            <button class="btn btn-primary btn-sm mr-3" 
                                     data-toggle="modal" 
                                     data-target="#createSequenceModal" 
                                     data-op-id="<?= $action['id'] ?>"
@@ -90,40 +92,48 @@ $secuenciasModel = new ActionModel();
                                     data-talla_xl_registrada="<?= htmlspecialchars($tallasTotales['talla_xl']) ?>">
                                 Nueva Secuencia
                             </button>
-                            <table class="table table-sm rounded shadow-sm mt-3">
-                                <thead class="thead-light" style="background-color: #007bff; color: #fff;">
+
+                            <!-- Título centrado -->
+                            <h5 class="m-0 mx-auto" style="font-size: 1.25rem; color: #333;">Secuencias de la OP <?= htmlspecialchars($action['nombre']) ?></h5>
+                        </div>
+                        
+                        <!-- Tabla de secuencias -->
+                        <table class="table table-sm rounded shadow-sm mt-3">
+                            <thead class="thead-light" style="background-color: #007bff; color: #fff;">
+                                <tr>
+                                    <th>Num. Secuencia</th>
+                                    <th>Fecha Inicio</th>
+                                    <th>Fecha Final</th>
+                                    <th>Prendas a Realizar</th>
+                                    <th>Prendas Faltantes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                $sequences = $secuenciasModel->getSecuenciasByActionId($action['id']);
+                                foreach ($sequences as $sequence): ?>
                                     <tr>
-                                        <th>Num. Secuencia</th>
-                                        <th>Fecha Inicio</th>
-                                        <th>Fecha Final</th>
-                                        <th>Prendas a Realizar</th>
-                                        <th>Prendas Faltantes</th>
+                                        <td><a href="<?= $host ?>/views/produccion/indexP.php?action=viewSecuencia&id=<?= $sequence['id'] ?>" class="text-primary">
+                                                <?= htmlspecialchars($sequence['numSecuencia']) ?>              
+                                            </a>
+                                        </td>
+                                        <td><?= htmlspecialchars($sequence['fechaInicio']) ?></td>
+                                        <td><?= htmlspecialchars($sequence['fechaFinal']) ?></td>
+                                        <td><?= htmlspecialchars($sequence['prendasArealizar']) ?></td>
+                                        <td><?= htmlspecialchars($sequence['prendasFaltantes']) ?></td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
-                                    $sequences = $secuenciasModel->getSecuenciasByActionId($action['id']);
-                                    foreach ($sequences as $sequence): ?>
-                                        <tr>
-                                            <td><a href="<?= $host ?>/views/produccion/indexP.php?action=viewSecuencia&id=<?= $sequence['id'] ?>" class="text-primary">
-                                                    <?= htmlspecialchars($sequence['numSecuencia']) ?>              
-                                                </a>
-                                            </td>
-                                            <td><?= htmlspecialchars($sequence['fechaInicio']) ?></td>
-                                            <td><?= htmlspecialchars($sequence['fechaFinal']) ?></td>
-                                            <td><?= htmlspecialchars($sequence['prendasArealizar']) ?></td>
-                                            <td><?= htmlspecialchars($sequence['prendasFaltantes']) ?></td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                    <?php if (empty($sequences)): ?>
-                                        <tr>
-                                            <td colspan="5" class="text-center text-muted">No hay secuencias disponibles para esta OP.</td>
-                                        </tr>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
-                        </td>
-                    </tr>
+                                <?php endforeach; ?>
+                                <?php if (empty($sequences)): ?>
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">No hay secuencias disponibles para esta OP.</td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+
+
                 <?php endforeach; ?>
             <?php else: ?>
                 <tr>
