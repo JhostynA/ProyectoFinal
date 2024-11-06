@@ -254,35 +254,59 @@ $secuenciasModel = new ActionModel();
 let talla_s_max, talla_m_max, talla_l_max, talla_xl_max;
 let inicioS, inicioM, inicioL, inicioXL;
 
-    $('#createSequenceModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget);
-        var opId = button.data('op-id');
-        var fechaInicioProduccion = button.data('fecha-inicio');
-        var fechaFinalProduccion = button.data('fecha-entrega');
-        
-        $('#opIdInput').val(opId);
-        
-        $('#fechaInicio').attr('min', fechaInicioProduccion);
-        $('#fechaInicio').attr('max', fechaFinalProduccion);
-        $('#fechaFinal').attr('min', fechaInicioProduccion);
-        $('#fechaFinal').attr('max', fechaFinalProduccion);
+$('#createSequenceModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    var opId = button.data('op-id');
+    var fechaInicioProduccion = button.data('fecha-inicio');
+    var fechaFinalProduccion = button.data('fecha-entrega');
+    
+    $('#opIdInput').val(opId);
+    
+    $('#fechaInicio').attr('min', fechaInicioProduccion);
+    $('#fechaInicio').attr('max', fechaFinalProduccion);
+    $('#fechaFinal').attr('min', fechaInicioProduccion);
+    $('#fechaFinal').attr('max', fechaFinalProduccion);
 
-        
-        talla_s_max = parseInt(button.data('talla_s'));
-        talla_m_max = parseInt(button.data('talla_m'));
-        talla_l_max = parseInt(button.data('talla_l'));
-        talla_xl_max = parseInt(button.data('talla_xl'));
+    talla_s_max = parseInt(button.data('talla_s'));
+    talla_m_max = parseInt(button.data('talla_m'));
+    talla_l_max = parseInt(button.data('talla_l'));
+    talla_xl_max = parseInt(button.data('talla_xl'));
 
-        inicioS = parseInt(button.data('talla_s_registrada')) || 0;
-        inicioM = parseInt(button.data('talla_m_registrada')) || 0;
-        inicioL = parseInt(button.data('talla_l_registrada')) || 0;
-        inicioXL = parseInt(button.data('talla_xl_registrada')) || 0;
+    inicioS = parseInt(button.data('talla_s_registrada')) || 0;
+    inicioM = parseInt(button.data('talla_m_registrada')) || 0;
+    inicioL = parseInt(button.data('talla_l_registrada')) || 0;
+    inicioXL = parseInt(button.data('talla_xl_registrada')) || 0;
 
-        $('#talla_s_limit').text(talla_s_max - inicioS);
-        $('#talla_m_limit').text(talla_m_max - inicioM);
-        $('#talla_l_limit').text(talla_l_max - inicioL);
-        $('#talla_xl_limit').text(talla_xl_max - inicioXL);
-    });
+    $('#talla_s_limit').text(talla_s_max - inicioS);
+    $('#talla_m_limit').text(talla_m_max - inicioM);
+    $('#talla_l_limit').text(talla_l_max - inicioL);
+    $('#talla_xl_limit').text(talla_xl_max - inicioXL);
+
+    if (talla_s_max === 0) {
+        $('#talla_s_s').prop('disabled', true);
+    } else {
+        $('#talla_s_s').prop('disabled', false);
+    }
+
+    if (talla_m_max === 0) {
+        $('#talla_m_s').prop('disabled', true);
+    } else {
+        $('#talla_m_s').prop('disabled', false);
+    }
+
+    if (talla_l_max === 0) {
+        $('#talla_l_s').prop('disabled', true);
+    } else {
+        $('#talla_l_s').prop('disabled', false);
+    }
+
+    if (talla_xl_max === 0) {
+        $('#talla_xl_s').prop('disabled', true);
+    } else {
+        $('#talla_xl_s').prop('disabled', false);
+    }
+});
+
 
     $('#formCreateSequence').on('submit', function(e) {
         const cantidadS = parseInt($('#talla_s_s').val()) || 0;

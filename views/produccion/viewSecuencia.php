@@ -43,57 +43,58 @@ $date = date('Y-m-d');
             </tr>
         </thead>
         <tbody>
-            <?php if (!empty($tallas)): ?>
-                <tr>
-                    <td>S</td>
-                    <td><?= htmlspecialchars($tallas['talla_s']) ?></td>
-                    <td><?= htmlspecialchars($tallas['realizadas_s'] ?? 0) ?></td>
-                    <td>
-                        <button class="btn btn-info btn-sm" onclick="mostrarKardex('S')">Kardex</button>
-                    </td>
-                    <td>
-                        <button class="btn btn-warning btn-sm" onclick="mostrarHistorial('S')">Historial</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>M</td>
-                    <td><?= htmlspecialchars($tallas['talla_m']) ?></td>
-                    <td><?= htmlspecialchars($tallas['realizadas_m'] ?? 0) ?></td>
-                    <td>
-                        <button class="btn btn-info btn-sm" onclick="mostrarKardex('M')">Kardex</button>
-                    </td>
-                    <td>
-                        <button class="btn btn-warning btn-sm" onclick="mostrarHistorial('M')">Historial</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>L</td>
-                    <td><?= htmlspecialchars($tallas['talla_l']) ?></td>
-                    <td><?= htmlspecialchars($tallas['realizadas_l'] ?? 0) ?></td>
-                    <td>
-                        <button class="btn btn-info btn-sm" onclick="mostrarKardex('L')">Kardex</button>
-                    </td>
-                    <td>
-                        <button class="btn btn-warning btn-sm" onclick="mostrarHistorial('L')">Historial</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>XL</td>
-                    <td><?= htmlspecialchars($tallas['talla_xl']) ?></td>
-                    <td><?= htmlspecialchars($tallas['realizadas_xl'] ?? 0) ?></td>
-                    <td>
-                        <button class="btn btn-info btn-sm" onclick="mostrarKardex('XL')">Kardex</button>
-                    </td>
-                    <td>
-                        <button class="btn btn-warning btn-sm" onclick="mostrarHistorial('XL')">Historial</button>
-                    </td>
-                </tr>
-            <?php else: ?>
-                <tr>
-                    <td colspan="5" style="text-align: center;">No hay tallas registradas.</td>
-                </tr>
-            <?php endif; ?>
-        </tbody>
+    <?php if (!empty($tallas)): ?>
+        <tr>
+            <td>S</td>
+            <td><?= htmlspecialchars($tallas['talla_s']) ?></td>
+            <td><?= htmlspecialchars($tallas['realizadas_s'] ?? 0) ?></td>
+            <td>
+                <button class="btn btn-info btn-sm <?= $tallas['talla_s'] == 0 ? 'disabled' : '' ?>" onclick="mostrarKardex('S')">Kardex</button>
+            </td>
+            <td>
+                <button class="btn btn-warning btn-sm <?= $tallas['talla_s'] == 0 ? 'disabled' : '' ?>" onclick="mostrarHistorial('S')">Historial</button>
+            </td>
+        </tr>
+        <tr>
+            <td>M</td>
+            <td><?= htmlspecialchars($tallas['talla_m']) ?></td>
+            <td><?= htmlspecialchars($tallas['realizadas_m'] ?? 0) ?></td>
+            <td>
+                <button class="btn btn-info btn-sm <?= $tallas['talla_m'] == 0 ? 'disabled' : '' ?>" onclick="mostrarKardex('M')">Kardex</button>
+            </td>
+            <td>
+                <button class="btn btn-warning btn-sm <?= $tallas['talla_m'] == 0 ? 'disabled' : '' ?>" onclick="mostrarHistorial('M')">Historial</button>
+            </td>
+        </tr>
+        <tr>
+            <td>L</td>
+            <td><?= htmlspecialchars($tallas['talla_l']) ?></td>
+            <td><?= htmlspecialchars($tallas['realizadas_l'] ?? 0) ?></td>
+            <td>
+                <button class="btn btn-info btn-sm <?= $tallas['talla_l'] == 0 ? 'disabled' : '' ?>" onclick="mostrarKardex('L')">Kardex</button>
+            </td>
+            <td>
+                <button class="btn btn-warning btn-sm <?= $tallas['talla_l'] == 0 ? 'disabled' : '' ?>" onclick="mostrarHistorial('L')">Historial</button>
+            </td>
+        </tr>
+        <tr>
+            <td>XL</td>
+            <td><?= htmlspecialchars($tallas['talla_xl']) ?></td>
+            <td><?= htmlspecialchars($tallas['realizadas_xl'] ?? 0) ?></td>
+            <td>
+                <button class="btn btn-info btn-sm <?= $tallas['talla_xl'] == 0 ? 'disabled' : '' ?>" onclick="mostrarKardex('XL')">Kardex</button>
+            </td>
+            <td>
+                <button class="btn btn-warning btn-sm <?= $tallas['talla_xl'] == 0 ? 'disabled' : '' ?>" onclick="mostrarHistorial('XL')">Historial</button>
+            </td>
+        </tr>
+    <?php else: ?>
+        <tr>
+            <td colspan="5" style="text-align: center;">No hay tallas registradas.</td>
+        </tr>
+    <?php endif; ?>
+</tbody>
+
     </table>
                
     <a href="<?= $host ?>/views/produccion/indexP.php" class="btn btn-secondary">Regresar</a>
