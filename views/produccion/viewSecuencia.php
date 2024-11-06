@@ -22,6 +22,9 @@ $tallaMaxima = [
     'L' => $tallas['talla_l'],
     'XL' => $tallas['talla_xl']
 ];
+
+date_default_timezone_set('America/Lima');
+$date = date('Y-m-d');
 ?>
 
 <div class="container mt-5">
@@ -164,7 +167,7 @@ $tallaMaxima = [
 
 <script>
     const fechaInicio = "<?= $fechaInicio ?>";
-    const fechaFinal = "<?= $fechaFinal ?>";
+    const fechaFinal = "<?= $date ?>";
 
     const tallaMaxima = {
         S: <?= $tallaMaxima['S'] ?>,
