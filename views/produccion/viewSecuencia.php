@@ -16,6 +16,14 @@ $tallas = $stmtTallas->fetch(PDO::FETCH_ASSOC);
 // Obtenemos el rango de fechas
 $fechaInicio = $secuencia['fechaInicio'];
 $fechaFinal = $secuencia['fechaFinal'];
+
+// Obtenemos las cantidades máximas de cada talla
+$tallaMaxima = [
+    'S' => $tallas['talla_s'],
+    'M' => $tallas['talla_m'],
+    'L' => $tallas['talla_l'],
+    'XL' => $tallas['talla_xl']
+];
 ?>
 
 <div class="container mt-5">
@@ -122,6 +130,9 @@ $fechaFinal = $secuencia['fechaFinal'];
     </div>
 </div>
 
+
+
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -129,6 +140,15 @@ $fechaFinal = $secuencia['fechaFinal'];
 <script>
     const fechaInicio = "<?= $fechaInicio ?>";
     const fechaFinal = "<?= $fechaFinal ?>";
+
+    const tallaMaxima = {
+        S: <?= $tallaMaxima['S'] ?>,
+        M: <?= $tallaMaxima['M'] ?>,
+        L: <?= $tallaMaxima['L'] ?>,
+        XL: <?= $tallaMaxima['XL'] ?>
+    };
+
+
 function mostrarKardex(talla, tallaId) {
     // Establecer la talla en el modal
     document.getElementById('kardexTalla').innerText = talla;
@@ -152,36 +172,91 @@ function guardarKardex() {
 
     if (cantidad <= 0) {
         alert('La cantidad debe ser mayor a 0.');
-        return; // Detener el envío si la cantidad no es válida
+        return;
+    }
+    
+    if (parseInt(cantidad, 10) + parseInt(getRealizadas(talla), 10) > tallaMaxima[talla]) {
+        alert(`La cantidad para la talla ${talla} no puede superar el límite de ${tallaMaxima[talla]} unidades.`);
+        return;
     }
 
+    
     if (fecha && cantidad) {
         $.ajax({
-        url: '../../controllers/produccion/kardexController.php',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({
-            talla_id: tallaId,
-            fecha: fecha,
-            cantidad: cantidad,
-            talla: talla
-        }),
-        success: function(response) {
-            console.log('Respuesta del servidor:', response);
-            alert('Movimiento registrado en el Kardex.');
-            $('#kardexModal').modal('hide');
-            location.reload(); // Recarga la página para ver los datos actualizados
-        },
-        error: function(xhr, status, error) {
-            console.error('Error al registrar el movimiento en el Kardex:', status, error);
-            alert('Error al registrar el movimiento en el Kardex.');
-        }
-    });
-
+            url: '../../controllers/produccion/kardexController.php',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                talla_id: tallaId,
+                fecha: fecha,
+                cantidad: cantidad,
+                talla: talla
+            }),
+            success: function(response) {
+                alert('Movimiento registrado en el Kardex.');
+                $('#kardexModal').modal('hide');
+                location.reload();
+            },
+            error: function(xhr, status, error) {
+                alert('Error al registrar el movimiento en el Kardex.');
+            }
+        });
     } else {
         alert('Por favor, completa todos los campos.');
     }
 }
+
+// Función para obtener la cantidad realizada actual de cada talla
+function getRealizadas(talla) {
+    switch (talla) {
+        case 'S': return <?= htmlspecialchars($tallas['realizadas_s'] ?? 0) ?>;
+        case 'M': return <?= htmlspecialchars($tallas['realizadas_m'] ?? 0) ?>;
+        case 'L': return <?= htmlspecialchars($tallas['realizadas_l'] ?? 0) ?>;
+        case 'XL': return <?= htmlspecialchars($tallas['realizadas_xl'] ?? 0) ?>;
+        default: return 0;
+    }
+}
+
+
+function mostrarHistorial(talla) {
+    // Establecer la talla en el modal
+    document.getElementById('kardexTalla').innerText = talla;
+
+    // Hacer una petición AJAX para obtener el historial de la talla desde la tabla kardex
+    $.ajax({
+        url: '../../controllers/produccion/historialController.php',
+        type: 'GET',
+        data: { talla: talla }, // Enviar la talla como parámetro
+        success: function(response) {
+            // Si la respuesta es exitosa, llenar el modal con los datos
+            let historialHTML = '';
+            const historial = JSON.parse(response);
+
+            if (historial.length > 0) {
+                historial.forEach(function(item) {
+                    historialHTML += `
+                        <tr>
+                            <td>${item.fecha}</td>
+                            <td>${item.cantidad}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                historialHTML = `<tr><td colspan="2">No hay historial para esta talla.</td></tr>`;
+            }
+
+            // Insertar los datos en el cuerpo del modal
+            document.getElementById('historialBody').innerHTML = historialHTML;
+
+            // Mostrar el modal
+            $('#historialModal').modal('show');
+        },
+        error: function(xhr, status, error) {
+            alert('Error al cargar el historial.');
+        }
+    });
+}
+
 </script>
 
 
