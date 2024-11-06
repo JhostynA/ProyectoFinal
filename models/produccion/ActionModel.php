@@ -165,18 +165,17 @@ class ActionModel {
     
     public function createKardexMovement($talla_id, $fecha, $cantidad, $talla) {
         try {
-            // Insertar en la tabla kardex
-            $stmt = $this->db->prepare("INSERT INTO kardex (talla_id, fecha, cantidad) VALUES (:talla_id, :fecha, :cantidad)");
-            $stmt->bindParam(':talla_id', $talla_id);
-            $stmt->bindParam(':fecha', $fecha);
-            $stmt->bindParam(':cantidad', $cantidad);
-    
+            // Insertar en la tabla kardex incluyendo el campo talla
+            $stmt = $this->db->prepare("INSERT INTO kardex (talla_id, fecha, cantidad, talla) VALUES (:talla_id, :fecha, :cantidad, :talla)");
+            $stmt->bindParam(':talla_id', $talla_id, PDO::PARAM_INT);
+            $stmt->bindParam(':fecha', $fecha, PDO::PARAM_STR);
+            $stmt->bindParam(':cantidad', $cantidad, PDO::PARAM_INT);
+            $stmt->bindParam(':talla', $talla, PDO::PARAM_STR);  // Aseguramos que la talla se pase correctamente
+            
             // Ejecutar la consulta para insertar
             if ($stmt->execute()) {
                 // Definir la columna a actualizar según la talla
-                $columna = '';
                 $realizadas_columna = '';
-        
                 switch ($talla) {
                     case 'S':
                         $realizadas_columna = 'realizadas_s';
@@ -192,16 +191,14 @@ class ActionModel {
                         break;
                 }
     
-                // Actualizar la cantidad en la columna específica de la talla en 'tallas'
+                // Asegurarse de que se actualiza correctamente la cantidad de la talla
                 $stmt = $this->db->prepare("UPDATE tallas SET $realizadas_columna = $realizadas_columna + :cantidad WHERE id = :talla_id");
-
-                // Usar un marcador de parámetro para la columna de talla
-                $stmt->bindParam(':cantidad', $cantidad);
-                $stmt->bindParam(':talla_id', $talla_id);
+                $stmt->bindParam(':cantidad', $cantidad, PDO::PARAM_INT);
+                $stmt->bindParam(':talla_id', $talla_id, PDO::PARAM_INT);
     
                 // Ejecutar la actualización
                 if ($stmt->execute()) {
-                    return true;
+                    return true;  // Éxito
                 } else {
                     error_log('Error al ejecutar la actualización en tallas');
                     return false;
@@ -215,6 +212,7 @@ class ActionModel {
             return false;
         }
     }
+    
      
 }
 

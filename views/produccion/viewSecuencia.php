@@ -131,6 +131,34 @@ $tallaMaxima = [
 </div>
 
 
+<!-- Modal para Historial -->
+<div class="modal fade" id="historialModal" tabindex="-1" aria-labelledby="historialModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="historialModalLabel">Historial - Talla: <span id="historialTalla"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Cantidad</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historialBody">
+                        <!-- Aquí se llenarán los datos del historial -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -218,17 +246,15 @@ function getRealizadas(talla) {
 }
 
 
-function mostrarHistorial(talla) {
-    // Establecer la talla en el modal
-    document.getElementById('kardexTalla').innerText = talla;
+function mostrarHistorial(talla, secuenciaId) {
+    document.getElementById('historialTalla').innerText = talla;
 
-    // Hacer una petición AJAX para obtener el historial de la talla desde la tabla kardex
+    // Enviar ID de secuencia junto con la talla
     $.ajax({
-        url: '../../controllers/produccion/historialController.php',
+        url: '../../controllers/produccion/historialKardex.php',
         type: 'GET',
-        data: { talla: talla }, // Enviar la talla como parámetro
+        data: { talla: talla, secuencia_id:  <?= htmlspecialchars($tallas['id']) ?> },
         success: function(response) {
-            // Si la respuesta es exitosa, llenar el modal con los datos
             let historialHTML = '';
             const historial = JSON.parse(response);
 
@@ -245,10 +271,7 @@ function mostrarHistorial(talla) {
                 historialHTML = `<tr><td colspan="2">No hay historial para esta talla.</td></tr>`;
             }
 
-            // Insertar los datos en el cuerpo del modal
             document.getElementById('historialBody').innerHTML = historialHTML;
-
-            // Mostrar el modal
             $('#historialModal').modal('show');
         },
         error: function(xhr, status, error) {

@@ -16,15 +16,23 @@ $secuenciasModel = new ActionModel();
     </div>
 
     <table id="actionsTable" class="table table-bordered shadow-lg">
-        <thead class="thead-dark">
+    <thead class="thead-dark">
             <tr>
                 <th>Secuencia</th>
                 <th>OP</th>
                 <th>Fecha Inicio</th>
                 <th>Fecha Entrega</th>
-                <th colspan="4" class="text-center">Tallas</th>
+                <th colspan="4" class="text-center">Tallas</th> <!-- Cabecera que abarca las columnas de tallas -->
                 <th>Total Prendas</th>
                 <th>Progreso</th>
+            </tr>
+            <tr>
+                <th colspan="4"></th> <!-- Espacio vacío para alinear con las primeras columnas -->
+                <th>S</th>
+                <th>M</th>
+                <th>L</th>
+                <th>XL</th>
+                <th colspan="2"></th> <!-- Espacio vacío para las últimas columnas -->
             </tr>
         </thead>
         <tbody>
