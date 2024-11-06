@@ -12,7 +12,6 @@
             <table id="tablaDatos" class="table table-striped table-hover w-100">
                 <thead class="table-dark">
                     <tr>
-                        <th>ID</th>
                         <th>Operación</th>
                         <th>Precio</th>
                         <th>Acciones</th>
@@ -98,8 +97,7 @@ $(document).ready(function() {
             "url": "../../controllers/operaciones/listar.controllers.php",
             "dataSrc": ""
         },
-        "columns": [
-            { "data": "idoperacion" },  
+        "columns": [ 
             { "data": "operacion" },
             { "data": "precio" },
             {

@@ -70,7 +70,6 @@ $secuenciasModel = new ActionModel();
                             <a href="<?= $host ?>/views/produccion/indexP.php?action=viewPDF&id=<?= $action['id'] ?>" class="btn btn-outline-danger">Ver PDF</a>
                         </td>
                     </tr>
-                    
                     <tr class="details" style="display: none; background-color: #f9f9f9;">
                     <td colspan="10">
                         <div class="d-flex align-items-center">

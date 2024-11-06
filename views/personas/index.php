@@ -12,7 +12,6 @@
             <table id="tablaDatos" class="table table-striped table-hover w-100">
                 <thead class="table-dark">
                     <tr>
-                        <th>ID</th>
                         <th>Apellido P</th>
                         <th>Apellido M</th>
                         <th>Nombre</th>
@@ -110,8 +109,7 @@
                 "url": "../../controllers/personas/listar.controllers.php",
                 "dataSrc": ""
             },
-            "columns": [
-                { "data": "idpersona" },  
+            "columns": [ 
                 { "data": "apepaterno" },
                 { "data": "apematerno" },
                 { "data": "nombres"},
