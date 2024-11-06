@@ -6,12 +6,10 @@ require '../../controllers/produccion/ActionController.php';
 $actionModel = new ActionModel();
 $actionController = new ActionController($actionModel);
 
-// Verificar si hay un mensaje de éxito
 if (isset($_GET['success']) && $_GET['success'] == 1) {
     echo '<div class="alert alert-success" role="alert">Secuencia creada exitosamente.</div>';
 }
 
-// Verificar la acción a realizar
 if (isset($_GET['action'])) {
     if ($_GET['action'] === 'create') {
         $actionController->createAction();

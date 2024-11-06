@@ -46,13 +46,10 @@ class ActionController {
     }    
 
     public function viewActionPDF($id) {
-        // Recuperar la información de la acción (OP) basada en el id de actions
         $actionP = $this->actionModel->getActionByIdxPDF($id);
     
-        // Obtener los archivos PDF asociados a esta acción (OP)
         $pdfs = $this->actionModel->getPDFByActionId($id);
     
-        // Cargar la vista para mostrar la información de la OP y los archivos PDF
         require '../../views/produccion/archivosPDF.php';
     }
     
@@ -64,31 +61,24 @@ class ActionController {
             $fechaInicio = $_POST['fechaInicio'];
             $fechaFinal = $_POST['fechaFinal'];
     
-            // Obtiene las cantidades de tallas del formulario
             $talla_s = isset($_POST['talla_s']) ? (int)$_POST['talla_s'] : 0;
             $talla_m = isset($_POST['talla_m']) ? (int)$_POST['talla_m'] : 0;
             $talla_l = isset($_POST['talla_l']) ? (int)$_POST['talla_l'] : 0;
             $talla_xl = isset($_POST['talla_xl']) ? (int)$_POST['talla_xl'] : 0;
     
-            // Calcula el total de prendas a realizar
             $prendasArealizar = $talla_s + $talla_m + $talla_l + $talla_xl;
     
-            // Llama al modelo para crear la secuencia, ya con validación de tallas
             $sequenceCreated = $this->actionModel->createSequence($idop, $fechaInicio, $fechaFinal, $prendasArealizar, $talla_s, $talla_m, $talla_l, $talla_xl);
     
             if (!$sequenceCreated) {
-                // Maneja el error si no se pudo crear la secuencia (ej. cantidades de tallas no válidas)
                 header("Location:../../views/produccion/indexP.php?error=SecuenciaNoCreada");
                 exit();
             }
     
-            // Obtener el ID de la última secuencia creada
             $lastSequenceId = $this->actionModel->getLastInsertedSequenceId();
     
-            // Llama al método para registrar las tallas con la cantidad de prendas realizadas inicializadas en 0
             $this->actionModel->createTalla($lastSequenceId, $talla_s, $talla_m, $talla_l, $talla_xl, $prendasArealizar, 0, 0, 0, 0);
     
-            // Redirige a la vista de producción después de crear la secuencia
             header("Location:../../views/produccion/indexP.php");
             exit();
         }

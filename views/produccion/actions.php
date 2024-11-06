@@ -73,9 +73,7 @@ $secuenciasModel = new ActionModel();
                     
                     <tr class="details" style="display: none; background-color: #f9f9f9;">
                     <td colspan="10">
-                        <!-- Contenedor con clase d-flex para la alineación -->
                         <div class="d-flex align-items-center">
-                            <!-- Botón a la izquierda -->
                             <button class="btn btn-primary btn-sm mr-3" 
                                     data-toggle="modal" 
                                     data-target="#createSequenceModal" 
@@ -93,11 +91,9 @@ $secuenciasModel = new ActionModel();
                                 Nueva Secuencia
                             </button>
 
-                            <!-- Título centrado -->
                             <h5 class="m-0 mx-auto" style="font-size: 1.25rem; color: #333;">Secuencias de la OP <?= htmlspecialchars($action['nombre']) ?></h5>
                         </div>
                         
-                        <!-- Tabla de secuencias -->
                         <table class="table table-sm rounded shadow-sm mt-3">
                             <thead class="thead-light" style="background-color: #007bff; color: #fff;">
                                 <tr>
@@ -255,7 +251,6 @@ $secuenciasModel = new ActionModel();
 
 <script>
 
-// Variables globales para los límites y valores iniciales
 let talla_s_max, talla_m_max, talla_l_max, talla_xl_max;
 let inicioS, inicioM, inicioL, inicioXL;
 
@@ -265,29 +260,24 @@ let inicioS, inicioM, inicioL, inicioXL;
         var fechaInicioProduccion = button.data('fecha-inicio');
         var fechaFinalProduccion = button.data('fecha-entrega');
         
-        // Establece el ID de la OP en el formulario
         $('#opIdInput').val(opId);
         
-        // Configura los límites de los campos de fecha
         $('#fechaInicio').attr('min', fechaInicioProduccion);
         $('#fechaInicio').attr('max', fechaFinalProduccion);
         $('#fechaFinal').attr('min', fechaInicioProduccion);
         $('#fechaFinal').attr('max', fechaFinalProduccion);
 
         
-       // Datos de producción
         talla_s_max = parseInt(button.data('talla_s'));
         talla_m_max = parseInt(button.data('talla_m'));
         talla_l_max = parseInt(button.data('talla_l'));
         talla_xl_max = parseInt(button.data('talla_xl'));
 
-        // Cantidades ya registradas en secuencias anteriores
         inicioS = parseInt(button.data('talla_s_registrada')) || 0;
         inicioM = parseInt(button.data('talla_m_registrada')) || 0;
         inicioL = parseInt(button.data('talla_l_registrada')) || 0;
         inicioXL = parseInt(button.data('talla_xl_registrada')) || 0;
 
-        // Configurar el máximo en el frontend
         $('#talla_s_limit').text(talla_s_max - inicioS);
         $('#talla_m_limit').text(talla_m_max - inicioM);
         $('#talla_l_limit').text(talla_l_max - inicioL);
@@ -300,13 +290,11 @@ let inicioS, inicioM, inicioL, inicioXL;
         const cantidadL = parseInt($('#talla_l_s').val()) || 0;
         const cantidadXL = parseInt($('#talla_xl_s').val()) || 0;
 
-        // Validar que al menos un campo tenga un valor mayor que 0
         if (cantidadS === 0 && cantidadM === 0 && cantidadL === 0 && cantidadXL === 0) {
             alert('Debe ingresar al menos un valor en uno de los campos de cantidad.');
             return false;
         }
 
-        // Validar que la cantidad total registrada no sobrepase el máximo permitido
         if ((inicioS + cantidadS) > talla_s_max) {
             alert('La cantidad de prendas para la talla S supera el total permitido para la producción.');
             return false;
@@ -331,11 +319,9 @@ let inicioS, inicioM, inicioL, inicioXL;
         var fechaInicio = new Date($('#fechaInicio').val());
         var fechaFinal = new Date($('#fechaFinal').val());
 
-        // Verifica si la fecha final es menor o igual a la fecha de inicio
         if (fechaFinal <= fechaInicio) {
-            // Muestra una alerta o deshabilita el botón de envío
             alert("La fecha final debe ser mayor a la fecha de inicio.");
-            $('#fechaFinal').val(''); // Opcional: Limpia la fecha final
+            $('#fechaFinal').val(''); 
         }
     });
 
@@ -347,14 +333,13 @@ let inicioS, inicioM, inicioL, inicioXL;
         if (urlParams.has('error') && urlParams.get('error') === 'NombreYaExiste') {
             alert('Ya existe una OP con ese número');
 
-            //Con esto limpiamos la URL, eliminando los parametros
             const newUrl = window.location.origin + window.location.pathname;
             window.history.replaceState({}, document.title, newUrl);
         }
     });
 
     $('#createActionModal').on('hidden.bs.modal', function () {
-        $(this).find('form')[0].reset(); // Limpiar los campos del formulario
+        $(this).find('form')[0].reset(); 
     });
 
 
@@ -367,7 +352,7 @@ let inicioS, inicioM, inicioL, inicioXL;
             const opValue = row.getAttribute("data-op").toLowerCase();
             if (opValue.includes(searchValue)) {
                 row.style.display = "";
-                row.nextElementSibling.style.display = "none"; // Ocultar detalles por defecto
+                row.nextElementSibling.style.display = "none";
             } else {
                 row.style.display = "none";
             }
@@ -399,7 +384,6 @@ let inicioS, inicioM, inicioL, inicioXL;
             }
         });
 
-        // Validar que el OP sea mayor a 0
         const opInput = document.querySelector('input[name="nombre"]');
         const form = opInput.closest('form');
         form.addEventListener('submit', function(event){

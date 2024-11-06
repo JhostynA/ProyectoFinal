@@ -13,11 +13,9 @@ $stmtTallas = $conexion->prepare($queryTallas);
 $stmtTallas->execute([$idop]);
 $tallas = $stmtTallas->fetch(PDO::FETCH_ASSOC);
 
-// Obtenemos el rango de fechas
 $fechaInicio = $secuencia['fechaInicio'];
 $fechaFinal = $secuencia['fechaFinal'];
 
-// Obtenemos las cantidades máximas de cada talla
 $tallaMaxima = [
     'S' => $tallas['talla_s'],
     'M' => $tallas['talla_m'],
@@ -148,7 +146,6 @@ $tallaMaxima = [
                         </tr>
                     </thead>
                     <tbody id="historialBody">
-                        <!-- Aquí se llenarán los datos del historial -->
                     </tbody>
                 </table>
             </div>
@@ -178,17 +175,13 @@ $tallaMaxima = [
 
 
 function mostrarKardex(talla, tallaId) {
-    // Establecer la talla en el modal
     document.getElementById('kardexTalla').innerText = talla;
-    // Asignar el ID de talla al campo oculto
     document.getElementById('kardexTallaId').value = tallaId;
 
-    // Configurar el rango de fechas
     const fechaInput = document.getElementById('kardexFecha');
     fechaInput.min = fechaInicio;
     fechaInput.max = fechaFinal;
 
-    // Mostrar el modal
     $('#kardexModal').modal('show');
 }
 
@@ -234,7 +227,6 @@ function guardarKardex() {
     }
 }
 
-// Función para obtener la cantidad realizada actual de cada talla
 function getRealizadas(talla) {
     switch (talla) {
         case 'S': return <?= htmlspecialchars($tallas['realizadas_s'] ?? 0) ?>;
@@ -249,7 +241,6 @@ function getRealizadas(talla) {
 function mostrarHistorial(talla, secuenciaId) {
     document.getElementById('historialTalla').innerText = talla;
 
-    // Enviar ID de secuencia junto con la talla
     $.ajax({
         url: '../../controllers/produccion/historialKardex.php',
         type: 'GET',
