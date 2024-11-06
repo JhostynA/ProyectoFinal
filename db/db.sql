@@ -106,32 +106,38 @@ CREATE TABLE tallas (
     talla_l         INT NULL DEFAULT 0, 
     talla_xl        INT NULL DEFAULT 0, 
     cantidad 		INT NOT NULL,
-    realizadas 		INT NOT NULL DEFAULT 0,
+    realizadas_s 	INT NOT NULL DEFAULT 0,
+	realizadas_m 	INT NOT NULL DEFAULT 0,
+	realizadas_l 	INT NOT NULL DEFAULT 0,
+	realizadas_xl 	INT NOT NULL DEFAULT 0,
     FOREIGN KEY (secuencia_id) REFERENCES secuencias(id) ON DELETE CASCADE
 );
 
+SELECT * FROM tallas;
 
-CREATE VIEW vista_tallas_secuencia AS
-SELECT 
-    s.id AS secuencia_id,
-    s.numSecuencia,
-    s.fechaInicio,
-    s.fechaFinal,
-    t.id AS talla_id,
-    t.talla_s,
-    t.talla_m,
-    t.talla_l,
-    t.talla_xl,
-    t.cantidad,
-    t.realizadas
-FROM 
-    secuencias s
-JOIN 
-    tallas t ON s.id = t.secuencia_id;
+CREATE TABLE kardex (
+    id               INT AUTO_INCREMENT PRIMARY KEY,
+    talla_id         INT NOT NULL, 
+    fecha            DATE NOT NULL,
+    cantidad         INT NOT NULL,
+    talla ENUM		('S', 'M', 'L', 'XL') NOT NULL,
+    FOREIGN KEY (talla_id) REFERENCES tallas(id) ON DELETE CASCADE
+);
 
 
-SELECT * FROM vista_tallas_secuencia WHERE secuencia_id = 1;
+SELECT * FROM kardex;
 
+
+
+SELECT fecha, cantidad
+FROM kardex
+WHERE talla_id = 4
+ORDER BY fecha ASC;
+
+SELECT kardex.fecha, kardex.cantidad, tallas.talla_s AS talla
+FROM kardex
+JOIN tallas ON tallas.id = kardex.talla_id
+WHERE tallas.talla_s > 0;  -- Solo muestra registros donde talla_s tiene un valor mayor a 0
 
 
 
