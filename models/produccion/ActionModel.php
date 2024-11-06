@@ -212,6 +212,27 @@ class ActionModel {
             return false;
         }
     }
+
+    public function getActionByIdxPDF($id) {
+        $stmt = $this->db->prepare("SELECT * FROM actions WHERE id = :id");
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getPDFByActionId($actionId) {
+        $query = "SELECT * FROM secuencias WHERE id = :actionId";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':actionId', $actionId);
+        $stmt->execute();
+    
+        // Verifica si se recuperan datos
+        $sequences = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if (!$sequences) {
+            error_log("No se encontraron secuencias para la OP con ID: $actionId");
+        }
+        return $sequences;
+    }
     
      
 }

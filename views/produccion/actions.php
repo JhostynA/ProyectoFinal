@@ -5,7 +5,6 @@ $secuenciasModel = new ActionModel();
 ?>
 
 <div class="container mt-5">
-
     <h1 class="mb-4 text-center">PRODUCCIÓN</h1>
 
     <div class="d-flex justify-content-between mb-3 align-items-center">
@@ -16,125 +15,125 @@ $secuenciasModel = new ActionModel();
     </div>
 
     <table id="actionsTable" class="table table-bordered shadow-lg">
-    <thead class="thead-dark">
+        <thead class="thead-dark">
             <tr>
-                <th>Secuencia</th>
-                <th>OP</th>
-                <th>Fecha Inicio</th>
-                <th>Fecha Entrega</th>
-                <th colspan="4" class="text-center">Tallas</th> <!-- Cabecera que abarca las columnas de tallas -->
-                <th>Total Prendas</th>
+                <th style="width: 80px;">Secuencia</th>
+                <th class="text-center">OP</th>
+                <th style="width: 120px;" class="text-center">Fecha Inicio</th>
+                <th style="width: 120px;" class="text-center">Fecha Entrega</th>
+                <th colspan="4" class="text-center">Tallas</th>
+                <th style="width: 100px;">Total Prendas</th>
                 <th>Progreso</th>
+                <th>PDF</th>
             </tr>
             <tr>
-                <th colspan="4"></th> <!-- Espacio vacío para alinear con las primeras columnas -->
+                <th colspan="4"></th>
                 <th>S</th>
                 <th>M</th>
                 <th>L</th>
                 <th>XL</th>
-                <th colspan="2"></th> <!-- Espacio vacío para las últimas columnas -->
+                <th colspan="3"></th>
             </tr>
         </thead>
         <tbody>
-        <?php if (isset($actions) && !empty($actions)): ?>
-            <?php foreach ($actions as $action): ?>
-                <?php 
-                // Llamamos a getTotalPrendasByActionId dentro del bucle foreach para que $action esté definido
-                $tallasTotales = $secuenciasModel->getTotalPrendasByActionId($action['id']);
-                ?>
-                <tr class="table-hover action-row" data-op="<?= htmlspecialchars($action['nombre']) ?>">
-                    <td><button class="btn btn-link" onclick="toggleDetails(this)">▶</button></td>
-                    <td><?= htmlspecialchars($action['nombre']) ?></a></td>
-                    <td><?= htmlspecialchars($action['fecha_inicio']) ?></td>
-                    <td><?= htmlspecialchars($action['fecha_entrega']) ?></td>
-                    <td><?= htmlspecialchars($action['talla_s']) ?></td>
-                    <td><?= htmlspecialchars($action['talla_m']) ?></td>
-                    <td><?= htmlspecialchars($action['talla_l']) ?></td>
-                    <td><?= htmlspecialchars($action['talla_xl']) ?></td>
-                    <td><?= htmlspecialchars($action['talla_s'] + $action['talla_m'] + $action['talla_l'] + $action['talla_xl']) ?></td>
-                    <td>
-                        <div class="progress" style="height: 20px;">
-                            <div class="progress-bar progress-bar-striped progress-bar-animated
-                                <?php if ($action['porcentaje'] <= 40) echo 'bg-danger'; ?>
-                                <?php if ($action['porcentaje'] > 40 && $action['porcentaje'] <= 80) echo 'bg-warning'; ?>
-                                <?php if ($action['porcentaje'] > 80) echo 'bg-success'; ?>" 
-                                role="progressbar" 
-                                style="width: <?= $action['porcentaje'] ?>%;" 
-                                aria-valuenow="<?= $action['porcentaje'] ?>" 
-                                aria-valuemin="0" 
-                                aria-valuemax="100">
-                                <?= $action['porcentaje'] ?>%
+            <?php if (isset($actions) && !empty($actions)): ?>
+                <?php foreach ($actions as $action): ?>
+                    <?php 
+                    $tallasTotales = $secuenciasModel->getTotalPrendasByActionId($action['id']);
+                    ?>
+                    <tr class="table-hover action-row" data-op="<?= htmlspecialchars($action['nombre']) ?>">
+                        <td class="text-center"><button class="btn btn-link" onclick="toggleDetails(this)">▶</button></td>
+                        <td class="text-center"><?= htmlspecialchars($action['nombre']) ?></a></td>
+                        <td><?= htmlspecialchars($action['fecha_inicio']) ?></td>
+                        <td><?= htmlspecialchars($action['fecha_entrega']) ?></td>
+                        <td><?= htmlspecialchars($action['talla_s']) ?></td>
+                        <td><?= htmlspecialchars($action['talla_m']) ?></td>
+                        <td><?= htmlspecialchars($action['talla_l']) ?></td>
+                        <td><?= htmlspecialchars($action['talla_xl']) ?></td>
+                        <td class="text-center"><?= htmlspecialchars($action['talla_s'] + $action['talla_m'] + $action['talla_l'] + $action['talla_xl']) ?></td>
+                        <td>
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated
+                                    <?php if ($action['porcentaje'] <= 40) echo 'bg-danger'; ?>
+                                    <?php if ($action['porcentaje'] > 40 && $action['porcentaje'] <= 80) echo 'bg-warning'; ?>
+                                    <?php if ($action['porcentaje'] > 80) echo 'bg-success'; ?>" 
+                                    role="progressbar" 
+                                    style="width: <?= $action['porcentaje'] ?>%;" 
+                                    aria-valuenow="<?= $action['porcentaje'] ?>" 
+                                    aria-valuemin="0" 
+                                    aria-valuemax="100">
+                                    <?= $action['porcentaje'] ?>%
+                                </div>
                             </div>
-                        </div>
-                    </td>
-                </tr>
-                
-                <!-- Fila de detalles para secuencias -->
-                <tr class="details" style="display: none; background-color: #f9f9f9;">
-                    <td colspan="10">
-                        <h5 class="text-center" style="margin-top: 10px; font-size: 1.25rem; color: #333;">Secuencias de la OP <?= htmlspecialchars($action['nombre']) ?></h5>
-                        <button class="btn btn-primary btn-sm" 
-                                data-toggle="modal" 
-                                data-target="#createSequenceModal" 
-                                data-op-id="<?= $action['id'] ?>"
-                                data-fecha-inicio="<?= htmlspecialchars($action['fecha_inicio']) ?>" 
-                                data-fecha-entrega="<?= htmlspecialchars($action['fecha_entrega']) ?>"
-                                data-talla_s="<?= htmlspecialchars($action['talla_s']) ?>"
-                                data-talla_m="<?= htmlspecialchars($action['talla_m']) ?>"
-                                data-talla_l="<?= htmlspecialchars($action['talla_l']) ?>"
-                                data-talla_xl="<?= htmlspecialchars($action['talla_xl']) ?>"
-                                data-talla_s_registrada="<?= htmlspecialchars($tallasTotales['talla_s']) ?>"
-                                data-talla_m_registrada="<?= htmlspecialchars($tallasTotales['talla_m']) ?>"
-                                data-talla_l_registrada="<?= htmlspecialchars($tallasTotales['talla_l']) ?>"
-                                data-talla_xl_registrada="<?= htmlspecialchars($tallasTotales['talla_xl']) ?>">
-                            Nueva Secuencia
-                        </button>
-                        <table class="table table-sm rounded shadow-sm mt-3">
-                            <thead class="thead-light" style="background-color: #007bff; color: #fff;">
-                                <tr>
-                                    <th>Num. Secuencia</th>
-                                    <th>Fecha Inicio</th>
-                                    <th>Fecha Final</th>
-                                    <th>Prendas a Realizar</th>
-                                    <th>Prendas Faltantes</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php
-                                // Obtener las secuencias de la base de datos para la OP actual
-                                $sequences = $secuenciasModel->getSecuenciasByActionId($action['id']);
-                                foreach ($sequences as $sequence): ?>
+                        </td>
+                        <td class="text-center">
+                            <a href="<?= $host ?>/views/produccion/indexP.php?action=viewPDF&id=<?= $action['id'] ?>" class="btn btn-outline-danger">Ver PDF</a>
+                        </td>
+                    </tr>
+                    
+                    <tr class="details" style="display: none; background-color: #f9f9f9;">
+                        <td colspan="10">
+                            <h5 class="text-center" style="margin-top: 10px; font-size: 1.25rem; color: #333;">Secuencias de la OP <?= htmlspecialchars($action['nombre']) ?></h5>
+                            <button class="btn btn-primary btn-sm" 
+                                    data-toggle="modal" 
+                                    data-target="#createSequenceModal" 
+                                    data-op-id="<?= $action['id'] ?>"
+                                    data-fecha-inicio="<?= htmlspecialchars($action['fecha_inicio']) ?>" 
+                                    data-fecha-entrega="<?= htmlspecialchars($action['fecha_entrega']) ?>"
+                                    data-talla_s="<?= htmlspecialchars($action['talla_s']) ?>"
+                                    data-talla_m="<?= htmlspecialchars($action['talla_m']) ?>"
+                                    data-talla_l="<?= htmlspecialchars($action['talla_l']) ?>"
+                                    data-talla_xl="<?= htmlspecialchars($action['talla_xl']) ?>"
+                                    data-talla_s_registrada="<?= htmlspecialchars($tallasTotales['talla_s']) ?>"
+                                    data-talla_m_registrada="<?= htmlspecialchars($tallasTotales['talla_m']) ?>"
+                                    data-talla_l_registrada="<?= htmlspecialchars($tallasTotales['talla_l']) ?>"
+                                    data-talla_xl_registrada="<?= htmlspecialchars($tallasTotales['talla_xl']) ?>">
+                                Nueva Secuencia
+                            </button>
+                            <table class="table table-sm rounded shadow-sm mt-3">
+                                <thead class="thead-light" style="background-color: #007bff; color: #fff;">
                                     <tr>
-                                        <td><a href="<?= $host ?>/views/produccion/indexP.php?action=viewSecuencia&id=<?= $sequence['id'] ?>" class="text-primary">
-                                                <?= htmlspecialchars($sequence['numSecuencia']) ?>              
-                                            </a>
-                                        </td>
-                                        <td><?= htmlspecialchars($sequence['fechaInicio']) ?></td>
-                                        <td><?= htmlspecialchars($sequence['fechaFinal']) ?></td>
-                                        <td><?= htmlspecialchars($sequence['prendasArealizar']) ?></td>
-                                        <td><?= htmlspecialchars($sequence['prendasFaltantes']) ?></td>
+                                        <th>Num. Secuencia</th>
+                                        <th>Fecha Inicio</th>
+                                        <th>Fecha Final</th>
+                                        <th>Prendas a Realizar</th>
+                                        <th>Prendas Faltantes</th>
                                     </tr>
-                                <?php endforeach; ?>
-                                <?php if (empty($sequences)): ?>
-                                    <tr>
-                                        <td colspan="5" class="text-center text-muted">No hay secuencias disponibles para esta OP.</td>
-                                    </tr>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
-                    </td>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    $sequences = $secuenciasModel->getSecuenciasByActionId($action['id']);
+                                    foreach ($sequences as $sequence): ?>
+                                        <tr>
+                                            <td><a href="<?= $host ?>/views/produccion/indexP.php?action=viewSecuencia&id=<?= $sequence['id'] ?>" class="text-primary">
+                                                    <?= htmlspecialchars($sequence['numSecuencia']) ?>              
+                                                </a>
+                                            </td>
+                                            <td><?= htmlspecialchars($sequence['fechaInicio']) ?></td>
+                                            <td><?= htmlspecialchars($sequence['fechaFinal']) ?></td>
+                                            <td><?= htmlspecialchars($sequence['prendasArealizar']) ?></td>
+                                            <td><?= htmlspecialchars($sequence['prendasFaltantes']) ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                    <?php if (empty($sequences)): ?>
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted">No hay secuencias disponibles para esta OP.</td>
+                                        </tr>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="10" class="text-center text-muted">No hay producciones disponibles.</td>
                 </tr>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <tr>
-                <td colspan="10" class="text-center text-muted">No hay producciones disponibles.</td>
-            </tr>
-        <?php endif; ?>
+            <?php endif; ?>
         </tbody>
-
-</table>
-
+    </table>
 </div>
+
 
 
 <!-- Modal para crear nueva secuencia -->

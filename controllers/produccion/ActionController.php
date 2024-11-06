@@ -45,6 +45,19 @@ class ActionController {
         require '../../views/produccion/viewSecuencia.php'; 
     }    
 
+    public function viewActionPDF($id) {
+        // Recuperar la información de la acción (OP) basada en el id de actions
+        $actionP = $this->actionModel->getActionByIdxPDF($id);
+    
+        // Obtener los archivos PDF asociados a esta acción (OP)
+        $pdfs = $this->actionModel->getPDFByActionId($id);
+    
+        // Cargar la vista para mostrar la información de la OP y los archivos PDF
+        require '../../views/produccion/archivosPDF.php';
+    }
+    
+    
+
     public function createSequence() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $idop = $_POST['idop'];

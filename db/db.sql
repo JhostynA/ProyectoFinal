@@ -113,7 +113,6 @@ CREATE TABLE tallas (
     FOREIGN KEY (secuencia_id) REFERENCES secuencias(id) ON DELETE CASCADE
 );
 
-SELECT * FROM tallas;
 
 CREATE TABLE kardex (
     id               INT AUTO_INCREMENT PRIMARY KEY,
@@ -125,19 +124,15 @@ CREATE TABLE kardex (
 );
 
 
-SELECT * FROM kardex;
+CREATE TABLE pdf_files (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    action_id INT NOT NULL,
+    file_name VARCHAR(255) NOT NULL,
+    file_path VARCHAR(255) NOT NULL,
+    FOREIGN KEY (action_id) REFERENCES actions(id)
+);
 
 
-
-SELECT fecha, cantidad
-FROM kardex
-WHERE talla_id = 4
-ORDER BY fecha ASC;
-
-SELECT kardex.fecha, kardex.cantidad, tallas.talla_s AS talla
-FROM kardex
-JOIN tallas ON tallas.id = kardex.talla_id
-WHERE tallas.talla_s > 0;  -- Solo muestra registros donde talla_s tiene un valor mayor a 0
 
 
 
