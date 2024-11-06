@@ -93,17 +93,16 @@ class ActionModel {
         $stmt->bindParam(':idop', $idop);
         $stmt->execute();
         $action = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        
-
+    
+        // Compara las cantidades de las tallas
         if ($talla_s > $action['talla_s'] || $talla_m > $action['talla_m'] || $talla_l > $action['talla_l'] || $talla_xl > $action['talla_xl']) {
             return false;
         }
-
     
         $prendasFaltantes = $prendasArealizar;
     
-        $stmt = $this->db->prepare("INSERT INTO secuencias (idop, numSecuencia, fechaInicio, fechaFinal, prendasArealizar, prendasFaltantes, talla_s, talla_m, talla_l, talla_xl) VALUES (:idop, :numSecuencia, :fechaInicio, :fechaFinal, :prendasArealizar, :prendasFaltantes, :talla_s, :talla_m, :talla_l, :talla_xl)");
+        $stmt = $this->db->prepare("INSERT INTO secuencias (idop, numSecuencia, fechaInicio, fechaFinal, prendasArealizar, prendasFaltantes, talla_s, talla_m, talla_l, talla_xl) 
+        VALUES (:idop, :numSecuencia, :fechaInicio, :fechaFinal, :prendasArealizar, :prendasFaltantes, :talla_s, :talla_m, :talla_l, :talla_xl)");
         $stmt->bindParam(':idop', $idop);
         $stmt->bindParam(':numSecuencia', $numSecuencia); 
         $stmt->bindParam(':fechaInicio', $fechaInicio);
@@ -118,19 +117,20 @@ class ActionModel {
         if ($stmt->execute()) {
             return $this->db->lastInsertId(); // Devuelve el ID de la secuencia creada
         }
-        
+    
         return false; // Si la inserción falla
     }
+    
     
 
     public function getLastInsertedSequenceId() {
         return $this->db->lastInsertId();
     }
     
-    public function createTalla($secuenciaId, $talla_s, $talla_m, $talla_l, $talla_xl, $cantidad, $realizadas = 0) {
+    public function createTalla($secuenciaId, $talla_s, $talla_m, $talla_l, $talla_xl, $cantidad, $realizadas_s = 0, $realizadas_m = 0, $realizadas_l = 0, $realizadas_xl = 0) {
         $stmt = $this->db->prepare("
-            INSERT INTO tallas (secuencia_id, talla_s, talla_m, talla_l, talla_xl, cantidad, realizadas) 
-            VALUES (:secuencia_id, :talla_s, :talla_m, :talla_l, :talla_xl, :cantidad, :realizadas)
+            INSERT INTO tallas (secuencia_id, talla_s, talla_m, talla_l, talla_xl, cantidad, realizadas_s, realizadas_m, realizadas_l, realizadas_xl) 
+            VALUES (:secuencia_id, :talla_s, :talla_m, :talla_l, :talla_xl, :cantidad, :realizadas_s, :realizadas_m, :realizadas_l, :realizadas_xl)
         ");
         
         $stmt->bindParam(':secuencia_id', $secuenciaId);
@@ -139,10 +139,14 @@ class ActionModel {
         $stmt->bindParam(':talla_l', $talla_l);
         $stmt->bindParam(':talla_xl', $talla_xl);
         $stmt->bindParam(':cantidad', $cantidad);
-        $stmt->bindParam(':realizadas', $realizadas);
+        $stmt->bindParam(':realizadas_s', $realizadas_s);
+        $stmt->bindParam(':realizadas_m', $realizadas_m);
+        $stmt->bindParam(':realizadas_l', $realizadas_l);
+        $stmt->bindParam(':realizadas_xl', $realizadas_xl);
         
         return $stmt->execute();
     }
+    
 
     public function getTotalPrendasByActionId($actionId) {
         $query = "SELECT 
@@ -157,7 +161,60 @@ class ActionModel {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
     
+    public function createKardexMovement($talla_id, $fecha, $cantidad, $talla) {
+        try {
+            // Insertar en la tabla kardex
+            $stmt = $this->db->prepare("INSERT INTO kardex (talla_id, fecha, cantidad) VALUES (:talla_id, :fecha, :cantidad)");
+            $stmt->bindParam(':talla_id', $talla_id);
+            $stmt->bindParam(':fecha', $fecha);
+            $stmt->bindParam(':cantidad', $cantidad);
     
+            // Ejecutar la consulta para insertar
+            if ($stmt->execute()) {
+                // Definir la columna a actualizar según la talla
+                $columna = '';
+                $realizadas_columna = '';
+        
+                switch ($talla) {
+                    case 'S':
+                        $realizadas_columna = 'realizadas_s';
+                        break;
+                    case 'M':
+                        $realizadas_columna = 'realizadas_m';
+                        break;
+                    case 'L':
+                        $realizadas_columna = 'realizadas_l';
+                        break;
+                    case 'XL':
+                        $realizadas_columna = 'realizadas_xl';
+                        break;
+                }
+    
+                // Actualizar la cantidad en la columna específica de la talla en 'tallas'
+                $stmt = $this->db->prepare("UPDATE tallas SET $realizadas_columna = $realizadas_columna + :cantidad WHERE id = :talla_id");
+
+                // Usar un marcador de parámetro para la columna de talla
+                $stmt->bindParam(':cantidad', $cantidad);
+                $stmt->bindParam(':talla_id', $talla_id);
+    
+                // Ejecutar la actualización
+                if ($stmt->execute()) {
+                    return true;
+                } else {
+                    error_log('Error al ejecutar la actualización en tallas');
+                    return false;
+                }
+            } else {
+                error_log('Error al ejecutar la inserción en kardex');
+                return false;
+            }
+        } catch (PDOException $e) {
+            error_log("Error en la base de datos: " . $e->getMessage());
+            return false;
+        }
+    }
      
 }
+

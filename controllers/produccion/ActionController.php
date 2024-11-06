@@ -72,16 +72,12 @@ class ActionController {
             // Obtener el ID de la última secuencia creada
             $lastSequenceId = $this->actionModel->getLastInsertedSequenceId();
     
-            // Establecer la cantidad de prendas realizadas inicialmente en 0
-            $realizadas = 0;
-    
-            // Llama al método para registrar las tallas
-            $this->actionModel->createTalla($lastSequenceId, $talla_s, $talla_m, $talla_l, $talla_xl, $prendasArealizar, $realizadas);
+            // Llama al método para registrar las tallas con la cantidad de prendas realizadas inicializadas en 0
+            $this->actionModel->createTalla($lastSequenceId, $talla_s, $talla_m, $talla_l, $talla_xl, $prendasArealizar, 0, 0, 0, 0);
     
             // Redirige a la vista de producción después de crear la secuencia
             header("Location:../../views/produccion/indexP.php");
             exit();
         }
     }  
-    
 }

@@ -1,19 +1,30 @@
-<?php require_once '../../contenido.php'; 
+<?php
+require_once '../../contenido.php';
 $idop = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
 $conexion = (new Conexion())->getConexion();
-$querySecuencias = "SELECT * FROM tallas WHERE secuencia_id = ?";
+$querySecuencias = "SELECT * FROM secuencias WHERE id = ?";
 $stmtSecuencias = $conexion->prepare($querySecuencias);
 $stmtSecuencias->execute([$idop]);
-$tallas = $stmtSecuencias->fetch(PDO::FETCH_ASSOC);
+$secuencia = $stmtSecuencias->fetch(PDO::FETCH_ASSOC);
 
+$queryTallas = "SELECT * FROM tallas WHERE secuencia_id = ?";
+$stmtTallas = $conexion->prepare($queryTallas);
+$stmtTallas->execute([$idop]);
+$tallas = $stmtTallas->fetch(PDO::FETCH_ASSOC);
+
+// Obtenemos el rango de fechas
+$fechaInicio = $secuencia['fechaInicio'];
+$fechaFinal = $secuencia['fechaFinal'];
 ?>
 
 <div class="container mt-5">
     <h1 class="mb-4" style="text-align: center;">TALLAS</h1>
 
     <table class="table table-hover" id="actionsTable">
-        <thead>
+        <thead> 
+                    
+                    
             <tr>
                 <th>Talla</th>
                 <th>Cantidad</th> 
@@ -81,18 +92,97 @@ $tallas = $stmtSecuencias->fetch(PDO::FETCH_ASSOC);
 
 </div>
 
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<!-- Modal para Kardex -->
+<div class="modal fade" id="kardexModal" tabindex="-1" aria-labelledby="kardexModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="kardexModalLabel">Registrar Kardex - Talla: <span id="kardexTalla"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="kardexForm">
+                    <div class="mb-3">
+                        <label for="kardexFecha" class="form-label">Fecha</label>
+                        <input type="date" class="form-control" id="kardexFecha" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="kardexCantidad" class="form-label">Cantidad</label>
+                        <input type="number" class="form-control" id="kardexCantidad" min="1" required>
+                    </div>
+                    <!-- Campo oculto para el ID de talla -->
+                    <input type="hidden" id="kardexTallaId">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarKardex()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script>
-    function mostrarKardex(talla) {
-        // Implementar lógica para mostrar el kardex de la talla
+    const fechaInicio = "<?= $fechaInicio ?>";
+    const fechaFinal = "<?= $fechaFinal ?>";
+function mostrarKardex(talla, tallaId) {
+    // Establecer la talla en el modal
+    document.getElementById('kardexTalla').innerText = talla;
+    // Asignar el ID de talla al campo oculto
+    document.getElementById('kardexTallaId').value = tallaId;
+
+    // Configurar el rango de fechas
+    const fechaInput = document.getElementById('kardexFecha');
+    fechaInput.min = fechaInicio;
+    fechaInput.max = fechaFinal;
+
+    // Mostrar el modal
+    $('#kardexModal').modal('show');
+}
+
+function guardarKardex() {
+    const tallaId = <?= htmlspecialchars($tallas['id']) ?> 
+    const fecha = document.getElementById('kardexFecha').value;
+    const cantidad = document.getElementById('kardexCantidad').value;
+    const talla = document.getElementById('kardexTalla').innerText;
+
+    if (cantidad <= 0) {
+        alert('La cantidad debe ser mayor a 0.');
+        return; // Detener el envío si la cantidad no es válida
     }
 
-    function mostrarHistorial(talla) {      
-        // Implementar lógica para mostrar el historial de la talla
+    if (fecha && cantidad) {
+        $.ajax({
+        url: '../../controllers/produccion/kardexController.php',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            talla_id: tallaId,
+            fecha: fecha,
+            cantidad: cantidad,
+            talla: talla
+        }),
+        success: function(response) {
+            console.log('Respuesta del servidor:', response);
+            alert('Movimiento registrado en el Kardex.');
+            $('#kardexModal').modal('hide');
+            location.reload(); // Recarga la página para ver los datos actualizados
+        },
+        error: function(xhr, status, error) {
+            console.error('Error al registrar el movimiento en el Kardex:', status, error);
+            alert('Error al registrar el movimiento en el Kardex.');
+        }
+    });
+
+    } else {
+        alert('Por favor, completa todos los campos.');
     }
+}
 </script>
+
 
 <?php require_once '../../footer.php'; ?>
