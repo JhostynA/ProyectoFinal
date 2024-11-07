@@ -23,6 +23,7 @@ $secuenciasModel = new ActionModel();
                 <th style="width: 120px;" class="text-center">Fecha Entrega</th>
                 <th colspan="4" class="text-center">Tallas</th>
                 <th style="width: 100px;">Total Prendas</th>
+                <th class="text-center">Progreso</th>
                 <th class="text-center">PDF</th>
             </tr>
             <tr>
@@ -50,10 +51,23 @@ $secuenciasModel = new ActionModel();
                         <td><?= htmlspecialchars($action['talla_l']) ?></td>
                         <td><?= htmlspecialchars($action['talla_xl']) ?></td>
                         <td class="text-center"><?= htmlspecialchars($action['talla_s'] + $action['talla_m'] + $action['talla_l'] + $action['talla_xl']) ?></td>
+                        <td>
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated
+                                    <?php if ($action['porcentaje'] <= 40) echo 'bg-danger'; ?>
+                                    <?php if ($action['porcentaje'] > 40 && $action['porcentaje'] <= 80) echo 'bg-warning'; ?>
+                                    <?php if ($action['porcentaje'] > 80) echo 'bg-success'; ?>" 
+                                    role="progressbar" 
+                                    style="width: <?= $action['porcentaje'] ?>%;" 
+                                    aria-valuenow="<?= $action['porcentaje'] ?>" 
+                                    aria-valuemin="0" 
+                                    aria-valuemax="100">
+                                    <?= $action['porcentaje'] ?>%
+                                </div>
+                            </div>
+                        </td>
                         <td class="text-center">
-                            <a href="<?= $host ?>/views/produccion/indexP.php?action=viewPDF&id=<?= $action['id'] ?>" class="btn btn-outline-danger">
-                                <i class="fas fa-file-pdf"></i>
-                            </a>
+                            <a href="<?= $host ?>/views/produccion/indexP.php?action=viewPDF&id=<?= $action['id'] ?>" class="btn btn-outline-danger">Ver PDF</a>
                         </td>
                     </tr>
                     <tr class="details" style="display: none; background-color: #f9f9f9;">
@@ -291,31 +305,6 @@ $('#createSequenceModal').on('show.bs.modal', function (event) {
         $('#talla_xl_s').prop('disabled', false);
     }
 });
-
-$('#fechaInicio').on('change', function () {
-    const fechaInicio = new Date($(this).val());
-    const fechaFinalInput = $('#fechaFinal');
-
-    const fechaMinFinal = fechaInicio.toISOString().split('T')[0];
-    fechaFinalInput.attr('min', fechaMinFinal);
-
-    const fechaFinal = new Date(fechaFinalInput.val());
-    if (fechaFinal < fechaInicio) {
-        fechaFinalInput.val('');
-        alert("La fecha final no puede ser anterior a la fecha de inicio.");
-    }
-});
-
-$('#fechaFinal').on('change', function () {
-    const fechaInicio = new Date($('#fechaInicio').val());
-    const fechaFinal = new Date($(this).val());
-
-    if (fechaFinal < fechaInicio) {
-        alert("La fecha final debe ser posterior a la fecha de inicio.");
-        $('#fechaFinal').val('');  
-    }
-});
-
 
 
     $('#formCreateSequence').on('submit', function(e) {
