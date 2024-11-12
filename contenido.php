@@ -1,14 +1,18 @@
 <?php
-session_start(); 
-
+session_start();
 
 if (!isset($_SESSION['login']) || (isset($_SESSION['login']) && !$_SESSION['login']['permitido'])){
-    
     header('Location:index.php');
 }
 
 $host = "http://localhost/LinoFino";
+
+// Incluir el modelo necesario y obtener clientes activos
+require_once __DIR__ . '/models/produccion/ActionModel.php';
+$clienteModel = new ActionModel();
+$clientesActivos = $clienteModel->getClientesActivos();
 ?>
+
 
 
 
@@ -38,35 +42,32 @@ $host = "http://localhost/LinoFino";
    
 </head>
 
-    <body class="sb-nav-fixed">
+<body class="sb-nav-fixed">
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
-        
         <a class="navbar-brand ps-3">Lino Fino</a>
-       
-        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i
-                class="fas fa-bars"></i></button>
+        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!">
+            <i class="fas fa-bars"></i>
+        </button>
         
         <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
-            <div class="input-group">
-            </div>
+            <div class="input-group"></div>
         </form>
         
         <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown"
-                    aria-expanded="false"><i class="fas fa-user fa-fw"></i>
+                <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-user fa-fw"></i>
                     <?= $_SESSION['login']['nombres'] ?>
                     <?= $_SESSION['login']['apepaterno'] ?> 
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                    <li>
-                        <hr class="dropdown-divider" />
-                    </li>
+                    <li><hr class="dropdown-divider" /></li>
                     <li><a class="dropdown-item" href="<?= $host ?>/controllers/login.ct.php?operation=destroy">Cerrar sesión</a></li>
                 </ul>
             </li>
         </ul>
     </nav>
+    
     <div id="layoutSidenav">
         <div id="layoutSidenav_nav">
             <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
@@ -77,13 +78,48 @@ $host = "http://localhost/LinoFino";
                             <div class="sb-nav-link-icon"><i class="fa-solid fa-house"></i></div>
                             Dashboard
                         </a>
-                              
+                        
                         <div class="sb-sidenav-menu-heading">Módulos</div>
-                        <a class="nav-link" href="<?= $host ?>/views/produccion/indexP.php">
-                            <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
-                            Producción
-                        </a>
 
+                        <!-- Menú de Clientes con submenú -->
+                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#clientesSubmenu" aria-expanded="false" aria-controls="clientesSubmenu">
+                            <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
+                            Clientes
+                        </a>
+                        
+                            <!-- Submenú Clientes con desplazamiento hacia la derecha -->
+                            <div id="clientesSubmenu" class="collapse" style="padding-left: 15px;">
+                                <div id="clientesSubmenu" class="collapse" style="padding-left: 15px;">
+                                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#listadoClientesSubmenu" aria-expanded="false" aria-controls="listadoClientesSubmenu" style="padding-left: 10px;">
+                                        <div class="sb-nav-link-icon"><i class="fas fa-list"></i></div>
+                                        Lista de Clientes
+                                    </a>
+
+                                    <!-- Submenú de Listado de Clientes dinámico -->
+                                    <div id="listadoClientesSubmenu" class="collapse" style="padding-left: 20px;">
+                                        <a class="nav-link" href="<?= $host ?>/views/produccion/indexP.php" style="padding-left: 10px;">
+                                            <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
+                                            Listado General
+                                        </a>
+
+                                        <?php foreach ($clientesActivos as $cliente): ?>
+                                            <a class="nav-link" href="#" style="padding-left: 10px;">
+                                                <div class="sb-nav-link-icon"><i class="fas fa-user"></i></div>
+                                                <?= htmlspecialchars($cliente['nombrecliente']) ?>
+                                            </a>
+                                        <?php endforeach; ?>
+                                    </div>
+
+                                    <a class="nav-link" href="<?= $host ?>/views/produccion/registrarProduccion.php" style="padding-left: 10px;">
+                                        <div class="sb-nav-link-icon"><i class="fas fa-user-plus"></i></div>
+                                        Nueva Producción
+                                    </a>
+                                </div>
+
+                            </div>
+
+
+                        <!-- Otros módulos -->
                         <a class="nav-link" href="<?= $host ?>/views/personas/">
                             <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
                             Personas
@@ -104,7 +140,6 @@ $host = "http://localhost/LinoFino";
                 </div>
             </nav>
         </div>
+
         <div id="layoutSidenav_content">
 
-        
-        

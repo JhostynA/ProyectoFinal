@@ -17,8 +17,8 @@ $secuenciasModel = new ActionModel();
     <table id="actionsTable" class="table table-bordered shadow-lg">
         <thead class="thead-dark">
             <tr>
+                <th class="text-center" style="width: 80px;">OP</th>
                 <th style="width: 80px;">Secuencia</th>
-                <th class="text-center">OP</th>
                 <th style="width: 120px;" class="text-center">Fecha Inicio</th>
                 <th style="width: 120px;" class="text-center">Fecha Entrega</th>
                 <th colspan="4" class="text-center">Tallas</th>
@@ -42,15 +42,16 @@ $secuenciasModel = new ActionModel();
                     $tallasTotales = $secuenciasModel->getTotalPrendasByActionId($action['id']);
                     ?>
                     <tr class="table-hover action-row" data-op="<?= htmlspecialchars($action['nombre']) ?>">
+                    <td class="text-center"><?= htmlspecialchars($action['nombre']) ?></a></td>
                         <td class="text-center"><button class="btn btn-link" onclick="toggleDetails(this)">▶</button></td>
-                        <td class="text-center"><?= htmlspecialchars($action['nombre']) ?></a></td>
+                        
                         <td><?= htmlspecialchars($action['fecha_inicio']) ?></td>
                         <td><?= htmlspecialchars($action['fecha_entrega']) ?></td>
                         <td><?= htmlspecialchars($action['talla_s']) ?></td>
                         <td><?= htmlspecialchars($action['talla_m']) ?></td>
                         <td><?= htmlspecialchars($action['talla_l']) ?></td>
                         <td><?= htmlspecialchars($action['talla_xl']) ?></td>
-                        <td class="text-center"><?= htmlspecialchars($action['talla_s'] + $action['talla_m'] + $action['talla_l'] + $action['talla_xl']) ?></td>
+                        <td class="text-center"><?= htmlspecialchars($action['cantidad_prendas']) ?></td>
                         <td>
                             <div class="progress" style="height: 20px;">
                                 <div class="progress-bar progress-bar-striped progress-bar-animated
@@ -67,8 +68,9 @@ $secuenciasModel = new ActionModel();
                             </div>
                         </td>
                         <td class="text-center">
-                            <a href="<?= $host ?>/views/produccion/indexP.php?action=viewPDF&id=<?= $action['id'] ?>" class="btn btn-outline-danger">Ver PDF</a>
-                        </td>
+                        <a href="<?= $host ?>/views/produccion/indexP.php?action=viewPDF&id=<?= $action['id'] ?>" class="btn btn-outline-danger">
+                                <i class="fas fa-file-pdf"></i>
+                            </a></td>
                     </tr>
                     <tr class="details" style="display: none; background-color: #f9f9f9;">
                     <td colspan="10">
@@ -159,7 +161,7 @@ $secuenciasModel = new ActionModel();
                     <input type="hidden" name="talla_l_max" id="talla_l_max">
                     <input type="hidden" name="talla_xl_max" id="talla_xl_max">
                     
-                    <div class="form-group" style="display:none;">
+                    <div class="form-group">
                         <label for="numSecuencia">Número de Secuencia:</label>
                         <input type="number" class="form-control" name="numSecuencia">
                     </div>

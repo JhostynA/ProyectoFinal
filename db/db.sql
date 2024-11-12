@@ -27,15 +27,6 @@ INSERT INTO operaciones (operacion,precio) VALUES
     ('Etiqueta',0.03),
     ('Costos fijos',0.336);
 
-CREATE TABLE productividad (
-    idproductividad 	INT PRIMARY KEY AUTO_INCREMENT,
-    nombretarea 		VARCHAR(255) NOT NULL,  
-    fechainicio 		DATE NOT NULL,           
-    fechafinal			DATE NOT NULL,           
-    totalprendas 		INT NOT NULL,           
-    fecharegistro 		DATETIME NOT NULL DEFAULT NOW()  
-);
-
 CREATE TABLE personas (
     idpersona 		INT PRIMARY KEY AUTO_INCREMENT,
     apepaterno 		VARCHAR(20) 	NOT NULL,
@@ -81,7 +72,6 @@ CREATE TABLE actions (
     created_at 			TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-
 CREATE TABLE secuencias (
     id                     INT AUTO_INCREMENT PRIMARY KEY,
     idop                   INT,
@@ -96,7 +86,6 @@ CREATE TABLE secuencias (
     talla_xl               INT NULL DEFAULT 0, 
     FOREIGN KEY (idop) REFERENCES actions(id)
 );                          
-
 
 CREATE TABLE tallas (
     id 				INT AUTO_INCREMENT PRIMARY KEY,
@@ -123,6 +112,8 @@ CREATE TABLE kardex (
     FOREIGN KEY (talla_id) REFERENCES tallas(id) ON DELETE CASCADE
 );
 
+CREATE TABLE clientes
+
 
 CREATE TABLE pdf_files (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -133,26 +124,51 @@ CREATE TABLE pdf_files (
 );
 
 
-
-
+CREATE TABLE debug_trigger_log (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    idop INT,
+    total_prendas_realizadas INT,
+    total_prendas_a_realizar INT,
+    porcentaje_calculado FLOAT,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 DELIMITER //
-CREATE PROCEDURE actualizarPorcentaje
-(
-	IN action_id INT, 
-    IN nuevo_porcentaje INT
-)
+CREATE TRIGGER actualizar_porcentaje_trigger
+AFTER UPDATE ON secuencias
+FOR EACH ROW
 BEGIN
-    IF nuevo_porcentaje BETWEEN 0 AND 100 THEN
+    DECLARE total_prendas_realizadas INT DEFAULT 0;
+    DECLARE total_prendas_a_realizar INT DEFAULT 0;
+    DECLARE porcentaje_avance FLOAT DEFAULT 0;
+
+    SELECT SUM(prendasArealizar - prendasFaltantes)
+    INTO total_prendas_realizadas
+    FROM secuencias
+    WHERE idop = NEW.idop;
+
+    SELECT cantidad_prendas
+    INTO total_prendas_a_realizar
+    FROM actions
+    WHERE id = NEW.idop;
+
+    INSERT INTO debug_trigger_log (idop, total_prendas_realizadas, total_prendas_a_realizar)
+    VALUES (NEW.idop, total_prendas_realizadas, total_prendas_a_realizar);
+
+    IF total_prendas_a_realizar > 0 THEN
+      SET porcentaje_avance = FLOOR((total_prendas_realizadas * 100) / total_prendas_a_realizar);
+
+        UPDATE debug_trigger_log
+        SET porcentaje_calculado = porcentaje_avance
+        WHERE id = LAST_INSERT_ID();
+
         UPDATE actions
-        SET porcentaje = nuevo_porcentaje
-        WHERE id = action_id;
-    ELSE
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El porcentaje debe estar entre 0 y 100';
+        SET porcentaje = porcentaje_avance
+        WHERE id = NEW.idop;
     END IF;
-END //
-
-
+END;
+//
+DELIMITER ;
 
 DELIMITER $$
 CREATE PROCEDURE spu_colaboradores_login(IN _nomusuario VARCHAR(50))
@@ -193,7 +209,7 @@ BEGIN
     INSERT INTO productividad (nombretarea, fechainicio, fechafinal, totalprendas)
     VALUES (_nombre_tarea, _fecha_inicio, _fecha_final, _total_prendas);
     
-    SELECT @@last_insert_id AS idproductividad;  -- Retorna el ID del registro insertado
+    SELECT @@last_insert_id AS idproductividad; 
 END $$
 DELIMITER ;
 

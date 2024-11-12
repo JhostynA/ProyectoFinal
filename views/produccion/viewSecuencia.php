@@ -32,74 +32,46 @@ $date = date('Y-m-d');
 
     <table class="table table-hover" id="actionsTable">
         <thead> 
-                    
-                    
             <tr>
                 <th>Talla</th>
                 <th>Cantidad</th> 
                 <th>Realizadas</th>
+                <th>Faltantes</th>
                 <th>Kardex</th>
                 <th>Historial</th>
             </tr>
         </thead>
         <tbody>
     <?php if (!empty($tallas)): ?>
+        <?php 
+        $tallasArray = ['S', 'M', 'L', 'XL'];
+        foreach ($tallasArray as $talla): 
+            $cantidad = $tallas['talla_' . strtolower($talla)];
+            $realizadas = $tallas['realizadas_' . strtolower($talla)] ?? 0;
+            $faltantes = $cantidad - $realizadas;
+        ?>
         <tr>
-            <td>S</td>
-            <td><?= htmlspecialchars($tallas['talla_s']) ?></td>
-            <td><?= htmlspecialchars($tallas['realizadas_s'] ?? 0) ?></td>
+            <td><?= $talla ?></td>
+            <td><?= htmlspecialchars($cantidad) ?></td>
+            <td><?= htmlspecialchars($realizadas) ?></td>
+            <td><?= htmlspecialchars($faltantes) ?></td>
             <td>
-                <button class="btn btn-info btn-sm <?= $tallas['talla_s'] == 0 ? 'disabled' : '' ?>" onclick="mostrarKardex('S')">Kardex</button>
+                <button class="btn btn-info btn-sm <?= $cantidad == 0 ? 'disabled' : '' ?>" onclick="mostrarKardex('<?= $talla ?>')">Kardex</button>
             </td>
             <td>
-                <button class="btn btn-warning btn-sm <?= $tallas['talla_s'] == 0 ? 'disabled' : '' ?>" onclick="mostrarHistorial('S')">Historial</button>
+                <button class="btn btn-warning btn-sm <?= $cantidad == 0 ? 'disabled' : '' ?>" onclick="mostrarHistorial('<?= $talla ?>')">Historial</button>
             </td>
         </tr>
-        <tr>
-            <td>M</td>
-            <td><?= htmlspecialchars($tallas['talla_m']) ?></td>
-            <td><?= htmlspecialchars($tallas['realizadas_m'] ?? 0) ?></td>
-            <td>
-                <button class="btn btn-info btn-sm <?= $tallas['talla_m'] == 0 ? 'disabled' : '' ?>" onclick="mostrarKardex('M')">Kardex</button>
-            </td>
-            <td>
-                <button class="btn btn-warning btn-sm <?= $tallas['talla_m'] == 0 ? 'disabled' : '' ?>" onclick="mostrarHistorial('M')">Historial</button>
-            </td>
-        </tr>
-        <tr>
-            <td>L</td>
-            <td><?= htmlspecialchars($tallas['talla_l']) ?></td>
-            <td><?= htmlspecialchars($tallas['realizadas_l'] ?? 0) ?></td>
-            <td>
-                <button class="btn btn-info btn-sm <?= $tallas['talla_l'] == 0 ? 'disabled' : '' ?>" onclick="mostrarKardex('L')">Kardex</button>
-            </td>
-            <td>
-                <button class="btn btn-warning btn-sm <?= $tallas['talla_l'] == 0 ? 'disabled' : '' ?>" onclick="mostrarHistorial('L')">Historial</button>
-            </td>
-        </tr>
-        <tr>
-            <td>XL</td>
-            <td><?= htmlspecialchars($tallas['talla_xl']) ?></td>
-            <td><?= htmlspecialchars($tallas['realizadas_xl'] ?? 0) ?></td>
-            <td>
-                <button class="btn btn-info btn-sm <?= $tallas['talla_xl'] == 0 ? 'disabled' : '' ?>" onclick="mostrarKardex('XL')">Kardex</button>
-            </td>
-            <td>
-                <button class="btn btn-warning btn-sm <?= $tallas['talla_xl'] == 0 ? 'disabled' : '' ?>" onclick="mostrarHistorial('XL')">Historial</button>
-            </td>
-        </tr>
+        <?php endforeach; ?>
     <?php else: ?>
         <tr>
-            <td colspan="5" style="text-align: center;">No hay tallas registradas.</td>
+            <td colspan="6" style="text-align: center;">No hay tallas registradas.</td>
         </tr>
     <?php endif; ?>
-</tbody>
-
+    </tbody>
     </table>
                
     <a href="<?= $host ?>/views/produccion/indexP.php" class="btn btn-secondary">Regresar</a>
-
-
 </div>
 
 <!-- Modal para Kardex -->
@@ -159,6 +131,7 @@ $date = date('Y-m-d');
         </div>
     </div>
 </div>
+
 
 
 

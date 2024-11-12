@@ -17,10 +17,14 @@ if (isset($_GET['action'])) {
         $actionController->viewAction($_GET['id']);
     } elseif ($_GET['action'] === 'viewSecuencia' && isset($_GET['id'])) { 
         $actionController->viewSecuencia($_GET['id']);  
-    } elseif ($_GET['action'] === 'viewPDF' && isset($_GET['id'])) { // Nueva acción para ver PDF
+    } elseif ($_GET['action'] === 'viewPDF' && isset($_GET['id'])) { 
         $actionController->viewActionPDF($_GET['id']);
     } elseif ($_GET['action'] === 'createSequence') { 
         $actionController->createSequence(); 
+    } elseif ($_GET['action'] === 'createClientAction') { 
+        $actionController->createClientAction(); 
+    }elseif ($_GET['action'] === 'updateClientAction' && isset($_GET['id'])) { 
+        $actionController->updateClientAction();
     }
 } else {
     $actionController->showActions();

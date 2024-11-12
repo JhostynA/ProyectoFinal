@@ -10,26 +10,92 @@ class ActionModel {
         $this->db = $conexion->getConexion();
     }
 
-    public function createAction($nombre, $fecha_inicio, $fecha_entrega, $talla_s, $talla_m, $talla_l, $talla_xl) {
+    public function createClient($nombrecliente, $telefono, $email) {
+        // Verificar si el cliente ya existe
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM clientes WHERE nombrecliente = :nombrecliente");
+        $stmt->bindParam(':nombrecliente', $nombrecliente);
+        $stmt->execute();
+        $count = $stmt->fetchColumn();
+    
+        if ($count > 0) {
+            return false;
+        }
+    
+        // Insertar el nuevo cliente
+        $stmt = $this->db->prepare("INSERT INTO clientes (nombrecliente, telefono, email) VALUES (:nombrecliente, :telefono, :email)");
+        $stmt->bindParam(':nombrecliente', $nombrecliente);
+        $stmt->bindParam(':telefono', $telefono);
+        $stmt->bindParam(':email', $email);
+        return $stmt->execute();
+    }
+    
+    public function updateClient($id, $nombrecliente, $telefono, $email, $inactive_at) {
+        // Construimos la consulta de actualización
+        $sql = "UPDATE clientes 
+                SET nombrecliente = :nombrecliente,
+                    telefono = :telefono,
+                    email = :email,
+                    inactive_at = :inactive_at
+                WHERE id = :id";
+        
+        // Preparamos la consulta
+        $stmt = $this->db->prepare($sql);
+        
+        // Asignamos los valores a los parámetros
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->bindParam(':nombrecliente', $nombrecliente, PDO::PARAM_STR);
+        $stmt->bindParam(':telefono', $telefono, PDO::PARAM_STR);
+        $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+        $stmt->bindParam(':inactive_at', $inactive_at, PDO::PARAM_STR);
+
+        // Ejecutamos la consulta y retornamos el resultado
+        return $stmt->execute();
+    }
+
+    public function createAction($idcliente, $estilo, $division, $nombre, $color, $fecha_inicio, $fecha_entrega, $talla_s, $talla_m, $talla_l, $talla_xl) {
+        // Verificar si el nombre ya existe
         $stmt = $this->db->prepare("SELECT COUNT(*) FROM actions WHERE nombre = :nombre");
         $stmt->bindParam(':nombre', $nombre);
         $stmt->execute();
         $count = $stmt->fetchColumn();
-
+    
         if ($count > 0) {
             return false;
         }
-
-        $stmt = $this->db->prepare("INSERT INTO actions (nombre, fecha_inicio, fecha_entrega, talla_s, talla_m, talla_l, talla_xl) VALUES (:nombre, :fecha_inicio, :fecha_entrega, :talla_s, :talla_m, :talla_l, :talla_xl)");
+    
+        // Calcular la cantidad total de prendas
+        $cantidad_prendas = (int)$talla_s + (int)$talla_m + (int)$talla_l + (int)$talla_xl;
+    
+        // Preparar la consulta de inserción con los nuevos campos
+        $stmt = $this->db->prepare("INSERT INTO actions (idcliente, estilo, division, nombre, color, fecha_inicio, fecha_entrega, talla_s, talla_m, talla_l, talla_xl, cantidad_prendas) VALUES (:idcliente, :estilo, :division, :nombre, :color, :fecha_inicio, :fecha_entrega, :talla_s, :talla_m, :talla_l, :talla_xl, :cantidad_prendas)");
+    
+        // Bind de los parámetros
+        $stmt->bindParam(':idcliente', $idcliente);
+        $stmt->bindParam(':estilo', $estilo);
+        $stmt->bindParam(':division', $division);
         $stmt->bindParam(':nombre', $nombre);
+        $stmt->bindParam(':color', $color);
         $stmt->bindParam(':fecha_inicio', $fecha_inicio);
         $stmt->bindParam(':fecha_entrega', $fecha_entrega);
         $stmt->bindParam(':talla_s', $talla_s);
         $stmt->bindParam(':talla_m', $talla_m);
         $stmt->bindParam(':talla_l', $talla_l);
         $stmt->bindParam(':talla_xl', $talla_xl);
+        $stmt->bindParam(':cantidad_prendas', $cantidad_prendas);
         return $stmt->execute();
     }
+
+    public function getClientesActivos() {
+        $stmt = $this->db->prepare("SELECT id, nombrecliente FROM clientes WHERE inactive_at IS NULL");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    public function getClientes(){
+        $stmt = $this->db->query("SELECT * FROM clientes");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
 
     public function getActions() {
         $stmt = $this->db->query("SELECT * FROM actions ORDER BY created_at DESC;");
@@ -69,54 +135,51 @@ class ActionModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }    
     
-    public function createSequence($idop, $fechaInicio, $fechaFinal, $prendasArealizar, $talla_s, $talla_m, $talla_l, $talla_xl) {
-        
-        $stmt = $this->db->prepare("SELECT MAX(numSecuencia) FROM secuencias WHERE idop = :idop");
-        $stmt->bindParam(':idop', $idop);
-        $stmt->execute();
-        $lastNumSecuencia = $stmt->fetchColumn();
-        $numSecuencia = $lastNumSecuencia ? $lastNumSecuencia + 1 : 1; 
-    
-        $stmt = $this->db->prepare("SELECT COUNT(*) FROM secuencias WHERE idop = :idop AND numSecuencia = :numSecuencia");
-        $stmt->bindParam(':idop', $idop);
-        $stmt->bindParam(':numSecuencia', $numSecuencia);
-        $stmt->execute();
-        $count = $stmt->fetchColumn();
-    
-        if ($count > 0) {
-            return false; 
-        }
-    
-        $stmt = $this->db->prepare("SELECT talla_s, talla_m, talla_l, talla_xl FROM actions WHERE id = :idop");
-        $stmt->bindParam(':idop', $idop);
-        $stmt->execute();
-        $action = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-        if ($talla_s > $action['talla_s'] || $talla_m > $action['talla_m'] || $talla_l > $action['talla_l'] || $talla_xl > $action['talla_xl']) {
-            return false;
-        }
-    
-        $prendasFaltantes = $prendasArealizar;
-    
-        $stmt = $this->db->prepare("INSERT INTO secuencias (idop, numSecuencia, fechaInicio, fechaFinal, prendasArealizar, prendasFaltantes, talla_s, talla_m, talla_l, talla_xl) 
-        VALUES (:idop, :numSecuencia, :fechaInicio, :fechaFinal, :prendasArealizar, :prendasFaltantes, :talla_s, :talla_m, :talla_l, :talla_xl)");
-        $stmt->bindParam(':idop', $idop);
-        $stmt->bindParam(':numSecuencia', $numSecuencia); 
-        $stmt->bindParam(':fechaInicio', $fechaInicio);
-        $stmt->bindParam(':fechaFinal', $fechaFinal);
-        $stmt->bindParam(':prendasArealizar', $prendasArealizar);
-        $stmt->bindParam(':prendasFaltantes', $prendasFaltantes);
-        $stmt->bindParam(':talla_s', $talla_s);
-        $stmt->bindParam(':talla_m', $talla_m);
-        $stmt->bindParam(':talla_l', $talla_l);
-        $stmt->bindParam(':talla_xl', $talla_xl);
-    
-        if ($stmt->execute()) {
-            return $this->db->lastInsertId(); 
-        }
-    
-        return false; 
+    public function createSequence($idop, $numSecuencia, $fechaInicio, $fechaFinal, $prendasArealizar, $talla_s, $talla_m, $talla_l, $talla_xl) {
+    // Verifica que no exista un duplicado con el mismo idop y numSecuencia
+    $stmt = $this->db->prepare("SELECT COUNT(*) FROM secuencias WHERE idop = :idop AND numSecuencia = :numSecuencia");
+    $stmt->bindParam(':idop', $idop);
+    $stmt->bindParam(':numSecuencia', $numSecuencia);
+    $stmt->execute();
+    $count = $stmt->fetchColumn();
+
+    if ($count > 0) {
+        return false; // Ya existe una secuencia con este número
     }
+
+    // Verifica que las cantidades de tallas no excedan las permitidas en 'actions'
+    $stmt = $this->db->prepare("SELECT talla_s, talla_m, talla_l, talla_xl FROM actions WHERE id = :idop");
+    $stmt->bindParam(':idop', $idop);
+    $stmt->execute();
+    $action = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($talla_s > $action['talla_s'] || $talla_m > $action['talla_m'] || $talla_l > $action['talla_l'] || $talla_xl > $action['talla_xl']) {
+        return false;
+    }
+
+    $prendasFaltantes = $prendasArealizar;
+
+    // Inserta la nueva secuencia
+    $stmt = $this->db->prepare("INSERT INTO secuencias (idop, numSecuencia, fechaInicio, fechaFinal, prendasArealizar, prendasFaltantes, talla_s, talla_m, talla_l, talla_xl) 
+    VALUES (:idop, :numSecuencia, :fechaInicio, :fechaFinal, :prendasArealizar, :prendasFaltantes, :talla_s, :talla_m, :talla_l, :talla_xl)");
+    $stmt->bindParam(':idop', $idop);
+    $stmt->bindParam(':numSecuencia', $numSecuencia); 
+    $stmt->bindParam(':fechaInicio', $fechaInicio);
+    $stmt->bindParam(':fechaFinal', $fechaFinal);
+    $stmt->bindParam(':prendasArealizar', $prendasArealizar);
+    $stmt->bindParam(':prendasFaltantes', $prendasFaltantes);
+    $stmt->bindParam(':talla_s', $talla_s);
+    $stmt->bindParam(':talla_m', $talla_m);
+    $stmt->bindParam(':talla_l', $talla_l);
+    $stmt->bindParam(':talla_xl', $talla_xl);
+
+    if ($stmt->execute()) {
+        return $this->db->lastInsertId(); 
+    }
+
+    return false; 
+}
+
     
     
 
@@ -237,6 +300,12 @@ class ActionModel {
         }
         return $sequences;
     }
+
+    public function actualizarInventario($actionId) {
+        $stmt = $this->db->prepare("CALL actualizar_inventario(:actionId)");
+        $stmt->bindParam(':actionId', $actionId, PDO::PARAM_INT);
+        return $stmt->execute();
+    }    
     
      
 }
