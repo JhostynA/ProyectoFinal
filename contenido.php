@@ -95,20 +95,15 @@ $clientesActivos = $clienteModel->getClientesActivos();
                                         Lista de Clientes
                                     </a>
 
-                                    <!-- Submenú de Listado de Clientes dinámico -->
-                                    <div id="listadoClientesSubmenu" class="collapse" style="padding-left: 20px;">
-                                        <a class="nav-link" href="<?= $host ?>/views/produccion/indexP.php" style="padding-left: 10px;">
-                                            <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
-                                            Listado General
-                                        </a>
-
-                                        <?php foreach ($clientesActivos as $cliente): ?>
-                                            <a class="nav-link" href="#" style="padding-left: 10px;">
-                                                <div class="sb-nav-link-icon"><i class="fas fa-user"></i></div>
-                                                <?= htmlspecialchars($cliente['nombrecliente']) ?>
-                                            </a>
-                                        <?php endforeach; ?>
-                                    </div>
+                                   <!-- Submenú dinámico de Clientes -->
+    <div id="listadoClientesSubmenu" class="collapse" style="padding-left: 20px;">
+        <?php foreach ($clientesActivos as $cliente): ?>
+            <a class="nav-link" href="<?= $host ?>/views/produccion/indexP.php?cliente_id=<?= $cliente['id'] ?>" style="padding-left: 10px;">
+                <div class="sb-nav-link-icon"><i class="fas fa-user"></i></div>
+                <?= htmlspecialchars($cliente['nombrecliente']) ?>
+            </a>
+        <?php endforeach; ?>
+    </div>
 
                                     <a class="nav-link" href="<?= $host ?>/views/produccion/registrarProduccion.php" style="padding-left: 10px;">
                                         <div class="sb-nav-link-icon"><i class="fas fa-user-plus"></i></div>

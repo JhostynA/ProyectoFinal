@@ -63,20 +63,25 @@ class ActionController {
             $talla_xl = isset($_POST['talla_xl']) ? $_POST['talla_xl'] : 0;
     
             if ($this->actionModel->createAction($idcliente, $estilo, $division, $nombre, $color, $fecha_inicio, $fecha_entrega, $talla_s, $talla_m, $talla_l, $talla_xl)) {
-                header('Location: ../../views/produccion/registrarCliente.php');
+                header('Location: ../../views/produccion/registrarProduccion.php');
                 exit();
             } else {
-                header('Location: ../../views/produccion/registrarCliente.php?error=NombreYaExiste');
+                header('Location: ../../views/produccion/registrarProduccion.php?error=NombreYaExiste');
                 exit();
             }
         }
     }
     
     
-    public function showActions() {
-        $actions = $this->actionModel->getActions();
-        require '../../views/produccion/actions.php'; 
+    public function showActions($cliente_id = null) {
+        if ($cliente_id) {
+            $actions = $this->actionModel->getActionsByClient($cliente_id);
+        } else {
+            $actions = $this->actionModel->getActions();
+        }
+        require '../../views/produccion/actions.php';
     }
+    
 
     public function viewAction($id) {
         $action = $this->actionModel->getActionById($id);

@@ -6,6 +6,10 @@ require '../../controllers/produccion/ActionController.php';
 $actionModel = new ActionModel();
 $actionController = new ActionController($actionModel);
 
+$cliente_id = isset($_GET['cliente_id']) ? (int) $_GET['cliente_id'] : null;
+
+
+
 if (isset($_GET['success']) && $_GET['success'] == 1) {
     echo '<div class="alert alert-success" role="alert">Secuencia creada exitosamente.</div>';
 }
@@ -27,5 +31,5 @@ if (isset($_GET['action'])) {
         $actionController->updateClientAction();
     }
 } else {
-    $actionController->showActions();
+    $actionController->showActions($cliente_id);
 }

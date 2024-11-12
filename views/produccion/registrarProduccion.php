@@ -4,54 +4,57 @@ require_once '../../models/produccion/ActionModel.php';
 $clientes = (new ActionModel())->getClientesActivos();
 ?>
 
-<div class="container my-5">
+<div class="container my-5 p-4 shadow-sm rounded bg-light">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Registrar Nueva Producción</h2>
         <a href="<?= $host ?>/views/produccion/registrarClientes.php" class="btn btn-secondary">Administrar Clientes</a>
     </div>
+    
     <form id="formCreateAction" method="POST" action="<?= $host ?>/views/produccion/indexP.php?action=create">
-        <div class="row mb-3">
-            <div class="col-md-6">
+        
+        <!-- Primera Fila: Cliente, OP, División -->
+        <div class="row mb-4">
+            <div class="col-md-4">
                 <label for="idcliente" class="form-label">Cliente:</label>
-                <select class="form-control" id="idcliente" name="idcliente" required>
+                <select class="form-select" id="idcliente" name="idcliente" required>
                     <option value="">Seleccione un cliente</option>
                     <?php foreach ($clientes as $cliente): ?>
                         <option value="<?= $cliente['id'] ?>"><?= htmlspecialchars($cliente['nombrecliente']) ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
-            <div class="col-md-6">
-                <label for="estilo" class="form-label">Estilo:</label>
-                <input type="text" class="form-control" id="estilo" name="estilo" required>
-            </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label for="division" class="form-label">División:</label>
-                <input type="text" class="form-control" id="division" name="division" required>
-            </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <label for="nombre" class="form-label">OP:</label>
                 <input type="number" class="form-control" name="nombre" required>
             </div>
+            <div class="col-md-4">
+                <label for="division" class="form-label">División:</label>
+                <input type="text" class="form-control" id="division" name="division" required>
+            </div>
         </div>
-        <div class="row mb-3">
-            <div class="col-md-6">
+        
+        <!-- Segunda Fila: Estilo, Color, Fecha de Inicio, Fecha de Entrega -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <label for="estilo" class="form-label">Estilo:</label>
+                <input type="text" class="form-control" id="estilo" name="estilo" required>
+            </div>
+            <div class="col-md-3">
                 <label for="color" class="form-label">Color:</label>
                 <input type="text" class="form-control" id="color" name="color" required>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-3">
                 <label for="fecha_inicio" class="form-label">Fecha de Inicio:</label>
                 <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" required>
             </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-md-6">
+            <div class="col-md-3">
                 <label for="fecha_entrega" class="form-label">Fecha de Entrega:</label>
                 <input type="date" class="form-control" id="fecha_entrega" name="fecha_entrega" required>
             </div>
         </div>
-        <div class="row mb-3">
+        
+        <!-- Tercera Fila: Cantidades por Tallas -->
+        <div class="row mb-4">
             <div class="col-md-3">
                 <label for="talla_s" class="form-label">Cantidad Talla S:</label>
                 <input type="number" class="form-control" id="talla_s" name="talla_s" min="0" >
@@ -69,11 +72,14 @@ $clientes = (new ActionModel())->getClientesActivos();
                 <input type="number" class="form-control" id="talla_xl" name="talla_xl" min="0" >
             </div>
         </div>
-        <div class="text-end">
-            <button type="submit" class="btn btn-primary">Registrar Producción</button>
+        
+        <!-- Botón de Envío -->
+        <div class="text-end mt-4">
+            <button type="submit" class="btn btn-primary btn-lg">Registrar Producción</button>
         </div>
     </form>
 </div>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {

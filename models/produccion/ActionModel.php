@@ -102,6 +102,13 @@ class ActionModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getActionsByClient($cliente_id) {
+        $stmt = $this->db->prepare("SELECT * FROM actions WHERE idcliente = ? ORDER BY created_at DESC");
+        $stmt->execute([$cliente_id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+
     public function getActionById($id) {
         $stmt = $this->db->prepare("SELECT * FROM actions WHERE id = :id");
         $stmt->bindParam(':id', $id);
