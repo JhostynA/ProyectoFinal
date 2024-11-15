@@ -106,38 +106,35 @@ class ActionController {
     
 
     public function createSequence() {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $idop = $_POST['idop'];
-        $fechaInicio = $_POST['fechaInicio'];
-        $fechaFinal = $_POST['fechaFinal'];
-
-        // Obtén el numSecuencia desde el formulario o calcula su valor
-        $numSecuencia = isset($_POST['numSecuencia']) ? (int)$_POST['numSecuencia'] : 1; // Por ejemplo, empieza en 1 si no se proporciona
-
-        $talla_s = isset($_POST['talla_s']) ? (int)$_POST['talla_s'] : 0;
-        $talla_m = isset($_POST['talla_m']) ? (int)$_POST['talla_m'] : 0;
-        $talla_l = isset($_POST['talla_l']) ? (int)$_POST['talla_l'] : 0;
-        $talla_xl = isset($_POST['talla_xl']) ? (int)$_POST['talla_xl'] : 0;
-
-        $prendasArealizar = $talla_s + $talla_m + $talla_l + $talla_xl;
-
-        // Llama a createSequence con el nuevo parámetro $numSecuencia
-        $sequenceCreated = $this->actionModel->createSequence($idop, $numSecuencia, $fechaInicio, $fechaFinal, $prendasArealizar, $talla_s, $talla_m, $talla_l, $talla_xl);
-
-        if (!$sequenceCreated) {
-            header("Location:../../views/produccion/indexP.php?error=SecuenciaNoCreada");
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $idcliente = $_POST['idop'];  // El cliente id es lo que necesitas
+            $fechaInicio = $_POST['fechaInicio'];
+            $fechaFinal = $_POST['fechaFinal'];
+    
+            $numSecuencia = isset($_POST['numSecuencia']) ? (int)$_POST['numSecuencia'] : 1;
+    
+            $talla_s = isset($_POST['talla_s']) ? (int)$_POST['talla_s'] : 0;
+            $talla_m = isset($_POST['talla_m']) ? (int)$_POST['talla_m'] : 0;
+            $talla_l = isset($_POST['talla_l']) ? (int)$_POST['talla_l'] : 0;
+            $talla_xl = isset($_POST['talla_xl']) ? (int)$_POST['talla_xl'] : 0;
+    
+            $prendasArealizar = $talla_s + $talla_m + $talla_l + $talla_xl;
+    
+            $sequenceCreated = $this->actionModel->createSequence($idcliente, $numSecuencia, $fechaInicio, $fechaFinal, $prendasArealizar, $talla_s, $talla_m, $talla_l, $talla_xl);
+    
+            if (!$sequenceCreated) {
+                header("Location:../../views/produccion/indexP.php?cliente_id=" . urlencode($idcliente) . "&error=SecuenciaNoCreada");
+                exit();
+            }
+    
+            $lastSequenceId = $this->actionModel->getLastInsertedSequenceId();
+            $this->actionModel->createTalla($lastSequenceId, $talla_s, $talla_m, $talla_l, $talla_xl, $prendasArealizar, 0, 0, 0, 0);
+    
+            // Redirige a la vista de producción para el cliente
+            header("Location:../../views/produccion/indexP.php?cliente_id=" . urlencode($idcliente));
             exit();
         }
-
-        // Obtén el último ID insertado en secuencias
-        $lastSequenceId = $this->actionModel->getLastInsertedSequenceId();
-
-        // Crea el registro en la tabla de tallas
-        $this->actionModel->createTalla($lastSequenceId, $talla_s, $talla_m, $talla_l, $talla_xl, $prendasArealizar, 0, 0, 0, 0);
-
-        header("Location:../../views/produccion/indexP.php");
-        exit();
     }
-}
+    
 
 }

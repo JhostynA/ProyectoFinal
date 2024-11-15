@@ -5,14 +5,39 @@ $secuenciasModel = new ActionModel();
 ?>
 
 <div class="container mt-5">
-    <h1 class="mb-4 text-center">PRODUCCIÓN</h1>
-
     <div class="d-flex justify-content-between mb-3 align-items-center">
-        <input type="text" id="searchInput" class="form-control mr-2" placeholder="Buscar por OP..." style="width: 200px;">
-        <button type="button" class="btn btn-success shadow" data-toggle="modal" data-target="#createActionModal">
-            Nueva Producción
-        </button>
+        <h1 class="mb-4 text-center">PRODUCCIÓN</h1>
+        
+        <?php if (isset($actions) && !empty($actions)): ?>
+           
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#opModal">Detalles OP</button>
+
+            <script>
+                var actions = <?php echo json_encode($actions); ?>; 
+                
+                function openModal() {
+                    var tableBody = document.getElementById('opTableBody');
+                    tableBody.innerHTML = ""; 
+
+                    actions.forEach(function(action) {
+                        var row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${action.nombre}</td>
+                            <td>${action.estilo}</td>
+                            <td>${action.division}</td>
+                            <td>${action.color}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                }
+                document.querySelector('[data-bs-toggle="modal"]').addEventListener('click', openModal);
+            </script>
+        <?php endif; ?>
+
     </div>
+
+    
+
 
     <table id="actionsTable" class="table table-bordered shadow-lg">
         <thead class="thead-dark">
@@ -42,9 +67,9 @@ $secuenciasModel = new ActionModel();
                     $tallasTotales = $secuenciasModel->getTotalPrendasByActionId($action['id']);
                     ?>
                     <tr class="table-hover action-row" data-op="<?= htmlspecialchars($action['nombre']) ?>">
+                        
                     <td class="text-center"><?= htmlspecialchars($action['nombre']) ?></a></td>
                         <td class="text-center"><button class="btn btn-link" onclick="toggleDetails(this)">▶</button></td>
-                        
                         <td><?= htmlspecialchars($action['fecha_inicio']) ?></td>
                         <td><?= htmlspecialchars($action['fecha_entrega']) ?></td>
                         <td><?= htmlspecialchars($action['talla_s']) ?></td>
@@ -85,6 +110,8 @@ $secuenciasModel = new ActionModel();
                                     data-talla_m="<?= htmlspecialchars($action['talla_m']) ?>"
                                     data-talla_l="<?= htmlspecialchars($action['talla_l']) ?>"
                                     data-talla_xl="<?= htmlspecialchars($action['talla_xl']) ?>"
+                                    data-idcliente="<?= htmlspecialchars($action['idcliente']) ?>" 
+                                     data-idop="<?= $op_id ?>"
                                     data-talla_s_registrada="<?= htmlspecialchars($tallasTotales['talla_s']) ?>"
                                     data-talla_m_registrada="<?= htmlspecialchars($tallasTotales['talla_m']) ?>"
                                     data-talla_l_registrada="<?= htmlspecialchars($tallasTotales['talla_l']) ?>"
@@ -154,7 +181,7 @@ $secuenciasModel = new ActionModel();
                 </button>
             </div>
             <div class="modal-body">
-                <form id="formCreateSequence" method="POST" action="<?= $host ?>/views/produccion/indexP.php?action=createSequence">
+                <form id="formCreateSequence" method="POST" action="<?= $host ?>/views/produccion/indexP.php?action=createSequence&cliente_id=<?= urlencode(5) ?>">
                     <input type="hidden" name="idop" id="opIdInput">
                     <input type="hidden" name="talla_s_max" id="talla_s_max">
                     <input type="hidden" name="talla_m_max" id="talla_m_max">
@@ -196,52 +223,33 @@ $secuenciasModel = new ActionModel();
     </div>
 </div>
 
-
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-<!-- Modal para crear nueva producción -->
-<div class="modal fade" id="createActionModal" tabindex="-1">
-    <div class="modal-dialog">
+<!-- Modal -->
+<div class="modal fade" id="opModal" tabindex="-1" aria-labelledby="opModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Nueva Producción</h5>
-                <button type="button" class="close" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
+                <h5 class="modal-title" id="opModalLabel">Detalles de las Ordenes de Producción</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="formCreateAction" method="POST" action="<?= $host ?>/views/produccion/indexP.php?action=create">
-                    <div class="form-group">
-                        <label for="name">OP:</label>
-                        <input type="number" class="form-control" name="nombre" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="fecha_inicio">Fecha de Inicio:</label>
-                        <input type="date" class="form-control" name="fecha_inicio" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="fecha_entrega">Fecha de Entrega:</label>
-                        <input type="date" class="form-control" name="fecha_entrega" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="talla_s">Cantidad Talla S:</label>
-                        <input type="number" class="form-control" name="talla_s" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label for="talla_m">Cantidad Talla M:</label>
-                        <input type="number" class="form-control" name="talla_m" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label for="talla_l">Cantidad Talla L:</label>
-                        <input type="number" class="form-control" name="talla_l" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label for="talla_xl">Cantidad Talla XL:</label>
-                        <input type="number" class="form-control" name="talla_xl" min="0">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Guardar</button>
-                </form>
+                <!-- Buscador -->
+                <input type="text" id="searchInput" class="form-control mb-3" placeholder="Buscar por OP, estilo, división o color" onkeyup="searchTable()">
+                
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Estilo</th>
+                            <th>División</th>
+                            <th>Color</th>
+                        </tr>
+                    </thead>
+                    <tbody id="opTableBody">
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
@@ -249,8 +257,75 @@ $secuenciasModel = new ActionModel();
 
 
 
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
 
 <script>
+
+$('#detailsModal').on('show.bs.modal', function (event) {
+    var opData = <?php echo json_encode($actions[0]); ?>;
+    
+    $('#detailNombre').text(opData.nombre);
+    $('#detailEstilo').text(opData.estilo);
+    $('#detailDivision').text(opData.division);
+    $('#detailColor').text(opData.color);
+});
+
+var actions = <?php echo json_encode($actions); ?>; 
+
+function openModal() {
+    var tableBody = document.getElementById('opTableBody');
+    tableBody.innerHTML = ""; 
+
+    actions.forEach(function(action) {
+        var row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${action.nombre}</td>
+            <td>${action.estilo}</td>
+            <td>${action.division}</td>
+            <td>${action.color}</td>
+        `;
+        tableBody.appendChild(row);
+    });
+}
+
+document.querySelector('[data-bs-toggle="modal"]').addEventListener('click', openModal);
+
+function searchTable() {
+    var input, filter, table, tr, td, i, j, txtValue, showRow;
+    input = document.getElementById('searchInput');
+    filter = input.value.toLowerCase();
+    table = document.querySelector('#opModal .table');
+    tr = table.getElementsByTagName('tr');
+    
+    for (i = 1; i < tr.length; i++) {  
+        showRow = false;
+        
+        td = tr[i].getElementsByTagName('td');
+        // Recorrer las celdas de cada fila
+        for (j = 0; j < td.length; j++) {
+            if (td[j]) {
+                txtValue = td[j].textContent || td[j].innerText;
+                if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                    showRow = true;
+                    break; 
+                }
+            }
+        }
+        
+        if (showRow) {
+            tr[i].style.display = "";
+        } else {
+            tr[i].style.display = "none";
+        }
+    }
+}
+
+
+
+
 
 let talla_s_max, talla_m_max, talla_l_max, talla_xl_max;
 let inicioS, inicioM, inicioL, inicioXL;

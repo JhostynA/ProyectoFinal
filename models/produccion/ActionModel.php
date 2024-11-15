@@ -1,6 +1,8 @@
 <?php
 
-require_once '../../models/Login.php';
+define('BASE_PATH', dirname(__DIR__)); // Define el directorio raíz del proyecto
+require_once(BASE_PATH . '/Login.php');
+
 
 class ActionModel {
     private $db;
@@ -9,6 +11,9 @@ class ActionModel {
         $conexion = new Conexion();
         $this->db = $conexion->getConexion();
     }
+
+   
+
 
     public function createClient($nombrecliente, $telefono, $email) {
         // Verificar si el cliente ya existe
@@ -92,9 +97,11 @@ class ActionModel {
     }
     
     public function getClientes(){
-        $stmt = $this->db->query("SELECT * FROM clientes");
+        // Ordenar primero los clientes activos (inactive_at IS NULL) y luego los inactivos
+        $stmt = $this->db->query("SELECT * FROM clientes ORDER BY inactive_at IS NULL DESC, fecha_creacion DESC");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    
     
 
     public function getActions() {

@@ -7,6 +7,14 @@ $clienteModel = new ActionModel();
 $clientes = $clienteModel->getClientes();
 ?>
 
+<style>
+    .inactivo {
+        opacity: 0.5;  /* Reduce la opacidad de las filas inactivas */
+        background-color: #f8d7da;  /* Opcional: cambiar el fondo de las filas inactivas */
+    }
+</style>
+
+
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-4">Listado de Clientes</h2>
@@ -16,22 +24,23 @@ $clientes = $clienteModel->getClientes();
         </div>
     </div>
 
+    <!-- Campo de búsqueda -->
+    <input type="text" id="searchInput" class="form-control mb-3" placeholder="Buscar por nombre, teléfono o email" onkeyup="searchTable()">
+
     <table class="table table-striped table-bordered">
         <thead class="table-dark">
             <tr>
-                <th style="width: 50px;" class="text-center">ID</th>
-                <th style="width: 150px;">Nombre Cliente</th>
-                <th class="text-center" style="width: 110px;">Teléfono</th>
+ññ                <th class="text-center" style="width: 110px;">Teléfono</th>
                 <th class="text-center" style="width: 200px;">Email</th>
-                <th class="text-center" style="width: 150px;">Fecha de Creación</th>
+                <th class="text-center" style="width: 150px;">Fecha Añadidoñ</th>
                 <th class="text-center" style="width: 150px;">Estado</th>
                 <th class="text-center" style="width: 100px;">Acciones</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="clientTable">
             <?php foreach ($clientes as $cliente): ?>
-                <tr>
-                    <td><?php echo htmlspecialchars($cliente['id']); ?></td>
+                <!-- Aplicar la clase "inactivo" si el cliente está inactivo -->
+                <tr class="<?php echo is_null($cliente['inactive_at']) ? '' : 'inactivo'; ?>">
                     <td><?php echo !empty($cliente['nombrecliente']) ? htmlspecialchars($cliente['nombrecliente']) : 'Sin dato'; ?></td>
                     <td><?php echo !empty($cliente['telefono']) ? htmlspecialchars($cliente['telefono']) : 'Sin dato'; ?></td>
                     <td><?php echo !empty($cliente['email']) ? htmlspecialchars($cliente['email']) : 'Sin dato'; ?></td>
@@ -123,3 +132,39 @@ $clientes = $clienteModel->getClientes();
 </div>
 
 <?php require_once '../../footer.php'; ?>
+
+<script>
+    // Función para filtrar las filas de la tabla
+    function searchTable() {
+        var input, filter, table, tr, td, i, j, txtValue, showRow;
+        input = document.getElementById('searchInput');
+        filter = input.value.toLowerCase();
+        table = document.querySelector('.table');
+        tr = table.getElementsByTagName('tr');
+        
+        // Iterar sobre cada fila de la tabla
+        for (i = 1; i < tr.length; i++) {
+            showRow = false;
+            td = tr[i].getElementsByTagName('td');
+            
+            // Revisar cada celda de la fila
+            for (j = 0; j < td.length; j++) {
+                if (td[j]) {
+                    txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        showRow = true;
+                        break; // Si encuentra una coincidencia, se muestra la fila
+                    }
+                }
+            }
+            
+            // Mostrar o esconder la fila
+            if (showRow) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
+</script>
+
