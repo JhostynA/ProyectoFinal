@@ -1,73 +1,86 @@
 <?php
 
-require_once '/xampp/htdocs/LinoFino/models/pagos/Pagos.php';
+require_once '../../models/pagos/Pagos.php';
 
-$pagos = new Pagos();
+header('Content-Type: application/json');
+$pagos = new Pago();
 
-// Manejo de solicitudes POST
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Verifica si se ha enviado una operación
-    if (isset($_POST['operacion'])) {
-        switch ($_POST['operacion']) {
-            case 'register':
-                // Verifica que se han proporcionado todos los datos necesarios
-                if (isset($_POST['idpersona'], $_POST['idoperacion'], $_POST['prendas_realizadas'])) {
-                    $idpersona = $_POST['idpersona'];
-                    $idoperacion = $_POST['idoperacion'];
-                    $prendas_realizadas = $_POST['prendas_realizadas'];
+// Verificamos si existe una operación que debe ejecutarse
+if (isset($_GET['operation'])) {
 
-                    var_dump($idpersona, $idoperacion, $prendas_realizadas);
-                    
-                    // Llama al método para registrar el pago
-                    $resultado = $pagos->registrarPago($idpersona, $idoperacion, $prendas_realizadas);
+    $pago = new Pago(); // Creamos una instancia del modelo Pago
 
-                    // Manejo de posibles errores en el registro
-                    if (isset($resultado['error'])) {
-                        echo json_encode(["estado" => "error", "mensaje" => $resultado['error']]);
-                    } else {
-                        echo json_encode(["estado" => "success", "idpago" => $resultado]);
-                    }
-                } else {
-                    echo json_encode(["error" => "Faltan datos para registrar el pago"]);
-                }
-                break;
-        }
-    } else {
-        echo json_encode(["error" => "No se especificó ninguna operación"]);
+    // Operación para listar todos los pagos (usamos GET)
+    if ($_GET['operation'] == 'listarPagos') {
+        $resultado = $pago->listarPagos(); // Llamamos al método listarPagos
+        echo json_encode($resultado); // Enviamos la lista de pagos como respuesta en JSON
     }
 }
 
-// Manejo de solicitudes GET
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    // Verifica si se ha enviado una operación
-    if (isset($_GET['operacion'])) {
-        switch ($_GET['operacion']) {
-            case 'getAll':
-                echo json_encode($pagos->obtenerPagos());
-                break;
-            case 'buscarPersonas':
-                if (isset($_GET['term'])) {
-                    $term = $_GET['term'];
-                    echo json_encode($pagos->buscarPersonas($term));
-                } else {
-                    echo json_encode(["error" => "No se proporcionó un término de búsqueda"]);
-                }
-                break;
-            case 'buscarOperaciones': // Agrega esta parte para buscar operaciones
-                if (isset($_GET['termino'])) {
-                    $termino = $_GET['termino'];
-                    echo json_encode($pagos->buscarOperaciones($termino));
-                } else {
-                    echo json_encode(["error" => "No se proporcionó un término de búsqueda"]);
-                }
-                break;
-            default:
-                echo json_encode(["error" => "Operación no válida"]);
-                break;
+if (isset($_POST['operation'])) {
+    switch ($_POST['operation']) {
+        case 'register':
+            $datos = [
+                '_idpersona' => $_POST['_idpersona'],
+                '_idoperacion' => $_POST['_idoperacion'],
+                '_idop' => $_POST['_idop'],
+                '_idsecuencia' => $_POST['_idsecuencia'],
+                '_prendas_realizadas' => $_POST['_prendas_realizadas']
+            ];
+            $resultado = $pagos->registrarPago($datos);
+            echo json_encode($resultado);
+            break;
+    }
+
+
+
+    /*     $pago = new Pago(); // Creamos una instancia del modelo Pago
+
+    // Operación para registrar un nuevo pago (usamos POST)
+    if ($_POST['operation'] == 'registrarPago') {
+        if (isset($_POST['nombre_persona'], $_POST['nombre_operacion'], $_POST['nombre_op'], $_POST['numSecuencia'], $_POST['prendas_realizadas'])) {
+            $nombre_persona = $_POST['nombre_persona'];
+            $nombre_operacion = $_POST['nombre_operacion'];
+            $nombre_op = $_POST['nombre_op'];
+            $numSecuencia = $_POST['numSecuencia'];
+            $prendas_realizadas = $_POST['prendas_realizadas'];
+
+            // Llamamos al método registrarPago y obtenemos el resultado
+            $resultado = $pago->registrarPago($nombre_persona, $nombre_operacion, $nombre_op, $numSecuencia, $prendas_realizadas);
+            echo json_encode($resultado); // Enviamos el resultado como respuesta en JSON
+        } else {
+            echo json_encode(['error' => 'Faltan parámetros para registrar el pago.']);
         }
-    } else {
-        echo json_encode(["error" => "No se especificó ninguna operación"]);
+    } */
+
+    // Operación para actualizar un pago (usamos POST)
+    if ($_POST['operation'] == 'actualizarPago') {
+        if (isset($_POST['idpago'], $_POST['idpersona'], $_POST['idoperacion'], $_POST['idop'], $_POST['idsecuencia'], $_POST['prendas_realizadas'])) {
+            $idpago = $_POST['idpago'];
+            $idpersona = $_POST['idpersona'];
+            $idoperacion = $_POST['idoperacion'];
+            $idop = $_POST['idop'];
+            $idsecuencia = $_POST['idsecuencia'];
+            $prendas_realizadas = $_POST['prendas_realizadas'];
+
+            // Llamamos al método actualizarPago y obtenemos el resultado
+            $resultado = $pago->actualizarPago($idpago, $idpersona, $idoperacion, $idop, $idsecuencia, $prendas_realizadas);
+            echo json_encode($resultado); // Enviamos el resultado como respuesta en JSON
+        } else {
+            echo json_encode(['error' => 'Faltan parámetros para actualizar el pago.']);
+        }
+    }
+
+    // Operación para eliminar un pago (usamos POST)
+    if ($_POST['operation'] == 'eliminarPago') {
+        if (isset($_POST['idpago'])) {
+            $idpago = $_POST['idpago'];
+
+            // Llamamos al método eliminarPago y obtenemos el resultado
+            $resultado = $pago->eliminarPago($idpago);
+            echo json_encode($resultado); // Enviamos el resultado como respuesta en JSON
+        } else {
+            echo json_encode(['error' => 'Faltan parámetros para eliminar el pago.']);
+        }
     }
 }
-
-
