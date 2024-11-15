@@ -1,6 +1,6 @@
 <?php
 
-define('BASE_PATH', dirname(__DIR__)); // Define el directorio raíz del proyecto
+define('BASE_PATH', dirname(__DIR__)); 
 require_once(BASE_PATH . '/Login.php');
 
 
@@ -16,7 +16,6 @@ class ActionModel {
 
 
     public function createClient($nombrecliente, $telefono, $email) {
-        // Verificar si el cliente ya existe
         $stmt = $this->db->prepare("SELECT COUNT(*) FROM clientes WHERE nombrecliente = :nombrecliente");
         $stmt->bindParam(':nombrecliente', $nombrecliente);
         $stmt->execute();
@@ -26,7 +25,6 @@ class ActionModel {
             return false;
         }
     
-        // Insertar el nuevo cliente
         $stmt = $this->db->prepare("INSERT INTO clientes (nombrecliente, telefono, email) VALUES (:nombrecliente, :telefono, :email)");
         $stmt->bindParam(':nombrecliente', $nombrecliente);
         $stmt->bindParam(':telefono', $telefono);
@@ -35,7 +33,6 @@ class ActionModel {
     }
     
     public function updateClient($id, $nombrecliente, $telefono, $email, $inactive_at) {
-        // Construimos la consulta de actualización
         $sql = "UPDATE clientes 
                 SET nombrecliente = :nombrecliente,
                     telefono = :telefono,
@@ -43,22 +40,19 @@ class ActionModel {
                     inactive_at = :inactive_at
                 WHERE id = :id";
         
-        // Preparamos la consulta
         $stmt = $this->db->prepare($sql);
         
-        // Asignamos los valores a los parámetros
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->bindParam(':nombrecliente', $nombrecliente, PDO::PARAM_STR);
         $stmt->bindParam(':telefono', $telefono, PDO::PARAM_STR);
         $stmt->bindParam(':email', $email, PDO::PARAM_STR);
         $stmt->bindParam(':inactive_at', $inactive_at, PDO::PARAM_STR);
 
-        // Ejecutamos la consulta y retornamos el resultado
         return $stmt->execute();
     }
 
     public function createAction($idcliente, $estilo, $division, $nombre, $color, $fecha_inicio, $fecha_entrega, $talla_s, $talla_m, $talla_l, $talla_xl) {
-        // Verificar si el nombre ya existe
+
         $stmt = $this->db->prepare("SELECT COUNT(*) FROM actions WHERE nombre = :nombre");
         $stmt->bindParam(':nombre', $nombre);
         $stmt->execute();
@@ -68,13 +62,10 @@ class ActionModel {
             return false;
         }
     
-        // Calcular la cantidad total de prendas
         $cantidad_prendas = (int)$talla_s + (int)$talla_m + (int)$talla_l + (int)$talla_xl;
     
-        // Preparar la consulta de inserción con los nuevos campos
         $stmt = $this->db->prepare("INSERT INTO actions (idcliente, estilo, division, nombre, color, fecha_inicio, fecha_entrega, talla_s, talla_m, talla_l, talla_xl, cantidad_prendas) VALUES (:idcliente, :estilo, :division, :nombre, :color, :fecha_inicio, :fecha_entrega, :talla_s, :talla_m, :talla_l, :talla_xl, :cantidad_prendas)");
     
-        // Bind de los parámetros
         $stmt->bindParam(':idcliente', $idcliente);
         $stmt->bindParam(':estilo', $estilo);
         $stmt->bindParam(':division', $division);
@@ -97,7 +88,6 @@ class ActionModel {
     }
     
     public function getClientes(){
-        // Ordenar primero los clientes activos (inactive_at IS NULL) y luego los inactivos
         $stmt = $this->db->query("SELECT * FROM clientes ORDER BY inactive_at IS NULL DESC, fecha_creacion DESC");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -150,7 +140,7 @@ class ActionModel {
     }    
     
     public function createSequence($idop, $numSecuencia, $fechaInicio, $fechaFinal, $prendasArealizar, $talla_s, $talla_m, $talla_l, $talla_xl) {
-    // Verifica que no exista un duplicado con el mismo idop y numSecuencia
+
     $stmt = $this->db->prepare("SELECT COUNT(*) FROM secuencias WHERE idop = :idop AND numSecuencia = :numSecuencia");
     $stmt->bindParam(':idop', $idop);
     $stmt->bindParam(':numSecuencia', $numSecuencia);
@@ -158,10 +148,9 @@ class ActionModel {
     $count = $stmt->fetchColumn();
 
     if ($count > 0) {
-        return false; // Ya existe una secuencia con este número
+        return false; 
     }
 
-    // Verifica que las cantidades de tallas no excedan las permitidas en 'actions'
     $stmt = $this->db->prepare("SELECT talla_s, talla_m, talla_l, talla_xl FROM actions WHERE id = :idop");
     $stmt->bindParam(':idop', $idop);
     $stmt->execute();
@@ -173,7 +162,6 @@ class ActionModel {
 
     $prendasFaltantes = $prendasArealizar;
 
-    // Inserta la nueva secuencia
     $stmt = $this->db->prepare("INSERT INTO secuencias (idop, numSecuencia, fechaInicio, fechaFinal, prendasArealizar, prendasFaltantes, talla_s, talla_m, talla_l, talla_xl) 
     VALUES (:idop, :numSecuencia, :fechaInicio, :fechaFinal, :prendasArealizar, :prendasFaltantes, :talla_s, :talla_m, :talla_l, :talla_xl)");
     $stmt->bindParam(':idop', $idop);

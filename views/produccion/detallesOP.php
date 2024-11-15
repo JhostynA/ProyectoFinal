@@ -16,16 +16,13 @@ echo "<p>ID del Cliente recibido: " . htmlspecialchars($clienteId) . "</p>";
     
     <?php 
     if ($clienteId) {
-        // Agrega un mensaje para verificar que el cliente ID se está pasando correctamente
         echo "<p>ID del Cliente: " . htmlspecialchars($clienteId) . "</p>";
 
-        // Prepara y ejecuta la consulta
         $stmt = $conexion->prepare("SELECT * FROM actions WHERE idcliente = :idcliente");
         $stmt->bindParam(':idcliente', $clienteId, PDO::PARAM_INT);
         $stmt->execute();
         $actions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Verifica si se encontraron resultados
         if ($actions && count($actions) > 0): ?>
             <table class="table table-bordered mt-4">
                 <thead>

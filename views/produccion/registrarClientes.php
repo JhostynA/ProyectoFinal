@@ -2,15 +2,14 @@
 require_once '../../contenido.php';
 require_once '../../models/produccion/ActionModel.php';
 
-// Crear una instancia del modelo
 $clienteModel = new ActionModel();
 $clientes = $clienteModel->getClientes();
 ?>
 
 <style>
     .inactivo {
-        opacity: 0.5;  /* Reduce la opacidad de las filas inactivas */
-        background-color: #f8d7da;  /* Opcional: cambiar el fondo de las filas inactivas */
+        opacity: 0.5;  
+        background-color: #f8d7da;  
     }
 </style>
 
@@ -30,16 +29,16 @@ $clientes = $clienteModel->getClientes();
     <table class="table table-striped table-bordered">
         <thead class="table-dark">
             <tr>
-ññ                <th class="text-center" style="width: 110px;">Teléfono</th>
+                <th class="text-center" style="width: 110px;">Nombre Cliente</th>
+                <th class="text-center" style="width: 110px;">Teléfono</th>
                 <th class="text-center" style="width: 200px;">Email</th>
-                <th class="text-center" style="width: 150px;">Fecha Añadidoñ</th>
+                <th class="text-center" style="width: 150px;">Fecha Añadido</th>
                 <th class="text-center" style="width: 150px;">Estado</th>
                 <th class="text-center" style="width: 100px;">Acciones</th>
             </tr>
         </thead>
         <tbody id="clientTable">
             <?php foreach ($clientes as $cliente): ?>
-                <!-- Aplicar la clase "inactivo" si el cliente está inactivo -->
                 <tr class="<?php echo is_null($cliente['inactive_at']) ? '' : 'inactivo'; ?>">
                     <td><?php echo !empty($cliente['nombrecliente']) ? htmlspecialchars($cliente['nombrecliente']) : 'Sin dato'; ?></td>
                     <td><?php echo !empty($cliente['telefono']) ? htmlspecialchars($cliente['telefono']) : 'Sin dato'; ?></td>
@@ -49,7 +48,6 @@ $clientes = $clienteModel->getClientes();
                         <?php echo is_null($cliente['inactive_at']) ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-danger">Inactivo</span>'; ?>
                     </td>
                     <td class="text-center">
-                        <!-- Botón para abrir el modal de actualización específico -->
                         <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#updateClientModal<?php echo $cliente['id']; ?>">Actualizar</button>
                     </td>
                 </tr>
@@ -134,7 +132,6 @@ $clientes = $clienteModel->getClientes();
 <?php require_once '../../footer.php'; ?>
 
 <script>
-    // Función para filtrar las filas de la tabla
     function searchTable() {
         var input, filter, table, tr, td, i, j, txtValue, showRow;
         input = document.getElementById('searchInput');
@@ -142,23 +139,20 @@ $clientes = $clienteModel->getClientes();
         table = document.querySelector('.table');
         tr = table.getElementsByTagName('tr');
         
-        // Iterar sobre cada fila de la tabla
         for (i = 1; i < tr.length; i++) {
             showRow = false;
             td = tr[i].getElementsByTagName('td');
             
-            // Revisar cada celda de la fila
             for (j = 0; j < td.length; j++) {
                 if (td[j]) {
                     txtValue = td[j].textContent || td[j].innerText;
                     if (txtValue.toLowerCase().indexOf(filter) > -1) {
                         showRow = true;
-                        break; // Si encuentra una coincidencia, se muestra la fila
+                        break; 
                     }
                 }
             }
             
-            // Mostrar o esconder la fila
             if (showRow) {
                 tr[i].style.display = "";
             } else {

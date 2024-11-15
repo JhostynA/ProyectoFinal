@@ -12,7 +12,6 @@ $clientes = (new ActionModel())->getClientesActivos();
     
     <form id="formCreateAction" method="POST" action="<?= $host ?>/views/produccion/indexP.php?action=create">
         
-        <!-- Primera Fila: Cliente, OP, División -->
         <div class="row mb-4">
             <div class="col-md-4">
                 <label for="idcliente" class="form-label">Cliente:</label>
@@ -33,7 +32,6 @@ $clientes = (new ActionModel())->getClientesActivos();
             </div>
         </div>
         
-        <!-- Segunda Fila: Estilo, Color, Fecha de Inicio, Fecha de Entrega -->
         <div class="row mb-4">
             <div class="col-md-3">
                 <label for="estilo" class="form-label">Estilo:</label>
@@ -53,7 +51,6 @@ $clientes = (new ActionModel())->getClientesActivos();
             </div>
         </div>
         
-        <!-- Tercera Fila: Cantidades por Tallas -->
         <div class="row mb-4">
             <div class="col-md-3">
                 <label for="talla_s" class="form-label">Cantidad Talla S:</label>
@@ -73,7 +70,6 @@ $clientes = (new ActionModel())->getClientesActivos();
             </div>
         </div>
         
-        <!-- Botón de Envío -->
         <div class="text-end mt-4">
             <button type="submit" class="btn btn-primary btn-lg">Registrar Producción</button>
         </div>

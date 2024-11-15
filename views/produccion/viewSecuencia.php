@@ -92,7 +92,6 @@ $date = date('Y-m-d');
                         <label for="kardexCantidad" class="form-label">Cantidad</label>
                         <input type="number" class="form-control" id="kardexCantidad" min="1" required>
                     </div>
-                    <!-- Campo oculto para el ID de talla -->
                     <input type="hidden" id="kardexTallaId">
                 </form>
             </div>
