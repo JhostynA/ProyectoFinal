@@ -1,253 +1,261 @@
 <?php
 require_once '../../contenido.php';
-$idop = isset($_GET['id']) ? intval($_GET['id']) : 0;
+require_once '../../models/produccion/ActionModel.php';
 
-$conexion = (new Conexion())->getConexion();
-$querySecuencias = "SELECT * FROM secuencias WHERE id = ?";
-$stmtSecuencias = $conexion->prepare($querySecuencias);
-$stmtSecuencias->execute([$idop]);
-$secuencia = $stmtSecuencias->fetch(PDO::FETCH_ASSOC);
+$conexion = new Conexion();
+$conn = $conexion->getConexion(); 
 
-$queryTallas = "SELECT * FROM tallas WHERE secuencia_id = ?";
-$stmtTallas = $conexion->prepare($queryTallas);
-$stmtTallas->execute([$idop]);
-$tallas = $stmtTallas->fetch(PDO::FETCH_ASSOC);
+$produccionModel = new ActionModel();
 
-$fechaInicio = $secuencia['fechaInicio'];
-$fechaFinal = $secuencia['fechaFinal'];
+$personas = $produccionModel->getPersonasActivas();
+$operaciones = $produccionModel->getOperaciones();
 
-$tallaMaxima = [
-    'S' => $tallas['talla_s'],
-    'M' => $tallas['talla_m'],
-    'L' => $tallas['talla_l'],
-    'XL' => $tallas['talla_xl']
-];
 
-date_default_timezone_set('America/Lima');
-$date = date('Y-m-d');
+$id = $secuencia['iddetop'];
+$stmt = $conn->prepare("
+    SELECT op.idcliente 
+    FROM detalleop det
+    JOIN ordenesproduccion op ON det.idop = op.idop
+    WHERE det.iddetop = :iddetop
+");
+$stmt->bindParam(':iddetop', $id, PDO::PARAM_INT);
+$stmt->execute();
+$result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if ($result) {
+    $idcliente = $result['idcliente'];
+} else {
+    $idcliente = null;
+}
 ?>
 
 <div class="container mt-5">
-    <h1 class="mb-4" style="text-align: center;">TALLAS</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h4 mb-0">Control de Producción</h1>
+            <p class="text-muted">Gestión de registros de producción</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="<?= $host ?>/views/produccion/indexP.php?cliente_id=<?= htmlspecialchars($idcliente) ?>" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Regresar
+            </a>
+            <button class="btn btn-primary" 
+                    data-bs-toggle="modal" 
+                    data-bs-target="#nuevoRegistroModal"
+                    data-iddetop="<?= htmlspecialchars($secuencia['iddetop']) ?>">
+                <i class="bi bi-plus-circle"></i> Nuevo Registro
+            </button>
+        </div>
+    </div>
 
-    <table class="table table-hover" id="actionsTable">
-        <thead> 
+    <div class="card mb-4">
+        <div class="card-body">
+            <form>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="fecha" class="form-label">Fecha</label>
+                        <input type="date" class="form-control" id="fecha" name="fecha">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="estadoPago" class="form-label">Estado de Pago</label>
+                        <select class="form-select" id="estadoPago" name="estadoPago">
+                            <option value="Todos" selected>Todos</option>
+                            <option value="Pagado">Pagado</option>
+                            <option value="Pendiente">Pendiente</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-3 text-end">
+                    <button type="button" class="btn btn-secondary" id="limpiarFiltros">Limpiar Filtros</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+    <table class="table table-striped table-hover table-bordered align-middle">
+        <thead class="table-light">
             <tr>
-                <th>Talla</th>
-                <th>Cantidad</th> 
-                <th>Realizadas</th>
-                <th>Faltantes</th>
-                <th>Kardex</th>
-                <th>Historial</th>
+                <th scope="col">Persona</th>
+                <th scope="col">Operación</th>
+                <th scope="col">Cantidad</th>
+                <th scope="col">Fecha</th>
+                <th scope="col">Paga</th>
+                <th scope="col">Fecha Pagado</th>
             </tr>
         </thead>
         <tbody>
-    <?php if (!empty($tallas)): ?>
-        <?php 
-        $tallasArray = ['S', 'M', 'L', 'XL'];
-        foreach ($tallasArray as $talla): 
-            $cantidad = $tallas['talla_' . strtolower($talla)];
-            $realizadas = $tallas['realizadas_' . strtolower($talla)] ?? 0;
-            $faltantes = $cantidad - $realizadas;
-        ?>
-        <tr>
-            <td><?= $talla ?></td>
-            <td><?= htmlspecialchars($cantidad) ?></td>
-            <td><?= htmlspecialchars($realizadas) ?></td>
-            <td><?= htmlspecialchars($faltantes) ?></td>
-            <td>
-                <button class="btn btn-info btn-sm <?= $cantidad == 0 ? 'disabled' : '' ?>" onclick="mostrarKardex('<?= $talla ?>')">Kardex</button>
-            </td>
-            <td>
-                <button class="btn btn-warning btn-sm <?= $cantidad == 0 ? 'disabled' : '' ?>" onclick="mostrarHistorial('<?= $talla ?>')">Historial</button>
-            </td>
-        </tr>
-        <?php endforeach; ?>
-    <?php else: ?>
-        <tr>
-            <td colspan="6" style="text-align: center;">No hay tallas registradas.</td>
-        </tr>
-    <?php endif; ?>
-    </tbody>
+        <?php
+            $produccion = $produccionModel->getProduccionByDOP($id);
+            foreach ($produccion as $produccion): ?>
+                <tr>
+                    <td><?= htmlspecialchars($produccion['nombrePersona']) ?></td>
+                    <td><?= htmlspecialchars($produccion['tipoOperacion']) ?></td>
+                    <td><?= htmlspecialchars($produccion['cantidadproducida']) ?></td>
+                    <td><?= htmlspecialchars(date('d/m/Y', strtotime($produccion['fecha']))) ?></td>
+                    <td>
+                        <?php if ($produccion['pagado'] == 0): ?>
+                            <span class="badge bg-warning text-dark">Pendiente</span>
+                        <?php else: ?>
+                            <span class="badge bg-success">Pagado</span>
+                        <?php endif; ?>
+                    </td>
+                    <td>
+                        <?= $produccion['fechapagopersona'] 
+                            ? htmlspecialchars(date('d/m/Y', strtotime($produccion['fechapagopersona']))) 
+                            : '<span class="text-muted">No pagado</span>' ?>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            <?php if (empty($produccion)): ?>
+                <tr>
+                    <td colspan="6" class="text-center text-muted">No hay producción registrada.</td>
+                </tr>
+            <?php endif; ?>
+        </tbody>
     </table>
-               
-    <a href="<?= $host ?>/views/produccion/indexP.php" class="btn btn-secondary">Regresar</a>
 </div>
 
-<!-- Modal para Kardex -->
-<div class="modal fade" id="kardexModal" tabindex="-1" aria-labelledby="kardexModalLabel" aria-hidden="true">
+</div>
+
+
+<div class="modal fade" id="nuevoRegistroModal" tabindex="-1" aria-labelledby="nuevoRegistroModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="kardexModalLabel">Registrar Kardex - Talla: <span id="kardexTalla"></span></h5>
+                <h5 class="modal-title" id="nuevoRegistroModalLabel">Registrar Producción</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="kardexForm">
+                <form id="formNuevoRegistro" action="<?= $host ?>/views/produccion/indexP.php?action=createProduccion" method="POST">
                     <div class="mb-3">
-                        <label for="kardexFecha" class="form-label">Fecha</label>
-                        <input type="date" class="form-control" id="kardexFecha" required>
+                        <input type="hidden" name="iddetop" id="opIdInput" value="">
+
+                        <label for="idpersona" class="form-label">Persona</label>
+                            <select class="form-select" id="idpersona" name="idpersona" required>
+                                <option value="" selected>Seleccione una persona</option>
+                                <?php foreach ($personas as $persona): ?>
+                                    <option value="<?= htmlspecialchars($persona['idpersona']) ?>">
+                                        <?= htmlspecialchars($persona['nombres'] . ' ' . $persona['apepaterno'] . ' ' . $persona['apematerno']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
                     </div>
                     <div class="mb-3">
-                        <label for="kardexCantidad" class="form-label">Cantidad</label>
-                        <input type="number" class="form-control" id="kardexCantidad" min="1" required>
+                    <label for="idtipooperacion" class="form-label">Tipo de Operación</label>
+                        <select class="form-select" id="idtipooperacion" name="idtipooperacion" required>
+                            <option value="" selected>Seleccione una operación</option>
+                            <?php foreach ($operaciones as $operacion): ?>
+                                <option value="<?= htmlspecialchars($operacion['idoperacion']) ?>">
+                                    <?= htmlspecialchars($operacion['operacion']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
-                    <input type="hidden" id="kardexTallaId">
+                    <div class="mb-3">
+                        <label for="cantidadproducida" class="form-label">Cantidad Producida</label>
+                        <input type="number" class="form-control" id="cantidadproducida" name="cantidadproducida" min="1" required>
+                    </div>
+                    <div class="mb-3">
+                    <label for="fecha" class="form-label">Fecha</label>
+                    <input 
+                        type="date" 
+                        class="form-control" 
+                        id="fecha" 
+                        name="fecha" 
+                        required 
+                        min="<?= htmlspecialchars($secuencia['sinicio']) ?>" 
+                        max="<?= htmlspecialchars($secuencia['sfin']) ?>"
+                    >
+                </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" onclick="guardarKardex()">Guardar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="formNuevoRegistro" class="btn btn-primary">Guardar</button>
             </div>
         </div>
     </div>
 </div>
 
-
-<!-- Modal para Historial -->
-<div class="modal fade" id="historialModal" tabindex="-1" aria-labelledby="historialModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="historialModalLabel">Historial - Talla: <span id="historialTalla"></span></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Cantidad</th>
-                        </tr>
-                    </thead>
-                    <tbody id="historialBody">
-                    </tbody>
-                </table>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script>
-    const fechaInicio = "<?= $fechaInicio ?>";
-    const fechaFinal = "<?= $date ?>";
 
-    const tallaMaxima = {
-        S: <?= $tallaMaxima['S'] ?>,
-        M: <?= $tallaMaxima['M'] ?>,
-        L: <?= $tallaMaxima['L'] ?>,
-        XL: <?= $tallaMaxima['XL'] ?>
-    };
-
-
-function mostrarKardex(talla, tallaId) {
-    document.getElementById('kardexTalla').innerText = talla;
-    document.getElementById('kardexTallaId').value = tallaId;
-
-    const fechaInput = document.getElementById('kardexFecha');
-    fechaInput.min = fechaInicio;
-    fechaInput.max = fechaFinal;
-
-    $('#kardexModal').modal('show');
-}
-
-function guardarKardex() {
-    const tallaId = <?= htmlspecialchars($tallas['id']) ?> 
-    const fecha = document.getElementById('kardexFecha').value;
-    const cantidad = document.getElementById('kardexCantidad').value;
-    const talla = document.getElementById('kardexTalla').innerText;
-
-    if (cantidad <= 0) {
-        alert('La cantidad debe ser mayor a 0.');
-        return;
-    }
+    document.getElementById('nuevoRegistroModal').addEventListener('show.bs.modal', function (event) {
     
-    if (parseInt(cantidad, 10) + parseInt(getRealizadas(talla), 10) > tallaMaxima[talla]) {
-        alert(`La cantidad para la talla ${talla} no puede superar el límite.`);
-        return;
-    }
+        const button = event.relatedTarget;
 
-    
-    if (fecha && cantidad) {
-        $.ajax({
-            url: '../../controllers/produccion/kardexController.php',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({
-                talla_id: tallaId,
-                fecha: fecha,
-                cantidad: cantidad,
-                talla: talla
-            }),
-            success: function(response) {
-                alert('Movimiento registrado en el Kardex.');
-                $('#kardexModal').modal('hide');
-                location.reload();
-            },
-            error: function(xhr, status, error) {
-                alert('Error al registrar el movimiento en el Kardex.');
-            }
-        });
-    } else {
-        alert('Por favor, completa todos los campos.');
-    }
-}
+        const iddetop = button.getAttribute('data-iddetop');
 
-function getRealizadas(talla) {
-    switch (talla) {
-        case 'S': return <?= htmlspecialchars($tallas['realizadas_s'] ?? 0) ?>;
-        case 'M': return <?= htmlspecialchars($tallas['realizadas_m'] ?? 0) ?>;
-        case 'L': return <?= htmlspecialchars($tallas['realizadas_l'] ?? 0) ?>;
-        case 'XL': return <?= htmlspecialchars($tallas['realizadas_xl'] ?? 0) ?>;
-        default: return 0;
-    }
-}
-
-
-function mostrarHistorial(talla, secuenciaId) {
-    document.getElementById('historialTalla').innerText = talla;
-
-    $.ajax({
-        url: '../../controllers/produccion/historialKardex.php',
-        type: 'GET',
-        data: { talla: talla, secuencia_id:  <?= htmlspecialchars($tallas['id']) ?> },
-        success: function(response) {
-            let historialHTML = '';
-            const historial = JSON.parse(response);
-
-            if (historial.length > 0) {
-                historial.forEach(function(item) {
-                    historialHTML += `
-                        <tr>
-                            <td>${item.fecha}</td>
-                            <td>${item.cantidad}</td>
-                        </tr>
-                    `;
-                });
-            } else {
-                historialHTML = `<tr><td colspan="2">No hay historial para esta talla.</td></tr>`;
-            }
-
-            document.getElementById('historialBody').innerHTML = historialHTML;
-            $('#historialModal').modal('show');
-        },
-        error: function(xhr, status, error) {
-            alert('Error al cargar el historial.');
-        }
+        const hiddenInput = document.getElementById('opIdInput');
+        hiddenInput.value = iddetop;
     });
-}
 
 </script>
 
+
+<script>
+
+
+/* Filtro */ 
+document.addEventListener('DOMContentLoaded', function() {
+    const fechaInput = document.getElementById('fecha');
+    const estadoPagoSelect = document.getElementById('estadoPago');
+    const tabla = document.querySelector('table tbody');
+    const filasOriginales = Array.from(tabla.querySelectorAll('tr'));
+
+    function filtrarTabla() {
+        const fechaSeleccionada = fechaInput.value; 
+        const estadoSeleccionado = estadoPagoSelect.value;
+
+        let filasFiltradas = [...filasOriginales];
+
+        if (fechaSeleccionada) {
+            const [anio, mes, dia] = fechaSeleccionada.split('-');
+            const fechaFiltro = `${dia}/${mes}/${anio}`;
+
+            filasFiltradas = filasFiltradas.filter(fila => {
+                const fechaCelda = fila.cells[3].textContent.trim(); 
+                if (fechaCelda === 'No hay producción registrada.') return false;
+
+                return fechaCelda === fechaFiltro;
+            });
+        }
+
+        if (estadoSeleccionado !== 'Todos') {
+            filasFiltradas = filasFiltradas.filter(fila => {
+                const estadoCelda = fila.cells[4].textContent.trim();
+                return estadoCelda === estadoSeleccionado;
+            });
+        }
+
+        tabla.innerHTML = '';
+
+        if (filasFiltradas.length === 0) {
+            const filaSinDatos = document.createElement('tr');
+            filaSinDatos.innerHTML = '<td colspan="6" class="text-center text-muted">No se encontraron registros con los filtros seleccionados.</td>';
+            tabla.appendChild(filaSinDatos);
+        } else {
+            filasFiltradas.forEach(fila => tabla.appendChild(fila.cloneNode(true)));
+        }
+    }
+
+
+    fechaInput.addEventListener('change', filtrarTabla);
+    estadoPagoSelect.addEventListener('change', filtrarTabla);
+
+    const limpiarBtn = document.getElementById('limpiarFiltros');
+    limpiarBtn.onclick = function() {
+        fechaInput.value = '';
+        estadoPagoSelect.value = 'Todos';
+        filtrarTabla();
+    };
+
+    function formatearFechaParaInput(fecha) {
+        const [dia, mes, anio] = fecha.split('/');
+        return `${anio}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
+    }
+});
+</script>
 
 <?php require_once '../../footer.php'; ?>

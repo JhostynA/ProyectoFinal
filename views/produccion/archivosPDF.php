@@ -5,18 +5,18 @@ require_once '../../models/Conexion.php';
 $conexion = new Conexion();
 $conn = $conexion->getConexion(); 
 
-$actionId = $actionP['id'];
-$stmt = $conn->prepare("SELECT * FROM pdf_files WHERE action_id = :action_id");
-$stmt->bindParam(':action_id', $actionId);
+$idop = $actionP['idop'];
+$stmt = $conn->prepare("SELECT * FROM pdf_files WHERE idop = :idop");
+$stmt->bindParam(':idop', $idop);
 $stmt->execute();
 $pdfs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <div class="container mt-5">
-    <h1 class="mb-4 text-center" style="color: #000000;">Archivos PDF de la OP - <?= htmlspecialchars($actionP['nombre']) ?></h1>
+    <h1 class="mb-4 text-center" style="color: #000000;">Archivos PDF de la OP - <?= htmlspecialchars($actionP['op']) ?></h1>
 
     <div class="text-center mb-4">
-        <a href="<?= $host ?>/views/produccion/indexP.php" class="btn btn-outline-danger btn-lg">⟵ Regresar</a>
+    <a href="<?= $host ?>/views/produccion/indexP.php?cliente_id=<?= htmlspecialchars($actionP['idcliente']) ?>" class="btn btn-outline-danger btn-lg">⟵ Regresar</a>
     </div>
 
     <div class="card shadow-sm mb-5 border-danger">
@@ -29,7 +29,7 @@ $pdfs = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <label for="pdfFile" class="form-label" style="color: black;">Seleccionar archivo PDF:</label>
                     <input type="file" class="form-control" id="pdfFile" name="pdfFile" accept="application/pdf" required>
                 </div>
-                <input type="hidden" name="action_id" value="<?= $actionP['id'] ?>"> 
+                <input type="hidden" name="idop" value="<?= $actionP['idop']?>"> 
                 <button type="submit" class="btn btn-danger mt-3 w-100">Subir PDF</button>
             </form>
         </div>

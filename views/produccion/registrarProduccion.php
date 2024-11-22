@@ -10,7 +10,7 @@ $clientes = (new ActionModel())->getClientesActivos();
         <a href="<?= $host ?>/views/produccion/registrarClientes.php" class="btn btn-secondary">Administrar Clientes</a>
     </div>
     
-    <form id="formCreateAction" method="POST" action="<?= $host ?>/views/produccion/indexP.php?action=create">
+    <form id="formCreateAction" method="POST" action="<?= $host ?>/views/produccion/indexP.php?action=createOrdenProduccion">
         
         <div class="row mb-4">
             <div class="col-md-4">
@@ -18,13 +18,13 @@ $clientes = (new ActionModel())->getClientesActivos();
                 <select class="form-select" id="idcliente" name="idcliente" required>
                     <option value="">Seleccione un cliente</option>
                     <?php foreach ($clientes as $cliente): ?>
-                        <option value="<?= $cliente['id'] ?>"><?= htmlspecialchars($cliente['nombrecliente']) ?></option>
+                        <option value="<?= $cliente['idcliente'] ?>"><?= htmlspecialchars($cliente['nombrecomercial']) ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
             <div class="col-md-4">
-                <label for="nombre" class="form-label">OP:</label>
-                <input type="number" class="form-control" name="nombre" required>
+                <label for="op" class="form-label">OP:</label>
+                <input type="number" class="form-control" id="op" name="op" required>
             </div>
             <div class="col-md-4">
                 <label for="division" class="form-label">División:</label>
@@ -42,31 +42,12 @@ $clientes = (new ActionModel())->getClientesActivos();
                 <input type="text" class="form-control" id="color" name="color" required>
             </div>
             <div class="col-md-3">
-                <label for="fecha_inicio" class="form-label">Fecha de Inicio:</label>
-                <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" required>
+                <label for="fechainicio" class="form-label">Fecha de Inicio:</label>
+                <input type="date" class="form-control" id="fechainicio" name="fechainicio" required>
             </div>
             <div class="col-md-3">
-                <label for="fecha_entrega" class="form-label">Fecha de Entrega:</label>
-                <input type="date" class="form-control" id="fecha_entrega" name="fecha_entrega" required>
-            </div>
-        </div>
-        
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <label for="talla_s" class="form-label">Cantidad Talla S:</label>
-                <input type="number" class="form-control" id="talla_s" name="talla_s" min="0" >
-            </div>
-            <div class="col-md-3">
-                <label for="talla_m" class="form-label">Cantidad Talla M:</label>
-                <input type="number" class="form-control" id="talla_m" name="talla_m" min="0" >
-            </div>
-            <div class="col-md-3">
-                <label for="talla_l" class="form-label">Cantidad Talla L:</label>
-                <input type="number" class="form-control" id="talla_l" name="talla_l" min="0" >
-            </div>
-            <div class="col-md-3">
-                <label for="talla_xl" class="form-label">Cantidad Talla XL:</label>
-                <input type="number" class="form-control" id="talla_xl" name="talla_xl" min="0" >
+                <label for="fechafin" class="form-label">Fecha de Entrega:</label>
+                <input type="date" class="form-control" id="fechafin" name="fechafin" required>
             </div>
         </div>
         
@@ -84,8 +65,8 @@ $clientes = (new ActionModel())->getClientesActivos();
         const mes = String(factual.getMonth() + 1).padStart(2, '0'); 
         const dia = String(factual.getDate()).padStart(2, '0'); 
         const FechaActual = `${anho}-${mes}-${dia}`;
-        const fechaInicioInput = document.querySelector('input[name="fecha_inicio"]');
-        const fechaEntregaInput = document.querySelector('input[name="fecha_entrega"]');
+        const fechaInicioInput = document.querySelector('input[name="fechainicio"]');
+        const fechaEntregaInput = document.querySelector('input[name="fechafin"]');
 
         fechaInicioInput.setAttribute('min', FechaActual);
 
@@ -117,19 +98,6 @@ $clientes = (new ActionModel())->getClientesActivos();
         if(op <= 0) {
             event.preventDefault();
             alert('La OP debe ser mayor a 0');
-            return;
-        }
-
-        const tallaS = parseInt(document.getElementById('talla_s').value) || 0;
-        const tallaM = parseInt(document.getElementById('talla_m').value) || 0;
-        const tallaL = parseInt(document.getElementById('talla_l').value) || 0;
-        const tallaXL = parseInt(document.getElementById('talla_xl').value) || 0;
-        
-        const totalPrendas = tallaS + tallaM + tallaL + tallaXL;
-        
-        if (totalPrendas <= 0) {
-            event.preventDefault();
-            alert('La suma de todas las tallas debe ser mayor a 0');
             return;
         }
     });

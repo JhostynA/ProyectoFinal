@@ -23,78 +23,94 @@ $clientes = $clienteModel->getClientes();
         </div>
     </div>
 
-    <!-- Campo de búsqueda -->
     <input type="text" id="searchInput" class="form-control mb-3" placeholder="Buscar por nombre, teléfono o email" onkeyup="searchTable()">
 
     <table class="table table-striped table-bordered">
-        <thead class="table-dark">
-            <tr>
-                <th class="text-center" style="width: 110px;">Nombre Cliente</th>
-                <th class="text-center" style="width: 110px;">Teléfono</th>
-                <th class="text-center" style="width: 200px;">Email</th>
-                <th class="text-center" style="width: 150px;">Fecha Añadido</th>
-                <th class="text-center" style="width: 150px;">Estado</th>
-                <th class="text-center" style="width: 100px;">Acciones</th>
+    <thead class="table-dark">
+        <tr>
+            <th class="text-center" style="width: 150px;">Razón Social</th>
+            <th class="text-center" style="width: 150px;">Nombre Comercial</th>
+            <th class="text-center" style="width: 110px;">Teléfono</th>
+            <th class="text-center" style="width: 200px;">Email</th>
+            <th class="text-center" style="width: 250px;">Dirección</th>
+            <th class="text-center" style="width: 150px;">Persona de Contacto</th>
+            <th class="text-center" style="width: 150px;">Fecha Creación</th>
+            <th class="text-center" style="width: 150px;">Estado</th>
+            <th class="text-center" style="width: 100px;">Acciones</th>
+        </tr>
+    </thead>
+    <tbody id="clientTable">
+        <?php foreach ($clientes as $cliente): ?>
+            <tr class="<?php echo is_null($cliente['inactive_at']) ? '' : 'inactivo'; ?>">
+                <td><?php echo !empty($cliente['razonsocial']) ? htmlspecialchars($cliente['razonsocial']) : 'Sin dato'; ?></td>
+                <td><?php echo !empty($cliente['nombrecomercial']) ? htmlspecialchars($cliente['nombrecomercial']) : 'Sin dato'; ?></td>
+                <td><?php echo !empty($cliente['telefono']) ? htmlspecialchars($cliente['telefono']) : 'Sin dato'; ?></td>
+                <td><?php echo !empty($cliente['email']) ? htmlspecialchars($cliente['email']) : 'Sin dato'; ?></td>
+                <td><?php echo !empty($cliente['direccion']) ? htmlspecialchars($cliente['direccion']) : 'Sin dato'; ?></td>
+                <td><?php echo !empty($cliente['contacto']) ? htmlspecialchars($cliente['contacto']) : 'Sin dato'; ?></td>
+                <td><?php echo !empty($cliente['fecha_creacion']) ? htmlspecialchars($cliente['fecha_creacion']) : 'Sin dato'; ?></td>
+                <td class="text-center">
+                    <?php echo is_null($cliente['inactive_at']) ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-danger">Inactivo</span>'; ?>
+                </td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#updateClientModal<?php echo $cliente['idcliente']; ?>">Actualizar</button>
+                </td>
             </tr>
-        </thead>
-        <tbody id="clientTable">
-            <?php foreach ($clientes as $cliente): ?>
-                <tr class="<?php echo is_null($cliente['inactive_at']) ? '' : 'inactivo'; ?>">
-                    <td><?php echo !empty($cliente['nombrecliente']) ? htmlspecialchars($cliente['nombrecliente']) : 'Sin dato'; ?></td>
-                    <td><?php echo !empty($cliente['telefono']) ? htmlspecialchars($cliente['telefono']) : 'Sin dato'; ?></td>
-                    <td><?php echo !empty($cliente['email']) ? htmlspecialchars($cliente['email']) : 'Sin dato'; ?></td>
-                    <td><?php echo !empty($cliente['fecha_creacion']) ? htmlspecialchars($cliente['fecha_creacion']) : 'Sin dato'; ?></td>
-                    <td class="text-center">
-                        <?php echo is_null($cliente['inactive_at']) ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-danger">Inactivo</span>'; ?>
-                    </td>
-                    <td class="text-center">
-                        <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#updateClientModal<?php echo $cliente['id']; ?>">Actualizar</button>
-                    </td>
-                </tr>
-
                 <!-- Modal para Actualizar Cliente -->
-                <div class="modal fade" id="updateClientModal<?php echo $cliente['id']; ?>" tabindex="-1" aria-labelledby="updateClientModalLabel<?php echo $cliente['id']; ?>" aria-hidden="true">
+                <div class="modal fade" id="updateClientModal<?php echo $cliente['idcliente']; ?>" tabindex="-1" aria-labelledby="updateClientModalLabel<?php echo $cliente['idcliente']; ?>" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
-                            <form action="<?= $host ?>/views/produccion/indexP.php?action=updateClientAction&id=<?php echo $cliente['id']; ?>" method="POST">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="updateClientModalLabel<?php echo $cliente['id']; ?>">Actualizar Cliente</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        <form action="<?= $host ?>/views/produccion/indexP.php?action=updateClientAction" method="POST">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="updateClientModalLabel<?php echo $cliente['idcliente']; ?>">Actualizar Cliente</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            </div>
+                            <input type="hidden" name="idcliente" value="<?php echo $cliente['idcliente']; ?>">
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="razonsocial<?php echo $cliente['idcliente']; ?>" class="form-label">Razón Social</label>
+                                    <input type="text" class="form-control" id="razonsocial<?php echo $cliente['idcliente']; ?>" name="razonsocial" value="<?php echo htmlspecialchars($cliente['razonsocial']); ?>" required>
                                 </div>
-                                <input type="hidden" name="id" value="<?php echo $cliente['id']; ?>">
-                                <div class="modal-body">
-                                    <div class="mb-3">
-                                        <label for="nombrecliente<?php echo $cliente['id']; ?>" class="form-label">Nombre del Cliente</label>
-                                        <input type="text" class="form-control" id="nombrecliente<?php echo $cliente['id']; ?>" name="nombrecliente" value="<?php echo htmlspecialchars($cliente['nombrecliente']); ?>" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="telefono<?php echo $cliente['id']; ?>" class="form-label">Teléfono</label>
-                                        <input type="text" class="form-control" id="telefono<?php echo $cliente['id']; ?>" name="telefono" value="<?php echo htmlspecialchars($cliente['telefono']); ?>">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="email<?php echo $cliente['id']; ?>" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="email<?php echo $cliente['id']; ?>" name="email" value="<?php echo htmlspecialchars($cliente['email']); ?>">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="estado<?php echo $cliente['id']; ?>" class="form-label">Estado</label>
-                                        <select class="form-select" id="estado<?php echo $cliente['id']; ?>" name="estado">
-                                            <option value="activo" <?php echo is_null($cliente['inactive_at']) ? 'selected' : ''; ?>>Activo</option>
-                                            <option value="inactivo" <?php echo !is_null($cliente['inactive_at']) ? 'selected' : ''; ?>>Inactivo</option>
-                                        </select>
-                                    </div>
+                                <div class="mb-3">
+                                    <label for="nombrecomercial<?php echo $cliente['idcliente']; ?>" class="form-label">Nombre Comercial</label>
+                                    <input type="text" class="form-control" id="nombrecomercial<?php echo $cliente['idcliente']; ?>" name="nombrecomercial" value="<?php echo htmlspecialchars($cliente['nombrecomercial']); ?>" required>
                                 </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                <div class="mb-3">
+                                    <label for="telefono<?php echo $cliente['idcliente']; ?>" class="form-label">Teléfono</label>
+                                    <input type="text" class="form-control" id="telefono<?php echo $cliente['idcliente']; ?>" name="telefono" value="<?php echo htmlspecialchars($cliente['telefono']); ?>">
                                 </div>
-                            </form>
-                        </div>
+                                <div class="mb-3">
+                                    <label for="email<?php echo $cliente['idcliente']; ?>" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="email<?php echo $cliente['idcliente']; ?>" name="email" value="<?php echo htmlspecialchars($cliente['email']); ?>">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="direccion<?php echo $cliente['idcliente']; ?>" class="form-label">Dirección</label>
+                                    <input type="text" class="form-control" id="direccion<?php echo $cliente['idcliente']; ?>" name="direccion" value="<?php echo htmlspecialchars($cliente['direccion']); ?>">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="contacto<?php echo $cliente['idcliente']; ?>" class="form-label">Persona de Contacto</label>
+                                    <input type="text" class="form-control" id="contacto<?php echo $cliente['idcliente']; ?>" name="contacto" value="<?php echo htmlspecialchars($cliente['contacto']); ?>">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="estado<?php echo $cliente['idcliente']; ?>" class="form-label">Estado</label>
+                                    <select class="form-select" id="estado<?php echo $cliente['idcliente']; ?>" name="estado">
+                                        <option value="activo" <?php echo is_null($cliente['inactive_at']) ? 'selected' : ''; ?>>Activo</option>
+                                        <option value="inactivo" <?php echo !is_null($cliente['inactive_at']) ? 'selected' : ''; ?>>Inactivo</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
+            </div>
 
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+        <?php endforeach; ?>
+    </tbody>
+</table>
 </div>
 
 <!-- Modal para Agregar Cliente -->
@@ -108,16 +124,28 @@ $clientes = $clienteModel->getClientes();
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="nombrecliente" class="form-label">Nombre del Cliente</label>
-                        <input type="text" class="form-control" id="nombrecliente" name="nombrecliente" required>
+                        <label for="razonsocial" class="form-label">Razón Social</label>
+                        <input type="text" class="form-control" id="razonsocial" name="razonsocial">
+                    </div>
+                    <div class="mb-3">
+                        <label for="nombrecomercial" class="form-label">Nombre Comercial</label>
+                        <input type="text" class="form-control" id="nombrecomercial" name="nombrecomercial">
                     </div>
                     <div class="mb-3">
                         <label for="telefono" class="form-label">Teléfono</label>
-                        <input type="text" class="form-control" id="telefono" name="telefono">
+                        <input type="number" class="form-control" id="telefono" name="telefono">
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
                         <input type="email" class="form-control" id="email" name="email">
+                    </div>
+                    <div class="mb-3">
+                        <label for="direccion" class="form-label">Dirección</label>
+                        <input type="text" class="form-control" id="direccion" name="direccion">
+                    </div>
+                    <div class="mb-3">
+                        <label for="contacto" class="form-label">Contacto</label>
+                        <input type="text" class="form-control" id="contacto" name="contacto">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -128,6 +156,7 @@ $clientes = $clienteModel->getClientes();
         </div>
     </div>
 </div>
+
 
 <?php require_once '../../footer.php'; ?>
 

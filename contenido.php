@@ -7,7 +7,6 @@ if (!isset($_SESSION['login']) || (isset($_SESSION['login']) && !$_SESSION['logi
 
 $host = "http://localhost/LinoFino";
 
-// Incluir el modelo necesario y obtener clientes activos
 require_once __DIR__ . '/models/produccion/ActionModel.php';
 $clienteModel = new ActionModel();
 $clientesActivos = $clienteModel->getClientesActivos();
@@ -35,7 +34,6 @@ $clientesActivos = $clienteModel->getClientesActivos();
     <script src="https://cdn.datatables.net/1.13.5/js/dataTables.bootstrap5.min.js"></script>
     <!-- Librería de iconos (botón de hamburguesa) -->
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-
     <!-- Hoja de estilos de github (para el diseño de las tablas) -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
@@ -81,13 +79,13 @@ $clientesActivos = $clienteModel->getClientesActivos();
                         
                         <div class="sb-sidenav-menu-heading">Módulos</div>
 
-                        <!-- Menú de Clientes con submenú -->
+                        <!-- Menú de Clientes -->
                         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#clientesSubmenu" aria-expanded="false" aria-controls="clientesSubmenu">
                             <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
                             Clientes
                         </a>
                         
-                            <!-- Submenú Clientes con desplazamiento hacia la derecha -->
+                            <!-- Submenú de Clientes -->
                             <div id="clientesSubmenu" class="collapse" style="padding-left: 15px;">
                                 <div id="clientesSubmenu" class="collapse" style="padding-left: 15px;">
                                     <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#listadoClientesSubmenu" aria-expanded="false" aria-controls="listadoClientesSubmenu" style="padding-left: 10px;">
@@ -98,12 +96,14 @@ $clientesActivos = $clienteModel->getClientesActivos();
                                    <!-- Submenú dinámico de Clientes -->
                                     <div id="listadoClientesSubmenu" class="collapse" style="padding-left: 20px;">
                                         <?php foreach ($clientesActivos as $cliente): ?>
-                                            <a class="nav-link" href="<?= $host ?>/views/produccion/indexP.php?cliente_id=<?= $cliente['id'] ?>" style="padding-left: 10px;">
+                                            <a class="nav-link" href="<?= $host ?>/views/produccion/indexP.php?cliente_id=<?= $cliente['idcliente'] ?>" style="padding-left: 10px;">
                                                 <div class="sb-nav-link-icon"><i class="fas fa-user"></i></div>
-                                                <?= htmlspecialchars($cliente['nombrecliente']) ?>
+                                                <?= htmlspecialchars($cliente['nombrecomercial']) ?>
                                             </a>
                                         <?php endforeach; ?>
                                     </div>
+
+                                     <!-- Fin del submenú dinámico de Clientes -->
 
                                     <a class="nav-link" href="<?= $host ?>/views/produccion/registrarProduccion.php" style="padding-left: 10px;">
                                         <div class="sb-nav-link-icon"><i class="fas fa-user-plus"></i></div>
@@ -114,7 +114,6 @@ $clientesActivos = $clienteModel->getClientesActivos();
                             </div>
 
 
-                        <!-- Otros módulos -->
                         <a class="nav-link" href="<?= $host ?>/views/personas/">
                             <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
                             Personas

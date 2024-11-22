@@ -56,11 +56,26 @@ CREATE TABLE colaboradores (
     FOREIGN KEY (idpersona) REFERENCES personas(idpersona)
 );
 
-
+CREATE TABLE clientes
+(
+	idcliente		INT AUTO_INCREMENT PRIMARY KEY,
+    razonsocial		VARCHAR(150) 	NOT NULL,
+	nombrecomercial	VARCHAR(50) 	NOT NULL,
+    telefono 		VARCHAR(20) 	NULL,
+    email 			VARCHAR(50) 	NULL, 
+    direccion		VARCHAR(200) 	NULL,
+    contacto		VARCHAR(100) 	NULL,
+    fecha_creacion  DATE DEFAULT (CURRENT_TIMESTAMP),
+    inactive_at 	DATETIME 		NULL
+);
 
 CREATE TABLE actions (
     id 					INT AUTO_INCREMENT PRIMARY KEY,
+    idcliente			INT,
+    estilo				VARCHAR(200),
+    division			VARCHAR(150),
     nombre 				VARCHAR(255) NOT NULL,
+    color				VARCHAR(50),
     fecha_inicio 		DATE NOT NULL,
     fecha_entrega 		DATE NOT NULL,
     talla_s 			INT NOT NULL DEFAULT 0,
@@ -69,9 +84,9 @@ CREATE TABLE actions (
 	talla_xl 			INT NOT NULL DEFAULT 0,
     cantidad_prendas 	INT NOT NULL,
     porcentaje 			FLOAT NOT NULL DEFAULT 0,
-    created_at 			TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at 			TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (idcliente) REFERENCES clientes(idcliente)
 );
-
 CREATE TABLE secuencias (
     id                     INT AUTO_INCREMENT PRIMARY KEY,
     idop                   INT,
@@ -112,7 +127,6 @@ CREATE TABLE kardex (
     FOREIGN KEY (talla_id) REFERENCES tallas(id) ON DELETE CASCADE
 );
 
-CREATE TABLE clientes
 
 
 CREATE TABLE pdf_files (
@@ -239,366 +253,206 @@ BEGIN
   WHERE apepaterno = _apepaterno AND apematerno = _apematerno AND nombres = _nombres;
 END $$
 
-DROP TABLE IF EXISTS pagos;
 CREATE TABLE pagos (
-    idpago              INT AUTO_INCREMENT PRIMARY KEY,
+    idpago              INT PRIMARY KEY AUTO_INCREMENT,
     idpersona           INT,
     idoperacion         INT,
-    idop                INT,
-    idsecuencia         INT,
     prendas_realizadas  INT,
-    precio              DECIMAL(10,2),
+    precio_operacion    DECIMAL(6,3),
     total_pago          DECIMAL(10,2),
-    create_at           DATETIME NOT NULL DEFAULT NOW(),
+    fecha_pago          DATE NOT NULL,
     FOREIGN KEY (idpersona) REFERENCES personas(idpersona),
-    FOREIGN KEY (idoperacion) REFERENCES operaciones(idoperacion),
-    FOREIGN KEY (idop) REFERENCES actions(id),
-    FOREIGN KEY (idsecuencia) REFERENCES secuencias(id)
+    FOREIGN KEY (idoperacion) REFERENCES operaciones(idoperacion)
 );
 
-DELIMITER $$
-DROP PROCEDURE IF EXISTS spu_registrar_pago;
-CREATE PROCEDURE spu_registrar_pago(
+
+DROP PROCEDURE IF EXISTS registrarPago;
+CREATE PROCEDURE registrarPago(
     IN _idpersona INT,
     IN _idoperacion INT,
-    IN _idop INT,
-    IN _idsecuencia INT,
     IN _prendas_realizadas INT
 )
 BEGIN
-    DECLARE _precio DECIMAL(10,2);
+    DECLARE _precio_operacion DECIMAL(6,3);
     DECLARE _total_pago DECIMAL(10,2);
-    DECLARE _nombre_persona VARCHAR(100);
+    DECLARE _nombre_trabajador VARCHAR(100);
     DECLARE _nombre_operacion VARCHAR(50);
-    DECLARE _nombre_secuencia VARCHAR(50);
-    DECLARE _existe_secuencia INT;
 
-    -- Verificar que la persona exista y obtener su nombre
-    SELECT CONCAT(nombres, ' ', apepaterno, ' ', apematerno) INTO _nombre_persona
-    FROM personas
-    WHERE idpersona = _idpersona;
-
-    IF _nombre_persona IS NULL THEN
+    -- Validar que el idpersona y idoperacion existen
+    IF NOT EXISTS (SELECT 1 FROM personas WHERE idpersona = _idpersona) THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Persona no encontrada';
     END IF;
 
-    -- Verificar que la operación exista y obtener el precio y nombre
-    SELECT precio, operacion INTO _precio, _nombre_operacion
-    FROM operaciones
-    WHERE idoperacion = _idoperacion;
-
-    IF _precio IS NULL THEN
+    IF NOT EXISTS (SELECT 1 FROM operaciones WHERE idoperacion = _idoperacion) THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Operación no encontrada';
     END IF;
 
-    -- Verificar que la orden de producción exista
-    IF NOT EXISTS (SELECT 1 FROM actions WHERE id = _idop) THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Orden de producción no encontrada';
-    END IF;
-
-    -- Verificar que la secuencia pertenece a la orden de producción seleccionada
-    SELECT COUNT(*), numSecuencia INTO _existe_secuencia, _nombre_secuencia
-    FROM secuencias
-    WHERE id = _idsecuencia AND idop = _idop;
-
-    IF _existe_secuencia = 0 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La secuencia no pertenece a la orden de producción seleccionada';
-    END IF;
+    -- Obtener el precio de la operación
+    SELECT precio INTO _precio_operacion
+    FROM operaciones
+    WHERE idoperacion = _idoperacion;
 
     -- Calcular el total del pago
-    SET _total_pago = _prendas_realizadas * _precio;
+    SET _total_pago = _prendas_realizadas * _precio_operacion;
 
-    -- Insertar el pago en la tabla
-    INSERT INTO pagos (idpersona, idoperacion, idop, idsecuencia, prendas_realizadas, precio, total_pago)
-    VALUES (_idpersona, _idoperacion, _idop, _idsecuencia, _prendas_realizadas, _precio, _total_pago);
-    
-    -- Devolver los datos relevantes
-    SELECT 
-        _nombre_persona AS nombre_persona,
-        _nombre_operacion AS nombre_operacion,
-        _nombre_secuencia AS nombre_secuencia,
-        _prendas_realizadas AS prendas_realizadas,
-        _precio AS precio,
-        _total_pago AS total_pago;
-END $$
-DELIMITER ;
-
-CALL spu_registrar_pago(1, 5, 1, 1, 5000);
-
-SELECT * from secuencias;
-DELIMITER $$
-DROP PROCEDURE IF EXISTS spu_listar_pagos;
-CREATE PROCEDURE spu_listar_pagos()
-BEGIN
-    SELECT 
-        P.idpago,
-        CONCAT(PE.nombres, ' ', PE.apepaterno, ' ', PE.apematerno) AS nombre_persona,
-        O.operacion AS nombre_operacion,
-        A.nombre AS nombre_op,
-        S.numSecuencia AS nombre_secuencia,
-        P.prendas_realizadas,
-        P.total_pago,  -- Se muestra el total del pago
-        P.create_at
-    FROM 
-        pagos P
-    JOIN 
-        personas PE ON P.idpersona = PE.idpersona
-    JOIN 
-        operaciones O ON P.idoperacion = O.idoperacion
-    JOIN 
-        actions A ON P.idop = A.id
-    JOIN 
-        secuencias S ON P.idsecuencia = S.id;
-END $$
-DELIMITER ;
-
-CALL spu_listar_pagos;
-SELECT * FROM pagos;
-DELIMITER $$
-DROP PROCEDURE IF EXISTS spu_actualizar_pago;
-CREATE PROCEDURE spu_actualizar_pago(
-    IN _idpago INT,
-    IN _idpersona INT,
-    IN _idoperacion INT,
-    IN _idop INT,
-    IN _idsecuencia INT,
-    IN _prendas_realizadas INT
-)
-BEGIN
-    DECLARE _precio DECIMAL(10,2);
-    DECLARE _total_pago DECIMAL(10,2);
-    
-    -- Verificar que el pago existe
-    IF NOT EXISTS (SELECT 1 FROM pagos WHERE idpago = _idpago) THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Pago no encontrado';
-    END IF;
-
-    -- Verificar que la persona existe
-    SELECT COUNT(*) INTO @exist_persona
+    -- Obtener el nombre del trabajador y la operación
+    SELECT CONCAT(nombres, ' ', apepaterno, ' ', apematerno) INTO _nombre_trabajador
     FROM personas
     WHERE idpersona = _idpersona;
 
-    IF @exist_persona = 0 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Persona no encontrada';
-    END IF;
-
-    -- Verificar que la operación existe y obtener el precio
-    SELECT precio INTO _precio
+    SELECT operacion INTO _nombre_operacion
     FROM operaciones
     WHERE idoperacion = _idoperacion;
 
-    IF _precio IS NULL THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Operación no encontrada';
-    END IF;
+    -- Insertar el pago
+    INSERT INTO pagos (idpersona, idoperacion, prendas_realizadas, precio_operacion, total_pago, fecha_pago)
+    VALUES (_idpersona, _idoperacion, _prendas_realizadas, _precio_operacion, _total_pago, CURDATE());
 
-    -- Verificar que la orden de producción existe
-    IF NOT EXISTS (SELECT 1 FROM actions WHERE id = _idop) THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Orden de producción no encontrada';
-    END IF;
-
-    -- Verificar que la secuencia pertenece a la orden de producción
-    IF NOT EXISTS (SELECT 1 FROM secuencias WHERE id = _idsecuencia AND idop = _idop) THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La secuencia no pertenece a la orden de producción seleccionada';
-    END IF;
-
-    -- Calcular el total del pago
-    SET _total_pago = _prendas_realizadas * _precio;
-
-    -- Actualizar el registro de pago
-    UPDATE pagos
-    SET 
-        idpersona = _idpersona,
-        idoperacion = _idoperacion,
-        idop = _idop,
-        idsecuencia = _idsecuencia,
-        prendas_realizadas = _prendas_realizadas,
-        precio = _precio,
-        total_pago = _total_pago
-    WHERE idpago = _idpago;
-
-    -- Devolver los datos actualizados
-    SELECT 
-        P.idpago,
-        CONCAT(PE.nombres, ' ', PE.apepaterno, ' ', PE.apematerno) AS nombre_persona,
-        O.operacion AS nombre_operacion,
-        A.nombre AS nombre_op,
-        S.numSecuencia AS nombre_secuencia,
-        P.prendas_realizadas,
-        P.total_pago,
-        P.create_at
-    FROM pagos P
-    JOIN personas PE ON P.idpersona = PE.idpersona
-    JOIN operaciones O ON P.idoperacion = O.idoperacion
-    JOIN actions A ON P.idop = A.id
-    JOIN secuencias S ON P.idsecuencia = S.id
-    WHERE P.idpago = _idpago;
+    -- Devolver el nombre del trabajador y la operación
+    SELECT _nombre_trabajador AS nombre_trabajador, _nombre_operacion AS nombre_operacion;
 END $$
 DELIMITER ;
 
-CALL spu_actualizar_pago(1, 6, 3, 1, 1, 300);
-
-
-DELIMITER $$
-DROP PROCEDURE IF EXISTS spu_eliminar_pago;
-CREATE PROCEDURE spu_eliminar_pago(
-    IN _idpago INT
-)
+CREATE PROCEDURE buscarPersonas(IN searchTerm VARCHAR(255))
 BEGIN
-    DECLARE _nombre_persona VARCHAR(100);
-    DECLARE _nombre_operacion VARCHAR(50);
-    DECLARE _nombre_secuencia VARCHAR(50);
-    DECLARE _prendas_realizadas INT;
-    DECLARE _total_pago DECIMAL(10,2);
-    
-    -- Verificar que el pago existe y obtener los datos para devolver
-    SELECT 
-        CONCAT(PE.nombres, ' ', PE.apepaterno, ' ', PE.apematerno) AS nombre_persona,
-        O.operacion AS nombre_operacion,
-        S.numSecuencia AS nombre_secuencia,
-        P.prendas_realizadas,
-        P.total_pago
-    INTO 
-        _nombre_persona, _nombre_operacion, _nombre_secuencia, _prendas_realizadas, _total_pago
-    FROM pagos P
-    JOIN personas PE ON P.idpersona = PE.idpersona
-    JOIN operaciones O ON P.idoperacion = O.idoperacion
-    JOIN secuencias S ON P.idsecuencia = S.id
-    WHERE P.idpago = _idpago;
-
-    -- Verificar si se encontraron datos
-    IF _nombre_persona IS NULL THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Pago no encontrado';
-    END IF;
-
-    -- Eliminar el registro de pago
-    DELETE FROM pagos WHERE idpago = _idpago;
-
-    -- Devolver los datos eliminados
-    SELECT 
-        _nombre_persona AS nombre_persona,
-        _nombre_operacion AS nombre_operacion,
-        _nombre_secuencia AS nombre_secuencia,
-        _prendas_realizadas,
-        _total_pago,
-        'Pago eliminado correctamente' AS mensaje;
-END $$
-DELIMITER ;
-
-CALL spu_eliminar_pago(1);
-
-DELIMITER $$
-DROP PROCEDURE IF EXISTS spu_buscar_personas;
-CREATE PROCEDURE spu_buscar_personas(IN _query VARCHAR(50))
-BEGIN
-    SELECT * 
-    FROM personas 
-    WHERE CONCAT(nombres, ' ', apepaterno, ' ', apematerno) LIKE CONCAT('%', _query, '%');
-END $$
-DELIMITER ;
-
-CALL spu_buscar_personas ('q');
-
-DELIMITER $$
-DROP PROCEDURE IF EXISTS spu_listar_personas;
-CREATE PROCEDURE spu_listar_personas(IN _query VARCHAR(50))
-BEGIN
-    -- Listar todas las personas cuyo nombre o apellidos coincidan con el parámetro de búsqueda
-    SELECT idpersona, nombres, apematerno, apepaterno
+    SELECT idpersona, nombres, apepaterno, apematerno
     FROM personas
-    WHERE CONCAT(nombres, ' ', apepaterno, ' ', apematerno) LIKE CONCAT('%', _query, '%')
-    ORDER BY nombres, apepaterno, apematerno;  -- Opcional: Ordenar por nombre y apellidos
+    WHERE nombres LIKE CONCAT('%', searchTerm, '%')
+       OR apepaterno LIKE CONCAT('%', searchTerm, '%')
+       OR apematerno LIKE CONCAT('%', searchTerm, '%')
 END $$
 DELIMITER ;
 
-CALL spu_listar_personas ('q');
-
 DELIMITER $$
-DROP PROCEDURE IF EXISTS spu_listar_operaciones;
-CREATE PROCEDURE spu_listar_operaciones(IN _query VARCHAR(50))
+CREATE PROCEDURE buscarOperaciones(IN searchTerm VARCHAR(255))
 BEGIN
-    -- Listar todas las operaciones cuyo nombre coincida con el parámetro de búsqueda
     SELECT idoperacion, operacion, precio
     FROM operaciones
-    WHERE operacion LIKE CONCAT('%', _query, '%')
-    ORDER BY operacion;  -- Opcional: Ordenar por nombre de operación
+    WHERE operacion LIKE CONCAT('%', searchTerm, '%');
 END $$
 DELIMITER ;
 
-CALL spu_listar_operaciones('p');
+CREATE TABLE apoyos (
+    idapoyo     INT AUTO_INCREMENT PRIMARY KEY,
+    ape_paterno VARCHAR(50) NOT NULL,
+    ape_materno VARCHAR(50) NOT NULL,
+    nombres     VARCHAR(50) NOT NULL,
+    documento   VARCHAR(15) NOT NULL,
+    create_at   DATETIME DEFAULT NOW(),
+    deleted_at  DATETIME DEFAULT NULL,
+    eliminado   TINYINT DEFAULT 0
+);
 
-CALL spu_listar_op(1);
+DROP PROCEDURE IF EXISTS spu_registrar_apoyo;
+DELIMITER //
+CREATE PROCEDURE spu_registrar_apoyo 
+(
+    IN ape_paterno VARCHAR(50),
+    IN ape_materno VARCHAR(50),
+    IN nombres     VARCHAR(50),
+    IN documento   VARCHAR(15)
+)
+BEGIN
+    DECLARE existing_id INT;
 
-DELIMITER $$
-DROP PROCEDURE IF EXISTS spu_buscar_op;
-CREATE PROCEDURE spu_buscar_op(IN _query VARCHAR(255))
+    -- Verificar si el registro ya existe y está eliminado
+    SELECT idapoyo INTO existing_id
+    FROM apoyos
+    WHERE ape_paterno = ape_paterno 
+      AND ape_materno = ape_materno 
+      AND nombres = nombres 
+      AND documento = documento 
+      AND eliminado = 1; -- Verificar estado eliminado
+
+    IF existing_id IS NOT NULL THEN
+        -- Reincorporar el registro
+        UPDATE apoyos
+        SET eliminado = 0, -- Cambiar estado a activo
+            deleted_at = NULL -- Reiniciar fecha de eliminación
+        WHERE idapoyo = existing_id;
+        
+        SELECT 'Reincorporado' AS mensaje;
+    ELSE
+        -- Insertar nuevo registro
+        INSERT INTO apoyos (ape_paterno, ape_materno, nombres, documento, create_at)
+        VALUES (ape_paterno, ape_materno, nombres, documento, NOW());
+        
+        SELECT 'Registrado' AS mensaje;
+    END IF;
+END //
+DELIMITER ;
+
+-- Procedimiento para listar los apoyos (sin incluir los eliminados)
+DROP PROCEDURE IF EXISTS spu_listar_apoyos;
+DELIMITER //
+CREATE PROCEDURE spu_listar_apoyos()
 BEGIN
     SELECT 
-    id, nombre 
-    FROM actions 
-    WHERE nombre LIKE CONCAT('%', _query, '%')
-    ORDER BY nombre;
-END;
-DELIMITER ;
+        ape_paterno AS "Apellido Paterno",
+        ape_materno AS "Apellido Materno",
+        nombres AS "Nombres",
+        documento AS "Documento",
+        create_at AS "Fecha de Creación"
+    FROM apoyos
+    WHERE eliminado = 0;  -- Solo muestra los registros no eliminados
+END //
+DELIMITER;
 
-CALL spu_buscar_op(1);
-
-DELIMITER $$
-DROP PROCEDURE IF EXISTS spu_buscar_secuencias_por_op;
-CREATE PROCEDURE spu_buscar_secuencias_por_op(IN _op_nombre VARCHAR(50))
+-- Procedimiento para actualizar un apoyo
+DROP PROCEDURE IF EXISTS spu_actualizar_apoyo;
+DELIMITER //
+CREATE PROCEDURE spu_actualizar_apoyo 
+(
+    IN idapoyo     INT,
+    IN ape_paterno VARCHAR(50),
+    IN ape_materno VARCHAR(50),
+    IN nombres     VARCHAR(50),
+    IN documento   VARCHAR(15)
+)
 BEGIN
-    -- Buscar las secuencias asociadas a la OP seleccionada y solo devolver el nombre de la secuencia
+    UPDATE apoyos
+    SET ape_paterno = ape_paterno,
+        ape_materno = ape_materno,
+        nombres     = nombres,
+        documento   = documento,
+        create_at   = NOW()
+    WHERE idapayo = idapoyo AND eliminado = 0;  -- Solo actualiza si no está eliminado
+    
+    -- Mostrar los datos actualizados
     SELECT 
-    S.id AS idsecuencia, 
-    S.numSecuencia AS nombre_secuencia
-    FROM secuencias S
-    JOIN actions A ON S.idop = A.id  -- Relación con la OP
-    WHERE A.nombre LIKE CONCAT('%', _op_nombre, '%')  -- Filtra por el nombre de la OP
-    ORDER BY S.numSecuencia;  -- Ordena las secuencias por su número
-END $$
-DELIMITER ;
+        ape_paterno AS "Apellido Paterno",
+        ape_materno AS "Apellido Materno",
+        nombres AS "Nombres",
+        documento AS "Documento",
+        create_at AS "Fecha de Actualización"
+    FROM apoyos
+    WHERE idapoyo = idapoyo;
+END //
+DELIMITER;
 
-SELECT * from secuencias;
-CALL spu_buscar_secuencias_por_op('123')
-
-DELIMITER $$
--- buscado de 
-DROP PROCEDURE IF EXISTS spu_listar_secuencias_por_op;
-CREATE PROCEDURE spu_listar_secuencias_por_op(IN _op_nombre VARCHAR(50))
+-- Procedimiento para eliminar un apoyo (lógica)
+DROP PROCEDURE IF EXISTS spu_eliminar_apoyo;
+DELIMITER //
+CREATE PROCEDURE spu_eliminar_apoyo 
+(
+    IN idapoyo INT
+)
 BEGIN
-    -- Buscar las secuencias asociadas a las OPs cuyo nombre contenga el parámetro _op_nombre
-    SELECT S.id AS secuenciaid, 
-    idop, nombre, numSecuencia  -- Muestra el número de secuencia
-    FROM secuencias S
-    JOIN actions A ON S.idop = A.id  -- Relación con la OP
-    WHERE A.nombre LIKE CONCAT('%', _op_nombre, '%')  -- Búsqueda parcial por nombre de la OP
-    ORDER BY S.numSecuencia;  -- Ordena las secuencias por su número
-END $$
-DELIMITER ;
-select * from actions;
-call spu_listar_secuencias_por_op('1');
-DELIMITER $$
-DROP PROCEDURE IF EXISTS spu_listar_secuencias;
-CREATE PROCEDURE spu_listar_secuencias(IN _query VARCHAR(50))
-BEGIN
-    -- Listar el ID y número de secuencia de las secuencias que correspondan a la OP especificada
-    -- y que contengan el término de búsqueda en numSecuencia
-    SELECT id, numSecuencia
-    FROM secuencias
-    WHERE numSecuencia LIKE CONCAT('%', _query, '%')
-    ORDER BY numSecuencia;  -- Opcional: Ordenar las secuencias por numSecuencia
-END $$
-DELIMITER ;
+    UPDATE apoyos
+    SET 
+        eliminado = 1,         -- Cambia el estado a eliminado
+        deleted_at = NOW()     -- Establece la fecha de eliminación
+    WHERE idapoyo = idapoyo;
 
-CALL spu_listar_secuencias('1');
-select * from pagos;
-
-DELIMITER $$
-DROP PROCEDURE IF EXISTS spu_buscar_secuencias;
-CREATE PROCEDURE spu_buscar_secuencias(IN _query VARCHAR(255))
-BEGIN
-    SELECT id, numSecuencia 
-    FROM secuencias 
-    WHERE numSecuencia LIKE CONCAT('%', _query, '%')
-    ORDER BY nombre;
-END;
-DELIMITER ;
+    -- Mostrar los datos del apoyo después de la eliminación lógica
+    SELECT 
+        ape_paterno AS "Apellido Paterno",
+        ape_materno AS "Apellido Materno",
+        nombres AS "Nombres",
+        documento AS "Documento",
+        create_at AS "Fecha de Creación",
+        deleted_at AS "Fecha de Eliminación" -- Este campo mostrará cuándo fue eliminado
+    FROM apoyos
+    WHERE idapoyo = idapoyo;
+END //
+DELIMITER //

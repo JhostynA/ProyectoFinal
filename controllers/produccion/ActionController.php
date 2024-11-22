@@ -8,13 +8,15 @@ class ActionController {
     }
     
     public function createClientAction() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nombrecliente'])) {
-            $nombrecliente = $_POST['nombrecliente'];
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['razonsocial'], $_POST['nombrecomercial'])) {
+            $razonsocial = $_POST['razonsocial'];
+            $nombrecomercial = $_POST['nombrecomercial'];
             $telefono = isset($_POST['telefono']) ? $_POST['telefono'] : null;
             $email = isset($_POST['email']) ? $_POST['email'] : null;
+            $direccion = isset($_POST['direccion']) ? $_POST['direccion'] : null;
+            $contacto = isset($_POST['contacto']) ? $_POST['contacto'] : null;
     
-            // Intentar crear el cliente a través del modelo
-            if ($this->actionModel->createClient($nombrecliente, $telefono, $email)) {
+            if ($this->actionModel->createClient($razonsocial, $nombrecomercial, $telefono, $email, $direccion, $contacto)){
                 header('Location: ../../views/produccion/registrarClientes.php');
                 exit();
             } else {
@@ -25,17 +27,19 @@ class ActionController {
     }
 
     public function updateClientAction() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
-            $id = $_POST['id'];
-            $nombrecliente = $_POST['nombrecliente'];
-            $telefono = $_POST['telefono'];
-            $email = $_POST['email'];
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['idcliente'])) {
+            $idcliente = $_POST['idcliente'];
+            $razonsocial = $_POST['razonsocial'];
+            $nombrecomercial = $_POST['nombrecomercial'];
+            $telefono = $_POST['telefono'] ?? null; 
+            $email = $_POST['email'] ?? null;
+            $direccion = $_POST['direccion'] ?? null;
+            $contacto = $_POST['contacto'] ?? null;
             $estado = $_POST['estado'];
     
-            // Actualiza el campo inactive_at basado en el estado seleccionado
             $inactive_at = ($estado === 'inactivo') ? date('Y-m-d H:i:s') : null;
     
-            if ($this->actionModel->updateClient($id, $nombrecliente, $telefono, $email, $inactive_at)) {
+            if ($this->actionModel->updateClient($idcliente, $razonsocial, $nombrecomercial, $telefono, $email, $direccion, $contacto, $inactive_at)) {
                 header('Location: ../../views/produccion/registrarClientes.php');
                 exit();
             } else {
@@ -45,24 +49,18 @@ class ActionController {
         }
     }
     
-    
 
-    public function createAction() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nombre'])) {
+    public function createOrdenProduccion() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['op'])) {
             $idcliente = $_POST['idcliente'];
+            $op = $_POST['op'];
             $estilo = $_POST['estilo'];
             $division = $_POST['division'];
-            $nombre = $_POST['nombre'];
             $color = $_POST['color'];
-            $fecha_inicio = $_POST['fecha_inicio'];
-            $fecha_entrega = $_POST['fecha_entrega'];
-            
-            $talla_s = isset($_POST['talla_s']) ? $_POST['talla_s'] : 0;
-            $talla_m = isset($_POST['talla_m']) ? $_POST['talla_m'] : 0;
-            $talla_l = isset($_POST['talla_l']) ? $_POST['talla_l'] : 0;
-            $talla_xl = isset($_POST['talla_xl']) ? $_POST['talla_xl'] : 0;
+            $fechainicio = $_POST['fechainicio'];
+            $fechafin = $_POST['fechafin'];
     
-            if ($this->actionModel->createAction($idcliente, $estilo, $division, $nombre, $color, $fecha_inicio, $fecha_entrega, $talla_s, $talla_m, $talla_l, $talla_xl)) {
+            if ($this->actionModel->createOrdenProduccion($idcliente, $op, $estilo, $division, $color, $fechainicio, $fechafin)) {
                 header('Location: ../../views/produccion/registrarProduccion.php');
                 exit();
             } else {
@@ -91,7 +89,6 @@ class ActionController {
     
     public function viewSecuencia($id) {
         $secuencia = $this->actionModel->getSecuenciaById($id);
-        $tallas = $this->actionModel->getTallasBySecuenciaId($id); 
         require '../../views/produccion/viewSecuencia.php'; 
     }    
 
@@ -103,38 +100,53 @@ class ActionController {
         require '../../views/produccion/archivosPDF.php';
     }
     
-    
-
     public function createSequence() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $idcliente = $_POST['idop'];  // El cliente id es lo que necesitas
-            $fechaInicio = $_POST['fechaInicio'];
-            $fechaFinal = $_POST['fechaFinal'];
-    
+            $idop = $_POST['idop'];
+            $idcliente = $_POST['idcliente']; // Recibimos el idcliente
+            $fechaInicio = $_POST['sinicio'];
+            $fechaFinal = $_POST['sfin'];
             $numSecuencia = isset($_POST['numSecuencia']) ? (int)$_POST['numSecuencia'] : 1;
+            $idtalla = isset($_POST['idtalla']) ? (int)$_POST['idtalla'] : null;
+            $cantidad = isset($_POST['cantidad']) ? (int)$_POST['cantidad'] : 0;
     
-            $talla_s = isset($_POST['talla_s']) ? (int)$_POST['talla_s'] : 0;
-            $talla_m = isset($_POST['talla_m']) ? (int)$_POST['talla_m'] : 0;
-            $talla_l = isset($_POST['talla_l']) ? (int)$_POST['talla_l'] : 0;
-            $talla_xl = isset($_POST['talla_xl']) ? (int)$_POST['talla_xl'] : 0;
+            $detalleInsertado = $this->actionModel->insertDetalleOp($idop, $idtalla, $numSecuencia, $cantidad, $fechaInicio, $fechaFinal);
     
-            $prendasArealizar = $talla_s + $talla_m + $talla_l + $talla_xl;
-    
-            $sequenceCreated = $this->actionModel->createSequence($idcliente, $numSecuencia, $fechaInicio, $fechaFinal, $prendasArealizar, $talla_s, $talla_m, $talla_l, $talla_xl);
-    
-            if (!$sequenceCreated) {
-                header("Location:../../views/produccion/indexP.php?cliente_id=" . urlencode($idcliente) . "&error=SecuenciaNoCreada");
+            if (!$detalleInsertado) {
+                header("Location: ../../views/produccion/indexP.php?cliente_id=" . urlencode($idcliente) . "&error=DetalleNoInsertado");
                 exit();
             }
     
-            $lastSequenceId = $this->actionModel->getLastInsertedSequenceId();
-            $this->actionModel->createTalla($lastSequenceId, $talla_s, $talla_m, $talla_l, $talla_xl, $prendasArealizar, 0, 0, 0, 0);
-    
-            // Redirige a la vista de producción para el cliente
-            header("Location:../../views/produccion/indexP.php?cliente_id=" . urlencode($idcliente));
+            header("Location: ../../views/produccion/indexP.php?cliente_id=" . urlencode($idcliente));
             exit();
         }
     }
     
-
+    
+    public function createProduccion() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+           
+            $iddetop = isset($_POST['iddetop']) ? (int)$_POST['iddetop'] : null;
+            $idpersona = isset($_POST['idpersona']) ? (int)$_POST['idpersona'] : null;
+            $idtipooperacion = isset($_POST['idtipooperacion']) ? (int)$_POST['idtipooperacion'] : null;
+            $cantidadproducida = isset($_POST['cantidadproducida']) ? (int)$_POST['cantidadproducida'] : 0;
+            $fecha = isset($_POST['fecha']) ? $_POST['fecha'] : date('Y-m-d H:i:s'); 
+    
+            if ($iddetop === null || $idpersona === null || $idtipooperacion === null || $cantidadproducida <= 0) {
+                header("Location:../../views/produccion/indexP.php?error=DatosInvalidos");
+                exit();
+            }
+    
+            $produccionInsertada = $this->actionModel->createProduccion($iddetop, $idpersona, $idtipooperacion, $cantidadproducida, $fecha);
+    
+            if (!$produccionInsertada) {
+                header("Location:../../views/produccion/indexP.php?error=ProduccionNoInsertada");
+                exit();
+            }
+    
+            header("Location: ../../views/produccion/indexP.php?action=viewSecuencia&iddetop=" . urlencode($iddetop));
+            exit();
+        }
+    }
+    
 }
