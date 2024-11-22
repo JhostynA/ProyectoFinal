@@ -49,28 +49,36 @@ if ($result) {
     </div>
 
     <div class="card mb-4">
-        <div class="card-body">
-            <form>
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label for="fecha" class="form-label">Fecha</label>
-                        <input type="date" class="form-control" id="fecha" name="fecha">
-                    </div>
-                    <div class="col-md-6">
-                        <label for="estadoPago" class="form-label">Estado de Pago</label>
-                        <select class="form-select" id="estadoPago" name="estadoPago">
-                            <option value="Todos" selected>Todos</option>
-                            <option value="Pagado">Pagado</option>
-                            <option value="Pendiente">Pendiente</option>
-                        </select>
-                    </div>
+    <div class="card-body">
+        <form>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="fecha" class="form-label">Fecha</label>
+                    <input 
+                        type="date" 
+                        class="form-control" 
+                        id="fecha" 
+                        name="fecha"
+                        min="<?= htmlspecialchars($secuencia['sinicio']) ?>"
+                        max="<?= htmlspecialchars($secuencia['sfin']) ?>"
+                        required>
                 </div>
-                <div class="mt-3 text-end">
-                    <button type="button" class="btn btn-secondary" id="limpiarFiltros">Limpiar Filtros</button>
+                <div class="col-md-6">
+                    <label for="estadoPago" class="form-label">Estado de Pago</label>
+                    <select class="form-select" id="estadoPago" name="estadoPago">
+                        <option value="Todos" selected>Todos</option>
+                        <option value="Pagado">Pagado</option>
+                        <option value="Pendiente">Pendiente</option>
+                    </select>
                 </div>
-            </form>
-        </div>
+            </div>
+            <div class="mt-3 text-end">
+                <button type="button" class="btn btn-secondary" id="limpiarFiltros">Limpiar Filtros</button>
+            </div>
+        </form>
     </div>
+</div>
+
 
     <div class="table-responsive">
     <table class="table table-striped table-hover table-bordered align-middle">
