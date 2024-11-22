@@ -18,7 +18,7 @@ El usuario es capaz de listar, registrar, editar y eliminar.
 
 ### Módulo Producción
 
-### 1er interfaz:
+## 1er interfaz:
 En la primera interfaz el usuario puede registrar una OP(orden de producción), insertando el número de OP, fecha de inicio y final y por último la cantidad global a realizar.
 
 ## 2er interfaz
