@@ -1,20 +1,24 @@
 <?php
 require_once '../../models/Conexion.php';
 
-if (isset($_POST['apepaterno']) && isset($_POST['apematerno']) && isset($_POST['nombres'])) {
-  $apepaterno = $_POST['apepaterno'];
-  $apematerno = $_POST['apematerno'];
+if (isset($_POST['apellidos']) && isset($_POST['nombres']) && isset ($_POST['telefono']) && isset ($_POST['tipodoc']) && isset ($_POST['numdoc'])) {
+  $apellidos = $_POST['apellidos'];
   $nombres = $_POST['nombres'];
+  $telefono = $_POST['telefono'];
+  $tipodoc = $_POST['tipodoc'];
+  $numdoc = $_POST['numdoc'] ;
 
   try {
     $conexion = new Conexion();
     $pdo = $conexion->getConexion();
 
-    $sqlVerificar = "CALL VerificarPersona(:apepaterno, :apematerno, :nombres)";
+    $sqlVerificar = "CALL VerificarPersona(:apellidos, :nombres, :telefono, :tipodoc, :numdoc)";
     $stmtVerificar = $pdo->prepare($sqlVerificar);
-    $stmtVerificar->bindParam(':apepaterno', $apepaterno, PDO::PARAM_STR);
-    $stmtVerificar->bindParam(':apematerno', $apematerno, PDO::PARAM_STR);
+    $stmtVerificar->bindParam(':apellidos', $apellidos, PDO::PARAM_STR);
     $stmtVerificar->bindParam(':nombres', $nombres, PDO::PARAM_STR);
+    $stmtVerificar->bindParam(':telefono', $telefono, PDO::PARAM_STR);
+    $stmtVerificar->bindParam(':tipodoc', $tipodoc, PDO::PARAM_STR);
+    $stmtVerificar->bindParam(':numdoc', $numdoc, PDO::PARAM_STR);
     $stmtVerificar->execute();
     
     $resultado = $stmtVerificar->fetch(PDO::FETCH_ASSOC);
@@ -24,11 +28,13 @@ if (isset($_POST['apepaterno']) && isset($_POST['apematerno']) && isset($_POST['
     if ($resultado['existe'] > 0) {
       echo json_encode(['status' => 'error', 'message' => 'La persona ya está registrada.']);
     } else {
-      $sqlInsertar = "INSERT INTO personas (apepaterno, apematerno, nombres) VALUES (:apepaterno, :apematerno, :nombres)";
+      $sqlInsertar = "INSERT INTO personas (apellidos, nombres, telefono, tipodoc, numdoc) VALUES (:apellidos, :nombres, :telefono, :tipodoc, :numdoc)";
       $stmtInsertar = $pdo->prepare($sqlInsertar);
-      $stmtInsertar->bindParam(':apepaterno', $apepaterno, PDO::PARAM_STR);
-      $stmtInsertar->bindParam(':apematerno', $apematerno, PDO::PARAM_STR);
+      $stmtInsertar->bindParam(':apellidos', $apellidos, PDO::PARAM_STR);
       $stmtInsertar->bindParam(':nombres', $nombres, PDO::PARAM_STR);
+      $stmtInsertar->bindParam(':telefono', $telefono, PDO::PARAM_STR);
+      $stmtInsertar->bindParam(':tipodoc', $tipodoc, PDO::PARAM_STR);
+      $stmtInsertar->bindParam(':numdoc', $numdoc, PDO::PARAM_STR);
       $stmtInsertar->execute();
 
       echo json_encode(['status' => 'success']);
