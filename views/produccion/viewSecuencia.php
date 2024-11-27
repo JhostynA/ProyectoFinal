@@ -144,7 +144,7 @@ if ($result) {
                                 <option value="" selected>Seleccione una persona</option>
                                 <?php foreach ($personas as $persona): ?>
                                     <option value="<?= htmlspecialchars($persona['idpersona']) ?>">
-                                        <?= htmlspecialchars($persona['nombres'] . ' ' . $persona['apepaterno'] . ' ' . $persona['apematerno']) ?>
+                                        <?= htmlspecialchars($persona['nombres'] . ' ' . $persona['apellidos']) ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>

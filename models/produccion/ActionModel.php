@@ -110,7 +110,7 @@ class ActionModel {
     }
     
     public function getPersonasActivas() {
-        $query = "SELECT idpersona, nombres, apepaterno, apematerno FROM personas WHERE fechabaja IS NULL";
+        $query = "SELECT idpersona, apellidos, nombres FROM personas WHERE fechabaja IS NULL";
         $stmt = $this->db->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -180,8 +180,7 @@ class ActionModel {
                 produccion.pagado,
                 produccion.fechapagopersona,
                 personas.nombres AS nombrePersona,
-                personas.apepaterno AS apellidoPaterno,
-                personas.apematerno AS apellidoMaterno,
+                personas.apellidos AS apellidos,
                 operaciones.operacion AS tipoOperacion
             FROM 
                 produccion
