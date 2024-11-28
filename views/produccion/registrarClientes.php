@@ -25,7 +25,10 @@ $clientes = $clienteModel->getClientes();
 
     <input type="text" id="searchInput" class="form-control mb-3" placeholder="Buscar por nombre, teléfono o email" onkeyup="searchTable()">
 
-    <table class="table table-striped table-bordered">
+    
+
+<div class="table-responsive">
+<table class="table table-striped table-bordered">
     <thead class="table-dark">
         <tr>
             <th class="text-center" style="width: 150px;">Razón Social</th>
@@ -111,6 +114,8 @@ $clientes = $clienteModel->getClientes();
         <?php endforeach; ?>
     </tbody>
 </table>
+    </div>
+
 </div>
 
 <!-- Modal para Agregar Cliente -->

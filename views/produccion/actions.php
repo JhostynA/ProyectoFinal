@@ -12,6 +12,7 @@ $tallas = $secuenciasModel->getTallas();
         <h1 class="mb-4 text-center">PRODUCCIÓN</h1>
     </div>
 
+    <div class="table-responsive">
     <table id="actionsTable" class="table table-bordered shadow-lg">
         <thead class="thead-dark">
             <tr>
@@ -101,6 +102,9 @@ $tallas = $secuenciasModel->getTallas();
             <?php endif; ?>
         </tbody>
     </table>
+    </div>
+
+   
 </div>
 
 

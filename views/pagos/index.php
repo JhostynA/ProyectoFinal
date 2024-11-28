@@ -68,26 +68,7 @@ $clientes = $pagosController->getClientesActivos();
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>2024-11-01</td>
-                    <td>Corte</td>
-                    <td>$10.00</td>
-                    <td>50</td>
-                    <td>$500.00</td>
-                    <td>
-                      <button class="btn btn-primary btn-sm"><i class="bi bi-pencil"></i> Pagar</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>2024-11-02</td>
-                    <td>Confección</td>
-                    <td>$15.00</td>
-                    <td>30</td>
-                    <td>$450.00</td>
-                    <td>
-                        <button class="btn btn-primary btn-sm"><i class="bi bi-pencil"></i> Pagar</button>
-                    </td>
-                </tr>
+                
             </tbody>
         </table>
     </div>

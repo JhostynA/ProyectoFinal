@@ -55,8 +55,7 @@ $clientesActivos = $clienteModel->getClientesActivos();
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="fas fa-user fa-fw"></i>
-                    <?= $_SESSION['login']['nombres'] ?>
-                    <?= $_SESSION['login']['apellidos'] ?> 
+                    <?= $_SESSION['login']['nombres'] ?> 
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <li><hr class="dropdown-divider" /></li>
