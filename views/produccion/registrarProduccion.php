@@ -27,15 +27,30 @@ $clientes = (new ActionModel())->getClientesActivos();
                 <input type="number" class="form-control" id="op" name="op" required>
             </div>
             <div class="col-md-4">
-                <label for="division" class="form-label">División:</label>
-                <input type="text" class="form-control" id="division" name="division" required>
+                <label for="division" class="form-label">División</label>
+                    <select type="text" class="form-control" id="division" name="division" required>
+                        <option value="">Seleccion un tipo de división</option>
+                        <option value="Niño">Niño</option>
+                        <option value="Niña">Niña</option>
+                        <option value="Caballero">Caballero</option>
+                        <option value="Dama">Dama</option>
+                        
+                    </select>
             </div>
         </div>
         
         <div class="row mb-4">
             <div class="col-md-3">
                 <label for="estilo" class="form-label">Estilo:</label>
-                <input type="text" class="form-control" id="estilo" name="estilo" required>
+                    <select type="text" class="form-control" id="estilo" name="estilo" required>
+                        <option value="">Seleccion un tipo de estilo</option>
+                        <option value="Casual">Casual</option>
+                        <option value="Clásico">Clásico</option>
+                        <option value="Romántico">Romántico</option>
+                        <option value="Vintage">Vintage</option>
+                        <option value="Deportivo">Deportivo</option>
+                        <option value="Minimalista">Minimalista</option>
+                    </select>
             </div>
             <div class="col-md-3">
                 <label for="color" class="form-label">Color:</label>
