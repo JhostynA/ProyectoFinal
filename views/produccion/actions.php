@@ -17,7 +17,7 @@ $tallas = $secuenciasModel->getTallas();
         <thead class="thead-dark">
             <tr>
                 <th class="text-center" style="width: 80px;">OP</th>
-                <th style="width: 80px;"  class="text-center">DOP</th>
+                <th style="width: 80px;"  class="text-center">D-OP</th>
                 <th style="width: 120px;" class="text-center">Estilo</th>
                 <th style="width: 120px;" class="text-center">División</th>
                 <th style="width: 120px;" class="text-center">Color</th>

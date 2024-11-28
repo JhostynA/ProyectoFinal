@@ -1,12 +1,12 @@
 <?php require_once '../../contenido.php'; ?>
 
 <div class="container mt-5">
-    <h1 class="text-center mb-4">Listado de Personas</h1>
+    <h1 class="text-center mb-4">Listado de Trabajadores</h1>
     <div class="card shadow">
         <div class="card-body">
             <div class="mb-5">
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAgregar">
-                    Agregar Registro
+                    Agregar nuevo trabajador
                 </button>
             </div>
             <table id="tablaDatos" class="table table-striped table-hover w-100">
@@ -33,7 +33,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalAgregarLabel">Agregar Nuevo Registro</h5>
+                <h5 class="modal-title" id="modalAgregarLabel">Agregar Trabajador</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">

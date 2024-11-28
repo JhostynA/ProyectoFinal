@@ -112,18 +112,18 @@ $clientesActivos = $clienteModel->getClientesActivos();
 
                             </div>
 
-
+                        
+                        <a class="nav-link" href="<?= $host ?>/views/pagos/">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-money-bills"></i></i></div>
+                            Pagos
+                        </a>                    
                         <a class="nav-link" href="<?= $host ?>/views/personas/">
-                            <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
-                            Personas
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-person"></i></div>
+                            Trabajadores
                         </a>
                         <a class="nav-link" href="<?= $host ?>/views/operaciones/">
-                            <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-list-check"></i></div>
                             Operaciones
-                        </a>
-                        <a class="nav-link" href="<?= $host ?>/views/pagos/">
-                            <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
-                            Pagos
                         </a>
                     </div>
                 </div>
