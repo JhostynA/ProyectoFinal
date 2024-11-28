@@ -104,8 +104,8 @@ $(document).ready(function() {
                 "data": null, 
                 "render": function(data, type, row) {
                     return `
-                        <button class="btn btn-warning btn-sm btnEditar" data-idoperacion="${row.idoperacion}">Editar</button>
-                        <button class="btn btn-danger btn-sm btnEliminar" data-idoperacion="${row.idoperacion}">Eliminar</button>
+                        <button class="btn btn-warning btn-sm btnEditar" data-idoperacion="${row.idoperacion}"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button class="btn btn-danger btn-sm btnEliminar" data-idoperacion="${row.idoperacion}"><i class="fa-solid fa-trash"></i></button>
                     `;
                 }
             }
@@ -143,7 +143,7 @@ $(document).ready(function() {
 
                 if (data.status === 'success') {
                     $('#modalAgregar').modal('hide');
-                    $('.modal-backdrop').remove(); // Con esto eliminamos el overlay oscuro
+                    $('.modal-backdrop').remove(); 
                     $('body').removeClass('modal-open')
                     $('#formAgregar')[0].reset();
                     table.ajax.reload();

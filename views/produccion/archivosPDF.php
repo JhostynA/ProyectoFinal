@@ -15,9 +15,7 @@ $pdfs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <div class="container mt-5">
     <h1 class="mb-4 text-center" style="color: #000000;">Archivos PDF de la OP - <?= htmlspecialchars($actionP['op']) ?></h1>
 
-    <div class="text-center mb-4">
-    <a href="<?= $host ?>/views/produccion/indexP.php?cliente_id=<?= htmlspecialchars($actionP['idcliente']) ?>" class="btn btn-outline-danger btn-lg">⟵ Regresar</a>
-    </div>
+    
 
     <div class="card shadow-sm mb-5 border-danger">
         <div class="card-header bg-danger text-white">
@@ -56,6 +54,11 @@ $pdfs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php endif; ?>
         </div>
     </div>
+<br>
+    <div class="text-rigth mb-4">
+        <a href="<?= $host ?>/views/produccion/indexP.php?cliente_id=<?= htmlspecialchars($actionP['idcliente']) ?>" class="btn btn-outline-danger btn-lg">⟵ Regresar</a>
+    </div>
+
 </div>
 
 <?php require_once '../../footer.php'; ?>

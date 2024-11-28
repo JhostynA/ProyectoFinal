@@ -158,8 +158,8 @@
                     "data": null,
                     "render": function(data, type, row) {
                         return `
-                            <button class="btn btn-warning btn-sm btnEditar" data-idpersona="${row.idpersona}">Editar</button>
-                            <button class="btn btn-danger btn-sm btnEliminar" data-idpersona="${row.idpersona}">Eliminar</button>
+                            <button class="btn btn-warning btn-sm btnEditar" data-idpersona="${row.idpersona}"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button class="btn btn-danger btn-sm btnEliminar" data-idpersona="${row.idpersona}"><i class="fa-solid fa-trash"></i></button>
                         `;
                     }
                 }
