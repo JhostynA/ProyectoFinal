@@ -1,4 +1,4 @@
-drop DATABASE linoFino;
+CREATE DATABASE linoFino;
 USE linoFino;
 
 CREATE TABLE operaciones
@@ -29,21 +29,24 @@ INSERT INTO operaciones (operacion,precio) VALUES
 
 CREATE TABLE personas (
     idpersona 		INT PRIMARY KEY AUTO_INCREMENT,
-    apepaterno 		VARCHAR(20) 	NOT NULL,
-    apematerno 		VARCHAR(20) 	NOT NULL,
+    apellidos 		VARCHAR(50) 	NOT NULL,
     nombres 		VARCHAR(50) 	NOT NULL,
+    telefono        CHAR(9)         NOT NULL,
+    tipodoc         CHAR(3)         NOT NULL,
+    numdoc          CHAR(15)        NOT NULL,
     fecharegistro 	DATETIME 		NOT NULL DEFAULT NOW(),
-    fechabaja 		DATETIME 		NULL
+    fechabaja 		DATETIME 		NULL,
+    CONSTRAINT chk_tipodoc_per CHECK (tipodoc in ('DNI', 'PST', 'CEX'))
 );
 
-INSERT INTO personas (apepaterno, apematerno, nombres)
+INSERT INTO personas (apellidos, nombres, telefono, tipodoc, numdoc)
 VALUES 
-('Aburto', 'Acevedo', 'Jhostyn'),
-('Quispe', 'Huamán', 'Juan Carlos'),
-('Gonzales', 'Cahuana', 'María Elena'),
-('Soto', 'Yupanqui', 'José Antonio'),
-('Rojas', 'Chávez', 'Ana Lucía'),
-('Flores', 'Pachacutec', 'Luis Alberto');
+('Aburto Acevedo', 'Jhostyn Alberto', '987654321', 'DNI', '12345678'),
+('Quispe Huamán', 'Juan Carlos', '987654322', 'PST', '23456789'),
+('Gonzales Cahuana', 'María Elena', '987654323', 'CEX', '34567890'),
+('Soto Yupanqui', 'José Antonio', '987654324', 'DNI', '45678901'),
+('Rojas Chávez', 'Ana Lucía', '987654325', 'PST', '56789012'),
+('Flores Pachacutec', 'Luis Alberto', '987654326', 'CEX', '67890123');
 
 CREATE TABLE colaboradores (
     idcolaboradores INT PRIMARY KEY AUTO_INCREMENT,
@@ -68,7 +71,6 @@ CREATE TABLE clientes
     fecha_creacion  DATE DEFAULT (CURRENT_TIMESTAMP),
     inactive_at 	DATETIME 		NULL
 );
-
 CREATE TABLE ordenesproduccion (
     idop 		INT AUTO_INCREMENT PRIMARY KEY,
     idcliente 	INT,
@@ -90,17 +92,18 @@ CREATE TABLE tallas (
 );
     
     
-    INSERt INTO tallas(talla)
-		VALUE
-			('S'),
-            ('M'),
-            ('L'),
-            ('XL'),
-			('XL'),
-            ('1T'),
-            ('2T'),
-            ('4T'),
-            ('5T');
+   INSERT INTO tallas(talla)
+	VALUE
+        ('2T'),
+        ('3T'),
+        ('4T'),
+        ('5T'),
+		('S'),
+        ('M'),
+        ('L'),
+        ('XL'),
+        ('XXL'),
+        ('XXXL');
 
 CREATE TABLE detalleop (
     iddetop 		INT AUTO_INCREMENT PRIMARY KEY,
@@ -128,6 +131,7 @@ CREATE TABLE produccion (
     FOREIGN KEY (idtipooperacion) REFERENCES operaciones(idoperacion)
 );
 
+SELECT * FROM produccion;
 
 CREATE TABLE pdf_files (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -143,7 +147,7 @@ CREATE PROCEDURE spu_colaboradores_login(IN _nomusuario VARCHAR(50))
 BEGIN
 	SELECT
 		COL.idcolaboradores,
-        PER.apepaterno, PER.nombres,
+        PER.apellidos, PER.nombres,
         COL.nomusuario, COL.passusuario
 		FROM colaboradores COL
         INNER JOIN personas PER ON PER.idpersona = COL.idcolaboradores
@@ -181,24 +185,26 @@ END $$
 DELIMITER $$
 CREATE PROCEDURE VerificarPersona
 (
-	IN _apepaterno		VARCHAR(20), 	
-    IN _apematerno		VARCHAR(20),
-    IN _nombres			VARCHAR(50)
+	IN _apellidos		VARCHAR(50), 	
+    IN _nombres			VARCHAR(50),
+    IN _telefono        CHAR(9),
+    IN _tipodoc         CHAR(3),
+    IN _numdoc          CHAR(15)
     )
 BEGIN
   SELECT COUNT(*) AS existe
   FROM personas
-  WHERE apepaterno = _apepaterno AND apematerno = _apematerno AND nombres = _nombres;
+  WHERE  apellidos = _apellidos AND nombres = _nombres AND telefono = _telefono AND tipodoc = _tipodoc AND numdoc = _numdoc;
 END $$
 DELIMITER ;
 
+DELIMITER $$
 CREATE PROCEDURE buscarPersonas(IN searchTerm VARCHAR(255))
 BEGIN
-    SELECT idpersona, nombres, apepaterno, apematerno
+    SELECT idpersona, nombres, apellidos
     FROM personas
     WHERE nombres LIKE CONCAT('%', searchTerm, '%')
-       OR apepaterno LIKE CONCAT('%', searchTerm, '%')
-       OR apematerno LIKE CONCAT('%', searchTerm, '%')
+       OR apellidos LIKE CONCAT('%', searchTerm, '%');
 END $$
 DELIMITER ;
 
@@ -214,8 +220,15 @@ DELIMITER ;
 CREATE TABLE modalidades (
     idmodalidad 	INT AUTO_INCREMENT PRIMARY KEY,
     modalidad 		VARCHAR(50) NOT NULL,
+    CONSTRAINT chk_modalidad_mod CHECK (modalidad in ('YAPE', 'PLIN', 'EFECTIVO')),
     CONSTRAINT uk_modalidad UNIQUE(modalidad)
 );
+
+INSERT INTO modalidades (modalidad)
+    VALUES 
+        ('YAPE'), 
+        ('PLIN'), 
+        ('EFECTIVO');
 
 CREATE TABLE pagos (
     idpago 			INT AUTO_INCREMENT PRIMARY KEY,

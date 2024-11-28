@@ -11,7 +11,7 @@ if (isset($_GET['operation'])){
      
       $login = [
         "permitido"           => false,
-        "apepaterno"          => "",
+        "apellidos"          => "",
         "nombres"             => "",
         "idcolaboradores"     => "",
         "status"              => ""
@@ -27,7 +27,7 @@ if (isset($_GET['operation'])){
 
         if (password_verify($claveIngreso, $claveEncriptada)){
           $login["permitido"] = true;
-          $login["apepaterno"] = $row[0]["apepaterno"];
+          $login["apellidos"] = $row[0]["apellidos"];
           $login["nombres"] = $row[0]["nombres"];
           $login["idcolaboradores"] = $row[0]["idcolaboradores"];
         }else{
