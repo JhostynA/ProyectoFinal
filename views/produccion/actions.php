@@ -38,9 +38,10 @@ $tallas = $secuenciasModel->getTallas();
                         <td><?= htmlspecialchars($action['fechainicio']) ?></td>
                         <td><?= htmlspecialchars($action['fechafin']) ?></td>
                         <td class="text-center">
-                        <a href="<?= $host ?>/views/produccion/indexP.php?action=viewPDF&id=<?= $action['idop'] ?>" class="btn btn-outline-danger">
-                                <i class="fas fa-file-pdf"></i>
-                            </a></td>
+                            <a href="<?= $host ?>/views/produccion/indexP.php?action=viewPDF&id=<?= $action['idop'] ?>" class="btn btn-outline-danger">
+                                    <i class="fas fa-file-pdf"></i>
+                            </a>
+                        </td>
                     </tr>
                     <tr class="details" style="display: none; background-color: #f9f9f9;">
                     <td colspan="10">
@@ -72,7 +73,7 @@ $tallas = $secuenciasModel->getTallas();
                                 foreach ($detalleOP as $detalleop): ?>
                                     <tr>
                                         <td><a href="<?= $host ?>/views/produccion/indexP.php?action=viewSecuencia&iddetop=<?= $detalleop['iddetop'] ?>" class="text-primary">
-                                                <?= htmlspecialchars($detalleop['numSecuencia']) ?>              
+                                                <button class="btn btn-outline-primary"><?= htmlspecialchars($detalleop['numSecuencia']) ?> </button>             
                                             </a>
                                         </td>
                                         <td><?= htmlspecialchars($detalleop['talla']) ?></td>
