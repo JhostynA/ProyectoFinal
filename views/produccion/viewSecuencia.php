@@ -8,7 +8,8 @@ $conn = $conexion->getConexion();
 $produccionModel = new ActionModel();
 
 $personas = $produccionModel->getPersonasActivas();
-$operaciones = $produccionModel->getOperaciones();
+$operaciones = $produccionModel->getOperacionesByDetalleOp($id);
+
 
 
 $id = $secuencia['iddetop'];
@@ -51,6 +52,7 @@ if ($result) {
     <div class="card mb-4">
     <div class="card-body">
         <form>
+            <h2>Filtro</h2>
             <div class="row g-3">
                 <div class="col-md-6">
                     <label for="fecha" class="form-label">Fecha</label>
@@ -137,7 +139,7 @@ if ($result) {
             <div class="modal-body">
                 <form id="formNuevoRegistro" action="<?= $host ?>/views/produccion/indexP.php?action=createProduccion" method="POST">
                     <div class="mb-3">
-                        <input type="hidden" name="iddetop" id="opIdInput" value="">
+                        <input type="hidden" name="iddetop" id="opIdInput" value="<?= htmlspecialchars($secuencia['iddetop']) ?>">
 
                         <label for="idpersona" class="form-label">Persona</label>
                             <select class="form-select" id="idpersona" name="idpersona" required>
@@ -150,16 +152,23 @@ if ($result) {
                             </select>
                     </div>
                     <div class="mb-3">
-                    <label for="idtipooperacion" class="form-label">Tipo de Operación</label>
-                        <select class="form-select" id="idtipooperacion" name="idtipooperacion" required>
+                        <label for="iddetop_operacion" class="form-label">
+                            Tipo de Operación
+                        </label>
+                        <span id="cantidadOperacion" style="font-weight: bold; margin-left: 10px;">Cantidad a realizar</span> 
+                        <select class="form-select" id="iddetop_operacion" name="iddetop_operacion" required>
                             <option value="" selected>Seleccione una operación</option>
                             <?php foreach ($operaciones as $operacion): ?>
-                                <option value="<?= htmlspecialchars($operacion['idoperacion']) ?>">
-                                    <?= htmlspecialchars($operacion['operacion']) ?>
-                                </option>
+                            <option value="<?= htmlspecialchars($operacion['iddetop_operacion']) ?>"
+                            data-cantidad="<?= htmlspecialchars($operacion['cantidaO'] ?? 'No disponible') ?>"> 
+                        <?= htmlspecialchars($operacion['operacion']) ?>
+                    </option>
+
                             <?php endforeach; ?>
                         </select>
                     </div>
+
+
                     <div class="mb-3">
                         <label for="cantidadproducida" class="form-label">Cantidad Producida</label>
                         <input type="number" class="form-control" id="cantidadproducida" name="cantidadproducida" min="1" required>
@@ -189,6 +198,20 @@ if ($result) {
 
 <script>
 
+document.getElementById('formNuevoRegistro').addEventListener('submit', function(event) {
+    var cantidadProducida = parseInt(document.getElementById('cantidadproducida').value, 10);
+    var cantidadDisponible = parseInt(
+        document.getElementById('iddetop_operacion').selectedOptions[0].getAttribute('data-cantidad'),
+        10
+    );
+
+    if (cantidadProducida > cantidadDisponible) {
+        alert('La cantidad producida no puede exceder la cantidad disponible.');
+        event.preventDefault(); // Detener el envío del formulario
+    }
+});
+
+
     document.getElementById('nuevoRegistroModal').addEventListener('show.bs.modal', function (event) {
     
         const button = event.relatedTarget;
@@ -201,8 +224,27 @@ if ($result) {
 
 </script>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const selectOperacion = document.getElementById("iddetop_operacion");
+        const cantidadOperacion = document.getElementById("cantidadOperacion");
+
+        selectOperacion.addEventListener("change", function () {
+            const selectedOption = selectOperacion.options[selectOperacion.selectedIndex];
+            const cantidad = selectedOption.getAttribute("data-cantidad");
+
+            if (cantidad) {
+                cantidadOperacion.textContent = `Cantidad: ${cantidad}`;
+            } else {
+                cantidadOperacion.textContent = "Selecciona una operación";
+            }
+        });
+    });
+</script>
 
 <script>
+
+    
 
 
 /* Filtro */ 

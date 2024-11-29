@@ -5,6 +5,15 @@ $secuenciasModel = new ActionModel();
 $tallas = $secuenciasModel->getTallas();
 
 
+$iddetop = isset($_GET['iddetop']) ? $_GET['iddetop'] : null;
+
+$operaciones = $secuenciasModel->getOperaciones();
+
+
+$operacionesSeleccionadas = $secuenciasModel->getOperacionesSeleccionadas($iddetop);
+
+
+
 ?>
 
 <div class="container mt-5">
@@ -64,6 +73,7 @@ $tallas = $secuenciasModel->getTallas();
                                     <th>Cantidad</th>
                                     <th>F Inicio</th>
                                     <th>F Final</th>
+                                    <th>Operaciones</th>
                                 </tr>
                             </thead>
                            
@@ -72,15 +82,25 @@ $tallas = $secuenciasModel->getTallas();
                                 $detalleOP = $secuenciasModel->getDetalleByOP($action['idop']);
                                 foreach ($detalleOP as $detalleop): ?>
                                     <tr>
-                                        <td><a href="<?= $host ?>/views/produccion/indexP.php?action=viewSecuencia&iddetop=<?= $detalleop['iddetop'] ?>" class="text-primary">
-                                                <button class="btn btn-outline-primary"><?= htmlspecialchars($detalleop['numSecuencia']) ?> </button>             
-                                            </a>
-                                        </td>
-                                        <td><?= htmlspecialchars($detalleop['talla']) ?></td>
-                                        <td><?= htmlspecialchars($detalleop['cantidad']) ?></td>
-                                        <td><?= htmlspecialchars($detalleop['sinicio']) ?></td>
-                                        <td><?= htmlspecialchars($detalleop['sfin']) ?></td>
-                                    </tr>
+                                    <td><a href="<?= $host ?>/views/produccion/indexP.php?action=viewSecuencia&iddetop=<?= $detalleop['iddetop'] ?>" class="text-primary">
+                                            <button class="btn btn-outline-primary"><?= htmlspecialchars($detalleop['numSecuencia']) ?> </button>
+                                        </a>
+                                    </td>
+                                    <td><?= htmlspecialchars($detalleop['talla']) ?></td>
+                                    <td><?= htmlspecialchars($detalleop['cantidad']) ?></td>
+                                    <td><?= htmlspecialchars($detalleop['sinicio']) ?></td>
+                                    <td><?= htmlspecialchars($detalleop['sfin']) ?></td>
+                                    <td class="text-center">
+                                    <button class="btn btn-sm btn-info open-operations-modal" 
+        data-toggle="modal" 
+        data-target="#operationsModal" 
+        data-iddetop="<?= $detalleop['iddetop'] ?>"
+        data-cantidad="<?= $detalleop['cantidad'] ?>"> 
+        Operaciones
+</button>
+
+                                    </td>
+                                </tr>
                                 <?php endforeach; ?>
                                 <?php if (empty($detalleOP)): ?>
                                     <tr>
@@ -162,6 +182,50 @@ $tallas = $secuenciasModel->getTallas();
     </div>
 </div>
 
+<div class="modal fade" id="operationsModal" tabindex="-1" role="dialog" aria-labelledby="operationsModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="operationsModalLabel">Gestionar Operaciones</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="operationsForm" method="POST" action="<?= $host ?>/views/produccion/indexP.php?action=updateOperations">
+                <input type="hidden" name="idcliente" id="clienteIdInput" value="<?= htmlspecialchars($action['idcliente']) ?>">
+                    <input type="hidden" name="iddetop" id="iddetopInput" value="">
+                    <input type="hidden" name="cantidaO" id="cantidaOInput" value="">
+
+
+                    <div class="form-group">
+    <label for="operation">Operación:</label>
+    <select class="form-control" name="idoperacion" required>
+        <?php foreach ($operaciones as $operacion): ?>
+            <?php if (in_array($operacion['idoperacion'], $operacionesSeleccionadas)): ?>
+                <!-- Operación deshabilitada -->
+                <option value="<?= htmlspecialchars($operacion['idoperacion']) ?>" disabled style="color: #999;">
+                    <?= htmlspecialchars($operacion['operacion']) ?> (ya seleccionada)
+                </option>
+            <?php else: ?>
+                <!-- Operación habilitada -->
+                <option value="<?= htmlspecialchars($operacion['idoperacion']) ?>">
+                    <?= htmlspecialchars($operacion['operacion']) ?>
+                </option>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    </select>
+</div>
+
+
+                    <button type="submit" class="btn btn-primary">Guardar Operación</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -169,6 +233,16 @@ $tallas = $secuenciasModel->getTallas();
 
 
 <script>
+   $(document).on("click", ".open-operations-modal", function () {
+    var cantidad = $(this).data('cantidad');
+    var iddetop = $(this).data('iddetop');
+    
+    // Asignar los valores a los campos ocultos
+    $("#operationsModal #iddetopInput").val(iddetop);
+    $("#operationsModal #cantidaOInput").val(cantidad); 
+});
+
+
     document.querySelectorAll('.open-modal-btn').forEach(button => {
         button.addEventListener('click', function () {
             const opId = this.getAttribute('data-op');
@@ -181,6 +255,14 @@ $tallas = $secuenciasModel->getTallas();
         row.style.display = row.style.display === 'none' ? '' : 'none';
         button.textContent = row.style.display === 'none' ? '▶' : '▼';
     }
+
+    document.querySelectorAll('.open-operations-modal').forEach(button => {
+        button.addEventListener('click', function () {
+            const iddetop = this.getAttribute('data-iddetop');
+            document.getElementById('iddetopInput').value = iddetop;
+        });
+    });
+
 
     
 </script>

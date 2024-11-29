@@ -122,6 +122,20 @@ class ActionModel {
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function getOperacionesSeleccionadas($iddetop) {
+        $query = "
+            SELECT idoperacion 
+            FROM detalleop_operaciones 
+            WHERE iddetop = :iddetop
+        ";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':iddetop', $iddetop, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_COLUMN); // Devuelve un array con los `idoperacion`
+    }
+    
+    
     
 
     public function getActions() {
@@ -185,15 +199,23 @@ class ActionModel {
             FROM 
                 produccion
             INNER JOIN 
+                detalleop_operaciones
+            ON 
+                produccion.iddetop_operacion = detalleop_operaciones.id
+            INNER JOIN 
+                detalleop
+            ON 
+                detalleop_operaciones.iddetop = detalleop.iddetop
+            INNER JOIN 
                 personas
             ON 
                 produccion.idpersona = personas.idpersona
             INNER JOIN 
                 operaciones
             ON 
-                produccion.idtipooperacion = operaciones.idoperacion
+                detalleop_operaciones.idoperacion = operaciones.idoperacion
             WHERE 
-                produccion.iddetop = :iddetop
+                detalleop.iddetop = :iddetop
         ";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':iddetop', $iddetop, PDO::PARAM_INT);
@@ -205,6 +227,7 @@ class ActionModel {
         }
         return $producciones;
     }
+    
     
     
     public function getSecuenciaById($id) {
@@ -243,42 +266,65 @@ class ActionModel {
         return false; 
     }
 
-    public function createProduccion($iddetop, $idpersona, $idtipooperacion, $cantidadproducida, $fecha) {
-        $stmt = $this->db->prepare("
-            SELECT COUNT(*) 
-            FROM produccion 
-            WHERE iddetop = :iddetop 
-              AND idpersona = :idpersona 
-              AND idtipooperacion = :idtipooperacion 
-              AND DATE(fecha) = DATE(:fecha)
-        ");
-        $stmt->bindParam(':iddetop', $iddetop);
-        $stmt->bindParam(':idpersona', $idpersona);
-        $stmt->bindParam(':idtipooperacion', $idtipooperacion);
-        $stmt->bindParam(':fecha', $fecha);
-        $stmt->execute();
-        $count = $stmt->fetchColumn();
+    public function createProduccion($iddetop_operacion, $idpersona, $cantidadproducida, $fecha) {
+        try {
+            // 1. Verificar la cantidad disponible en la operación seleccionada
+            $query = "SELECT cantidaO FROM detalleop_operaciones WHERE id = :iddetop_operacion";
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(':iddetop_operacion', $iddetop_operacion, PDO::PARAM_INT);
+            $stmt->execute();
+            $operacion = $stmt->fetch(PDO::FETCH_ASSOC);
     
-        if ($count > 0) {
-            return false; 
+            if (!$operacion) {
+                throw new Exception("Operación no encontrada.");
+            }
+    
+            $cantidadDisponible = $operacion['cantidaO'];
+    
+            // 2. Validar que la cantidad producida no exceda la cantidad disponible
+            if ($cantidadproducida > $cantidadDisponible) {
+                throw new Exception("La cantidad producida excede la cantidad disponible.");
+            }
+    
+            // 3. Insertar la nueva producción
+            $stmt = $this->db->prepare("
+                INSERT INTO produccion (iddetop_operacion, idpersona, cantidadproducida, fecha) 
+                VALUES (:iddetop_operacion, :idpersona, :cantidadproducida, :fecha)
+            ");
+            $stmt->bindParam(':iddetop_operacion', $iddetop_operacion, PDO::PARAM_INT);
+            $stmt->bindParam(':idpersona', $idpersona, PDO::PARAM_INT);
+            $stmt->bindParam(':cantidadproducida', $cantidadproducida, PDO::PARAM_INT);
+            $stmt->bindParam(':fecha', $fecha);
+    
+            if (!$stmt->execute()) {
+                throw new Exception("Error al insertar la producción.");
+            }
+    
+            // 4. Actualizar la cantidad disponible en la operación seleccionada
+            $nuevaCantidad = $cantidadDisponible - $cantidadproducida;
+            $stmt = $this->db->prepare("
+                UPDATE detalleop_operaciones 
+                SET cantidaO = :nuevaCantidad 
+                WHERE id = :iddetop_operacion
+            ");
+            $stmt->bindParam(':nuevaCantidad', $nuevaCantidad, PDO::PARAM_INT);
+            $stmt->bindParam(':iddetop_operacion', $iddetop_operacion, PDO::PARAM_INT);
+    
+            if (!$stmt->execute()) {
+                throw new Exception("Error al actualizar la cantidad disponible.");
+            }
+    
+            // Retornar el ID de la nueva producción insertada
+            return $this->db->lastInsertId();
+        } catch (Exception $e) {
+            // Manejo de errores (puedes implementar logging si lo necesitas)
+            error_log("Error en createProduccion: " . $e->getMessage());
+            return false;
         }
-    
-        $stmt = $this->db->prepare("
-            INSERT INTO produccion (iddetop, idpersona, idtipooperacion, cantidadproducida, fecha) 
-            VALUES (:iddetop, :idpersona, :idtipooperacion, :cantidadproducida, :fecha)
-        ");
-        $stmt->bindParam(':iddetop', $iddetop);
-        $stmt->bindParam(':idpersona', $idpersona);
-        $stmt->bindParam(':idtipooperacion', $idtipooperacion);
-        $stmt->bindParam(':cantidadproducida', $cantidadproducida);
-        $stmt->bindParam(':fecha', $fecha);
-    
-        if ($stmt->execute()) {
-            return $this->db->lastInsertId(); 
-        }
-    
-        return false; 
     }
+    
+    
+    
 
     public function getLastInsertedSequenceId() {
         return $this->db->lastInsertId();
@@ -310,6 +356,31 @@ class ActionModel {
         return $stmt->execute();
     }    
     
-     
+    public function addOperationToDetalle($iddetop, $idoperacion, $cantidaO) {
+        $sql = "INSERT INTO detalleop_operaciones (iddetop, idoperacion, cantidaO) 
+                VALUES (:iddetop, :idoperacion, :cantidaO)";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':iddetop', $iddetop, PDO::PARAM_INT);
+        $stmt->bindParam(':idoperacion', $idoperacion, PDO::PARAM_INT);
+        $stmt->bindParam(':cantidaO', $cantidaO, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    
+    public function getOperacionesByDetalleOp($iddetop)
+{
+    $query = "
+        SELECT doo.id AS iddetop_operacion, op.idoperacion, op.operacion, doo.cantidaO
+        FROM detalleop_operaciones doo
+        INNER JOIN operaciones op ON doo.idoperacion = op.idoperacion
+        WHERE doo.iddetop = :iddetop
+    ";
+    $stmt = $this->db->prepare($query);
+    $stmt->bindParam(':iddetop', $iddetop, PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+
+
 }
 

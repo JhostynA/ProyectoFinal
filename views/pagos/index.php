@@ -75,107 +75,121 @@ $clientes = $pagosController->getClientesActivos();
 
 </div>
 
+<!-- Modal Pagar-->
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="paymentModalLabel">Detalles de Pago</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Formulario de pago -->
+        <form id="paymentForm">
+        <input type="hidden" id="idPersona" name="idpersona">
+          <div class="mb-3">
+            <label for="paymentMethod" class="form-label">Método de Pago</label>
+            <select class="form-select" id="paymentMethod" name="paymentMethod" required>
+            <option value="1">YAPE</option>
+            <option value="2">PLIN</option>
+            <option value="3">EFECTIVO</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="amountPaid" class="form-label">Monto Pagado</label>
+            <input type="number" class="form-control" id="amountPaid" name="amountPaid" placeholder="Monto Pagado" required readonly>
+          </div>
+          <div class="mb-3">
+            <label for="paymentDate" class="form-label">Fecha de Pago</label>
+            <input type="date" class="form-control" id="paymentDate" name="paymentDate" required readonly>
+          </div>
+          <button type="submit" class="btn btn-primary">Realizar Pago</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <script>
-    document.getElementById('selectCliente').addEventListener('change', function () {
-    const idCliente = this.value;
-    const selectOP = document.getElementById('selectOP');
+    document.querySelector('table tbody').addEventListener('click', function (e) {
+        if (e.target && e.target.matches('button.btn.btn-primary')) {
+            const row = e.target.closest('tr');
+            const fecha = row.querySelector('td:nth-child(1)').textContent;
+            const operacion = row.querySelector('td:nth-child(2)').textContent;
+            const precio = row.querySelector('td:nth-child(3)').textContent;
+            const cantidad = row.querySelector('td:nth-child(4)').textContent;
+            const totalPago = row.querySelector('td:nth-child(5)').textContent;
+            const idPersona = row.getAttribute('data-idpersona'); // Obtener el idPersona del atributo
 
-    selectOP.innerHTML = '<option selected>Seleccione una OP</option>';
+            document.getElementById('paymentModalLabel').textContent = `Pago de ${operacion}`;
+            document.getElementById('amountPaid').value = totalPago;
+            document.getElementById('paymentMethod').value = "YAPE";  
+            document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0]; 
+            document.getElementById('idPersona').value = idPersona; // Asignar el ID de la persona al campo oculto
 
-    if (idCliente) {
-        fetch('./clienteAjax.php', {
+            $('#paymentModal').modal('show');
+        }
+    });
+
+    document.getElementById('paymentForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const paymentData = new FormData(this);
+
+        // Crear un objeto para imprimir los datos en la consola
+        const dataToLog = {};
+        paymentData.forEach((value, key) => {
+            dataToLog[key] = value;
+        });
+
+        // Imprimir los datos en la consola
+        console.log('Datos enviados:', dataToLog);
+
+        // Enviar los datos al servidor
+        fetch('pagarProduccion.php', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `idcliente=${idCliente}`,
+            body: paymentData,
         })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.length > 0) {
-                    data.forEach((op) => {
-                        const option = document.createElement('option');
-                        option.value = op.idop; 
-                        option.textContent = op.op; 
-                        selectOP.appendChild(option);
-                    });
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Respuesta del servidor:', data);
+
+                // Si la respuesta del servidor indica éxito, limpiar el modal y cerrarlo
+                if (data.success) {
+                    document.getElementById('paymentForm').reset(); // Limpiar el formulario
+                    $('#paymentModal').modal('hide'); // Cerrar el modal
+                    alert('Pago registrado con éxito'); // Mostrar mensaje de éxito
                 } else {
-                    const option = document.createElement('option');
-                    option.textContent = 'No hay OP disponibles';
-                    option.disabled = true;
-                    selectOP.appendChild(option);
+                    alert('Error al registrar el pago: ' + data.message);
                 }
             })
-            .catch((error) => console.error('Error al cargar las OP:', error));
-    }
-});
-
-document.getElementById('selectOP').addEventListener('change', function () {
-    const idop = this.value;
-    const selectNS = document.getElementById('selectSecuencia');
-
-    selectNS.innerHTML = '<option selected>Seleccione una secuencia</option>';
-
-    if (idop) {
-        fetch('./numSecuencia.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `idop=${idop}`,
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.length > 0) {
-                    data.forEach((ns) => {
-                        const option = document.createElement('option');
-                        option.value = ns.iddetop; 
-                        option.textContent = ` ${ns.numSecuencia}`; 
-                        selectNS.appendChild(option);
-                    });
-                } else {
-                    const option = document.createElement('option');
-                    option.textContent = 'No hay secuencias disponibles';
-                    option.disabled = true;
-                    selectNS.appendChild(option);
-                }
-            })
-            .catch((error) => console.error('Error al cargar las secuencias:', error));
-    }
-});
+            .catch(error => {
+                console.error('Error al enviar los datos:', error);
+                alert('Hubo un error al procesar la solicitud.');
+            });
+    });
 
 
-document.getElementById('selectSecuencia').addEventListener('change', function () {
-    const iddetop = this.value;
-    const selectP = document.getElementById('selectTrabajadores');
 
-    selectP.innerHTML = '<option selected>Seleccione un Trabajador</option>';
 
-    if (iddetop) {
-        fetch('./personas.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `iddetop=${iddetop}`,
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.length > 0) {
-                    data.forEach((trabajador) => {
-                        const option = document.createElement('option');
-                        option.value = trabajador.idpersona; 
-                        option.textContent = trabajador.nombre_completo; 
-                        selectP.appendChild(option);
-                    });
-                } else {
-                    const option = document.createElement('option');
-                    option.textContent = 'No hay trabajadores disponibles';
-                    option.disabled = true;
-                    selectP.appendChild(option);
-                }
-            })
-            .catch((error) => console.error('Error al cargar los trabajadores:', error));
+document.querySelector('table tbody').addEventListener('click', function (e) {
+    if (e.target && e.target.matches('button.btn.btn-primary')) {
+        const row = e.target.closest('tr');
+        const idPersona = row.getAttribute('data-idpersona'); // Ahora debería obtener el valor correctamente
+
+        document.getElementById('idPersona').value = idPersona; // Se asigna el valor al campo oculto
+        const totalPago = row.querySelector('td:nth-child(5)').textContent;
+
+        document.getElementById('amountPaid').value = totalPago;
+        document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0];
+
+        $('#paymentModal').modal('show');
     }
 });
 
@@ -183,8 +197,109 @@ document.getElementById('selectSecuencia').addEventListener('change', function (
 
 </script>
 
+<script>
 
+function clearOptions(selectElement, defaultMessage) {
+    selectElement.innerHTML = `<option selected>${defaultMessage}</option>`;
+}
 
+function fetchOptions(url, bodyData, targetSelect, defaultOptionMessage, valueKey, textKey) {
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams(bodyData),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.length > 0) {
+            data.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item[valueKey];
+                option.textContent = item[textKey];
+                targetSelect.appendChild(option);
+            });
+        } else {
+            clearOptions(targetSelect, 'No hay datos disponibles');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+document.getElementById('selectCliente').addEventListener('change', function () {
+    const idCliente = this.value;
+    const selectOP = document.getElementById('selectOP');
+    clearOptions(selectOP, 'Seleccione una OP');
+    if (idCliente) {
+        fetchOptions('./clienteAjax.php', { idcliente: idCliente }, selectOP, 'Seleccione una OP', 'idop', 'op');
+    }
+});
+
+document.getElementById('selectOP').addEventListener('change', function () {
+    const idop = this.value;
+    const selectSecuencia = document.getElementById('selectSecuencia');
+    clearOptions(selectSecuencia, 'Seleccione una secuencia');
+    if (idop) {
+        fetchOptions('./numSecuencia.php', { idop: idop }, selectSecuencia, 'Seleccione una secuencia', 'iddetop', 'numSecuencia');
+    }
+});
+
+document.getElementById('selectSecuencia').addEventListener('change', function () {
+    const iddetop = this.value;
+    const selectTrabajadores = document.getElementById('selectTrabajadores');
+    clearOptions(selectTrabajadores, 'Seleccione un trabajador');
+    if (iddetop) {
+        fetchOptions('./personas.php', { iddetop: iddetop }, selectTrabajadores, 'Seleccione un trabajador', 'idpersona', 'nombre_completo');
+    }
+});
+
+document.getElementById('selectTrabajadores').addEventListener('change', function () {
+    const idpersona = this.value;
+    const tableBody = document.querySelector('table tbody');
+    tableBody.innerHTML = ''; 
+
+    if (idpersona) {
+        fetch('./produccionAjax.php', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams({ idpersona }),
+})
+    .then(response => response.json())
+    .then(data => {
+        console.log('Datos recibidos:', data); 
+        if (data.length > 0) {
+            data.forEach(item => {
+    const row = document.createElement('tr');
+    row.setAttribute('data-idpersona', item.idpersona); // Agrega el idpersona como atributo
+    row.innerHTML = `
+        <td>${item.fecha}</td>
+        <td>${item.operacion}</td>
+        <td>${Number(item.precio).toFixed(2)}</td>
+        <td>${item.cantidadproducida}</td>
+        <td>${Number(item.total_pago).toFixed(2)}</td>
+        <td>
+            <button class="btn btn-primary btn-sm">Pagar</button>
+        </td>
+    `;
+    console.log('Item recibido:', item);
+
+    tableBody.appendChild(row);
+});
+        } else {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td colspan="6" class="text-center">No hay registros para esta persona.</td>`;
+            tableBody.appendChild(row);
+        }
+    })
+    .catch(error => console.error('Error:', error));
+
+    }
+});
+
+</script>
 
 <?php require_once '../../footer.php'; ?>
 

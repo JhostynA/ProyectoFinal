@@ -123,30 +123,52 @@ class ActionController {
     }
     
     
-    public function createProduccion() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-           
-            $iddetop = isset($_POST['iddetop']) ? (int)$_POST['iddetop'] : null;
-            $idpersona = isset($_POST['idpersona']) ? (int)$_POST['idpersona'] : null;
-            $idtipooperacion = isset($_POST['idtipooperacion']) ? (int)$_POST['idtipooperacion'] : null;
-            $cantidadproducida = isset($_POST['cantidadproducida']) ? (int)$_POST['cantidadproducida'] : 0;
-            $fecha = isset($_POST['fecha']) ? $_POST['fecha'] : date('Y-m-d H:i:s'); 
-    
-            if ($iddetop === null || $idpersona === null || $idtipooperacion === null || $cantidadproducida <= 0) {
-                header("Location:../../views/produccion/indexP.php?error=DatosInvalidos");
-                exit();
-            }
-    
-            $produccionInsertada = $this->actionModel->createProduccion($iddetop, $idpersona, $idtipooperacion, $cantidadproducida, $fecha);
-    
-            if (!$produccionInsertada) {
-                header("Location:../../views/produccion/indexP.php?error=ProduccionNoInsertada");
-                exit();
-            }
-    
+   public function createProduccion() {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $iddetop = isset($_POST['iddetop']) ? (int)$_POST['iddetop'] : null;
+        // Obtener y validar los datos del formulario
+        $iddetop_operacion = isset($_POST['iddetop_operacion']) ? (int)$_POST['iddetop_operacion'] : null;
+        $idpersona = isset($_POST['idpersona']) ? (int)$_POST['idpersona'] : null;
+        $cantidadproducida = isset($_POST['cantidadproducida']) ? (int)$_POST['cantidadproducida'] : 0;
+        $fecha = isset($_POST['fecha']) ? $_POST['fecha'] : date('Y-m-d H:i:s'); 
+
+        // Validar que los datos esenciales estén presentes
+        if ($iddetop_operacion === null || $idpersona === null || $cantidadproducida <= 0) {
+             // Redirigir al usuario a la vista correspondiente
+        header("Location: ../../views/produccion/indexP.php?action=viewSecuencia&iddetop=" . urlencode($iddetop));
+        exit();
+        }
+
+        // Llamar al modelo para registrar la producción
+        $produccionInsertada = $this->actionModel->createProduccion($iddetop_operacion, $idpersona, $cantidadproducida, $fecha);
+
+        if (!$produccionInsertada) {
             header("Location: ../../views/produccion/indexP.php?action=viewSecuencia&iddetop=" . urlencode($iddetop));
             exit();
         }
+
+        // Redirigir al usuario a la vista correspondiente
+        header("Location: ../../views/produccion/indexP.php?action=viewSecuencia&iddetop=" . urlencode($iddetop));
+        exit();
     }
+    }
+
     
+    public function addOperationToDetalle(){
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $iddetop = $_POST['iddetop'];
+            $idcliente = $_POST['idcliente'];
+            $idoperacion = $_POST['idoperacion'];
+            $cantidaO = $_POST['cantidaO'];
+        
+            $operacionInsertado = $this->actionModel->addOperationToDetalle($iddetop, $idoperacion, $cantidaO);
+            if($operacionInsertado){
+                header("Location: ../../views/produccion/indexP.php?cliente_id=" . urlencode($idcliente));
+                exit();
+            }
+            header("Location: ../../views/produccion/indexP.php?cliente_id=" . urlencode($idcliente));
+            exit();
+            
+        }        
+    }
 }
