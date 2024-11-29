@@ -129,7 +129,7 @@ document.getElementById('selectOP').addEventListener('change', function () {
                 if (data.length > 0) {
                     data.forEach((ns) => {
                         const option = document.createElement('option');
-                        option.value = ns.numSecuencia; 
+                        option.value = ns.iddetop; 
                         option.textContent = ` ${ns.numSecuencia}`; 
                         selectNS.appendChild(option);
                     });
@@ -143,6 +143,7 @@ document.getElementById('selectOP').addEventListener('change', function () {
             .catch((error) => console.error('Error al cargar las secuencias:', error));
     }
 });
+
 
 document.getElementById('selectSecuencia').addEventListener('change', function () {
     const iddetop = this.value;

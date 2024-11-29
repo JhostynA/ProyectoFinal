@@ -28,7 +28,7 @@ $clientes = (new ActionModel())->getClientesActivos();
             </div>
             <div class="col-md-4">
                 <label for="division" class="form-label">División</label>
-                    <select type="text" class="form-control" id="division" name="division" required>
+                    <select class="form-select" class="form-control" id="division" name="division" required>
                         <option value="">Seleccion un tipo de división</option>
                         <option value="Niño">Niño</option>
                         <option value="Niña">Niña</option>
@@ -42,7 +42,7 @@ $clientes = (new ActionModel())->getClientesActivos();
         <div class="row mb-4">
             <div class="col-md-3">
                 <label for="estilo" class="form-label">Estilo:</label>
-                    <select type="text" class="form-control" id="estilo" name="estilo" required>
+                    <select class="form-select" class="form-control" id="estilo" name="estilo" required>
                         <option value="">Seleccion un tipo de estilo</option>
                         <option value="Casual">Casual</option>
                         <option value="Clásico">Clásico</option>
