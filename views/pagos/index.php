@@ -120,13 +120,12 @@ $clientes = $pagosController->getClientesActivos();
             const precio = row.querySelector('td:nth-child(3)').textContent;
             const cantidad = row.querySelector('td:nth-child(4)').textContent;
             const totalPago = row.querySelector('td:nth-child(5)').textContent;
-            const idPersona = row.getAttribute('data-idpersona'); // Obtener el idPersona del atributo
-
+            const idPersona = row.getAttribute('data-idpersona'); 
             document.getElementById('paymentModalLabel').textContent = `Pago de ${operacion}`;
             document.getElementById('amountPaid').value = totalPago;
             document.getElementById('paymentMethod').value = "YAPE";  
             document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0]; 
-            document.getElementById('idPersona').value = idPersona; // Asignar el ID de la persona al campo oculto
+            document.getElementById('idPersona').value = idPersona; 
 
             $('#paymentModal').modal('show');
         }
@@ -137,16 +136,13 @@ $clientes = $pagosController->getClientesActivos();
 
         const paymentData = new FormData(this);
 
-        // Crear un objeto para imprimir los datos en la consola
         const dataToLog = {};
         paymentData.forEach((value, key) => {
             dataToLog[key] = value;
         });
 
-        // Imprimir los datos en la consola
         console.log('Datos enviados:', dataToLog);
 
-        // Enviar los datos al servidor
         fetch('pagarProduccion.php', {
             method: 'POST',
             body: paymentData,
@@ -160,11 +156,10 @@ $clientes = $pagosController->getClientesActivos();
             .then(data => {
                 console.log('Respuesta del servidor:', data);
 
-                // Si la respuesta del servidor indica éxito, limpiar el modal y cerrarlo
                 if (data.success) {
-                    document.getElementById('paymentForm').reset(); // Limpiar el formulario
-                    $('#paymentModal').modal('hide'); // Cerrar el modal
-                    alert('Pago registrado con éxito'); // Mostrar mensaje de éxito
+                    document.getElementById('paymentForm').reset(); 
+                    $('#paymentModal').modal('hide'); 
+                    alert('Pago registrado con éxito'); 
                 } else {
                     alert('Error al registrar el pago: ' + data.message);
                 }
@@ -181,9 +176,9 @@ $clientes = $pagosController->getClientesActivos();
 document.querySelector('table tbody').addEventListener('click', function (e) {
     if (e.target && e.target.matches('button.btn.btn-primary')) {
         const row = e.target.closest('tr');
-        const idPersona = row.getAttribute('data-idpersona'); // Ahora debería obtener el valor correctamente
+        const idPersona = row.getAttribute('data-idpersona'); 
 
-        document.getElementById('idPersona').value = idPersona; // Se asigna el valor al campo oculto
+        document.getElementById('idPersona').value = idPersona; 
         const totalPago = row.querySelector('td:nth-child(5)').textContent;
 
         document.getElementById('amountPaid').value = totalPago;
@@ -273,7 +268,7 @@ document.getElementById('selectTrabajadores').addEventListener('change', functio
         if (data.length > 0) {
             data.forEach(item => {
     const row = document.createElement('tr');
-    row.setAttribute('data-idpersona', item.idpersona); // Agrega el idpersona como atributo
+    row.setAttribute('data-idpersona', item.idpersona); 
     row.innerHTML = `
         <td>${item.fecha}</td>
         <td>${item.operacion}</td>

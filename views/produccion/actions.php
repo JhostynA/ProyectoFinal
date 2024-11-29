@@ -92,13 +92,12 @@ $operacionesSeleccionadas = $secuenciasModel->getOperacionesSeleccionadas($iddet
                                     <td><?= htmlspecialchars($detalleop['sfin']) ?></td>
                                     <td class="text-center">
                                     <button class="btn btn-sm btn-info open-operations-modal" 
-        data-toggle="modal" 
-        data-target="#operationsModal" 
-        data-iddetop="<?= $detalleop['iddetop'] ?>"
-        data-cantidad="<?= $detalleop['cantidad'] ?>"> 
-        Operaciones
-</button>
-
+                                            data-toggle="modal" 
+                                            data-target="#operationsModal" 
+                                            data-iddetop="<?= $detalleop['iddetop'] ?>"
+                                            data-cantidad="<?= $detalleop['cantidad'] ?>"> 
+                                            Operaciones
+                                    </button>
                                     </td>
                                 </tr>
                                 <?php endforeach; ?>
@@ -175,12 +174,13 @@ $operacionesSeleccionadas = $secuenciasModel->getOperacionesSeleccionadas($iddet
                         <input type="date" class="form-control" name="sfin" id="sfin" required>
                     </div>
 
-                    <button type="submit" class="btn btn-primary" id="submitBtn">Guardar</button>
+                    <button type="button" class="btn btn-primary" id="submitBtn">Guardar</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
 
 <div class="modal fade" id="operationsModal" tabindex="-1" role="dialog" aria-labelledby="operationsModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -196,28 +196,24 @@ $operacionesSeleccionadas = $secuenciasModel->getOperacionesSeleccionadas($iddet
                 <input type="hidden" name="idcliente" id="clienteIdInput" value="<?= htmlspecialchars($action['idcliente']) ?>">
                     <input type="hidden" name="iddetop" id="iddetopInput" value="">
                     <input type="hidden" name="cantidaO" id="cantidaOInput" value="">
-
-
                     <div class="form-group">
-    <label for="operation">Operación:</label>
-    <select class="form-control" name="idoperacion" required>
-        <?php foreach ($operaciones as $operacion): ?>
-            <?php if (in_array($operacion['idoperacion'], $operacionesSeleccionadas)): ?>
-                <!-- Operación deshabilitada -->
-                <option value="<?= htmlspecialchars($operacion['idoperacion']) ?>" disabled style="color: #999;">
-                    <?= htmlspecialchars($operacion['operacion']) ?> (ya seleccionada)
-                </option>
-            <?php else: ?>
-                <!-- Operación habilitada -->
-                <option value="<?= htmlspecialchars($operacion['idoperacion']) ?>">
-                    <?= htmlspecialchars($operacion['operacion']) ?>
-                </option>
-            <?php endif; ?>
-        <?php endforeach; ?>
-    </select>
-</div>
-
-
+                        <label for="operation">Operación:</label>
+                        <select class="form-control" name="idoperacion" required>
+                            <?php foreach ($operaciones as $operacion): ?>
+                                <?php if (in_array($operacion['idoperacion'], $operacionesSeleccionadas)): ?>
+                                    <!-- Operación deshabilitada -->
+                                    <option value="<?= htmlspecialchars($operacion['idoperacion']) ?>" disabled style="color: #999;">
+                                        <?= htmlspecialchars($operacion['operacion']) ?> (ya seleccionada)
+                                    </option>
+                                <?php else: ?>
+                                    <!-- Operación habilitada -->
+                                    <option value="<?= htmlspecialchars($operacion['idoperacion']) ?>">
+                                        <?= htmlspecialchars($operacion['operacion']) ?>
+                                    </option>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                     <button type="submit" class="btn btn-primary">Guardar Operación</button>
                 </form>
             </div>
@@ -230,18 +226,50 @@ $operacionesSeleccionadas = $secuenciasModel->getOperacionesSeleccionadas($iddet
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    document.querySelector("#submitBtn").addEventListener("click", async (event) => {
+        event.preventDefault(); 
+
+        const confirmacion = await Swal.fire({
+            title: '¿Está seguro de guardar este detalle de producción?',
+            text: 'Verifique que los datos sean correctos antes de proceder.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, guardar',
+            cancelButtonText: 'Cancelar',
+        });
+
+        if (confirmacion.isConfirmed) {
+            Swal.fire({
+                title: 'Detalle de Producción Guardado',
+                text: 'El detalle de producción se ha registrado exitosamente.',
+                icon: 'success',
+                confirmButtonText: 'Aceptar'
+            }).then(() => {
+                document.getElementById('formCreateSequence').submit();
+            });
+        } else {
+            Swal.fire({
+                title: 'Registro Cancelado',
+                text: 'El registro ha sido cancelado.',
+                icon: 'info',
+                confirmButtonText: 'Aceptar'
+            });
+        }
+    });
+</script>
 
 
 <script>
    $(document).on("click", ".open-operations-modal", function () {
-    var cantidad = $(this).data('cantidad');
-    var iddetop = $(this).data('iddetop');
-    
-    // Asignar los valores a los campos ocultos
-    $("#operationsModal #iddetopInput").val(iddetop);
-    $("#operationsModal #cantidaOInput").val(cantidad); 
-});
-
+        var cantidad = $(this).data('cantidad');
+        var iddetop = $(this).data('iddetop');
+        
+        $("#operationsModal #iddetopInput").val(iddetop);
+        $("#operationsModal #cantidaOInput").val(cantidad); 
+    });
 
     document.querySelectorAll('.open-modal-btn').forEach(button => {
         button.addEventListener('click', function () {
@@ -263,8 +291,6 @@ $operacionesSeleccionadas = $secuenciasModel->getOperacionesSeleccionadas($iddet
         });
     });
 
-
-    
 </script>
 
 <script>

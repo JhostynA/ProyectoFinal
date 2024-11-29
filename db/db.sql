@@ -107,7 +107,7 @@ CREATE TABLE tallas (
 
 CREATE TABLE detalleop (
     iddetop 		INT AUTO_INCREMENT PRIMARY KEY,
-	idop 			INT, 
+    idop 			INT, 
     idtalla 		INT,
     numSecuencia	INT NOT NULL,
     cantidad 		INT NOT NULL,
@@ -117,21 +117,27 @@ CREATE TABLE detalleop (
     FOREIGN KEY (idop) REFERENCES ordenesproduccion(idop)
 );
 
+CREATE TABLE detalleop_operaciones (
+    id 				INT AUTO_INCREMENT PRIMARY KEY,
+    iddetop 		INT,
+    idoperacion 	INT,
+    cantidaO		INT,
+    FOREIGN KEY (iddetop) REFERENCES detalleop(iddetop),
+    FOREIGN KEY (idoperacion) REFERENCES operaciones(idoperacion)
+);
+
 CREATE TABLE produccion (
     idproduccion 		INT AUTO_INCREMENT PRIMARY KEY,
-    iddetop				INT,
+    iddetop_operacion   INT,
     idpersona			INT,
-    idtipooperacion 	INT,
     cantidadproducida 	INT			NOT NULL,
     fecha 				DATE	 	DEFAULT NOW(),
     pagado 				BOOLEAN 	DEFAULT FALSE,
     fechapagopersona	DATE		NULL,
-    FOREIGN KEY (iddetop) REFERENCES detalleop(iddetop),
-    FOREIGN KEY (idpersona) REFERENCES personas(idpersona),
-    FOREIGN KEY (idtipooperacion) REFERENCES operaciones(idoperacion)
+    FOREIGN KEY (iddetop_operacion) REFERENCES detalleop_operaciones(id),
+    FOREIGN KEY (idpersona) REFERENCES personas(idpersona)
 );
 
-SELECT * FROM produccion;
 
 CREATE TABLE pdf_files (
     id INT AUTO_INCREMENT PRIMARY KEY,

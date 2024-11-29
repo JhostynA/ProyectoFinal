@@ -167,33 +167,53 @@ if ($result) {
                             <?php endforeach; ?>
                         </select>
                     </div>
-
-
                     <div class="mb-3">
                         <label for="cantidadproducida" class="form-label">Cantidad Producida</label>
                         <input type="number" class="form-control" id="cantidadproducida" name="cantidadproducida" min="1" required>
                     </div>
-                    <div class="mb-3">
-                    <label for="fecha" class="form-label">Fecha</label>
-                    <input 
-                        type="date" 
-                        class="form-control" 
-                        id="fecha" 
-                        name="fecha" 
-                        required 
-                        min="<?= htmlspecialchars($secuencia['sinicio']) ?>" 
-                        max="<?= htmlspecialchars($secuencia['sfin']) ?>"
-                    >
-                </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" form="formNuevoRegistro" class="btn btn-primary">Guardar</button>
+                <button type="button" class="btn btn-primary" id="submitBtn">Registrar</button>
             </div>
         </div>
     </div>
 </div>
+
+
+<script>
+    document.querySelector("#submitBtn").addEventListener("click", async (event) => {
+        event.preventDefault(); 
+
+        const confirmacion = await Swal.fire({
+            title: '¿Está seguro de registrar esta producción?',
+            text: 'Verifique que los datos sean correctos antes de proceder.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, registrar',
+            cancelButtonText: 'Cancelar',
+        });
+
+        if (confirmacion.isConfirmed) {
+            Swal.fire({
+                title: 'Producción Registrada',
+                text: 'La producción se ha registrado exitosamente.',
+                icon: 'success',
+                confirmButtonText: 'Aceptar'
+            }).then(() => {
+                document.getElementById('formNuevoRegistro').submit();
+            });
+        } else {
+            Swal.fire({
+                title: 'Registro Cancelado',
+                text: 'El registro ha sido cancelado.',
+                icon: 'info',
+                confirmButtonText: 'Aceptar'
+            });
+        }
+    });
+</script>
 
 
 <script>

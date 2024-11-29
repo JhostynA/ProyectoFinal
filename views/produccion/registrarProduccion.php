@@ -34,7 +34,6 @@ $clientes = (new ActionModel())->getClientesActivos();
                         <option value="Niña">Niña</option>
                         <option value="Caballero">Caballero</option>
                         <option value="Dama">Dama</option>
-                        
                     </select>
             </div>
         </div>
@@ -67,11 +66,10 @@ $clientes = (new ActionModel())->getClientesActivos();
         </div>
         
         <div class="text-end mt-4">
-            <button type="submit" class="btn btn-primary btn-lg">Registrar Producción</button>
+            <button type="submit" class="btn btn-primary btn-lg" id="guardarBtn">Registrar Producción</button>
         </div>
     </form>
 </div>
-
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -98,33 +96,48 @@ $clientes = (new ActionModel())->getClientesActivos();
             }
         });
 
-        const opInput = document.querySelector('input[name="nombre"]');
+        const opInput = document.querySelector('input[name="op"]');
         const form = opInput.closest('form');
-        form.addEventListener('submit', function(event){
+
+        form.addEventListener('submit', function(event) {
             const op = parseInt(opInput.value, 10);
-            if(op <= 0){
+            if(op <= 0) {
                 event.preventDefault();
                 alert('La OP debe ser mayor a 0');
+                return;
             }
         });
 
-        form.addEventListener('submit', function(event) {
-        const op = parseInt(opInput.value, 10);
-        if(op <= 0) {
-            event.preventDefault();
-            alert('La OP debe ser mayor a 0');
-            return;
-        }
-    });
-
-
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('error') && urlParams.get('error') === 'NombreYaExiste') {
-            alert('Ya existe una OP con ese número');
+        document.querySelector("#guardarBtn").addEventListener("click", async (event) => {
+            event.preventDefault(); 
             
-            const newUrl = window.location.origin + window.location.pathname;
-            window.history.replaceState({}, document.title, newUrl);
-        }
+            const confirmacion = await Swal.fire({
+                title: '¿Está seguro de registrar esta producción?',
+                text: 'Lino Fino',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, registrar',
+                cancelButtonText: 'Cancelar',
+            });
+
+            if (confirmacion.isConfirmed) {
+                Swal.fire({
+                    title: 'Producción registrada',
+                    text: 'La producción se ha registrado exitosamente',
+                    icon: 'success',
+                    confirmButtonText: 'Aceptar'
+                }).then(() => {
+                    form.submit();
+                });
+            } else {
+                Swal.fire({
+                    title: 'Registro cancelado',
+                    text: 'El registro ha sido cancelado',
+                    icon: 'info',
+                    confirmButtonText: 'Aceptar'
+                });
+            }
+        });
     });
 </script>
 

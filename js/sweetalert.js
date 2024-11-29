@@ -35,7 +35,7 @@ async function showConfirm(pregunta = ``, modulo = ``) {
     showDenyButton: true,
     confirmButtonText: 'Guardar',
     denyButtonText: 'Cancelar',
-    footer: '<b>Lomo Fino</b>',
+    footer: '<b>Lino Fino</b>',
   });
   if (respuesta.isConfirmed) {
     return true;
