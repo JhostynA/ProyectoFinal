@@ -154,21 +154,30 @@ class ActionController {
     }
 
     
-    public function addOperationToDetalle(){
+    public function addOperationToDetalle() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $iddetop = $_POST['iddetop'];
             $idcliente = $_POST['idcliente'];
-            $idoperacion = $_POST['idoperacion'];
-            $cantidaO = $_POST['cantidaO'];
-        
-            $operacionInsertado = $this->actionModel->addOperationToDetalle($iddetop, $idoperacion, $cantidaO);
-            if($operacionInsertado){
-                header("Location: ../../views/produccion/indexP.php?cliente_id=" . urlencode($idcliente));
-                exit();
+            $operaciones = $_POST['operaciones']; // Operaciones seleccionadas como un array
+            $cantidaO = $_POST['cantidaO']; 
+    
+            // Verifica si se seleccionaron operaciones
+            if (!empty($operaciones)) {
+                foreach ($operaciones as $idoperacion) {
+                    $operacionInsertado = $this->actionModel->addOperationToDetalle($iddetop, $idoperacion, $cantidaO);
+                }
+    
+                if ($operacionInsertado) {
+                    header("Location: ../../views/produccion/indexP.php?cliente_id=" . urlencode($idcliente));
+                    exit();
+                }
             }
+    
+            // Si no se insertó o no se seleccionaron operaciones
             header("Location: ../../views/produccion/indexP.php?cliente_id=" . urlencode($idcliente));
             exit();
-            
-        }        
+        }
     }
+    
+
 }

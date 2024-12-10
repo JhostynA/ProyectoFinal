@@ -7,12 +7,30 @@ $clientes = $clienteModel->getClientes();
 ?>
 
 <style>
+    body {
+        margin: 0;
+        padding: 0;
+    }
+    .container {
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+    }
+    .table {
+        width: 100%;
+        table-layout: fixed;
+        word-wrap: break-word;
+    }
     .inactivo {
-        opacity: 0.5;  
-        background-color: #f8d7da;  
+        opacity: 0.5;
+        background-color: #f8d7da;
     }
 </style>
-
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -80,11 +98,11 @@ $clientes = $clienteModel->getClientes();
                                     </div>
                                     <div class="mb-3">
                                         <label for="telefono<?php echo $cliente['idcliente']; ?>" class="form-label">Teléfono</label>
-                                        <input type="text" class="form-control" id="telefono<?php echo $cliente['idcliente']; ?>" name="telefono" value="<?php echo htmlspecialchars($cliente['telefono']); ?>" required>
+                                        <input type="text" class="form-control" id="telefono<?php echo $cliente['idcliente']; ?>" name="telefono" value="<?php echo htmlspecialchars($cliente['telefono']); ?>" >
                                     </div>
                                     <div class="mb-3">
                                         <label for="email<?php echo $cliente['idcliente']; ?>" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="email<?php echo $cliente['idcliente']; ?>" name="email" value="<?php echo htmlspecialchars($cliente['email']); ?>" required>
+                                        <input type="email" class="form-control" id="email<?php echo $cliente['idcliente']; ?>" name="email" value="<?php echo htmlspecialchars($cliente['email']); ?>" >
                                     </div>
                                     <div class="mb-3">
                                         <label for="direccion<?php echo $cliente['idcliente']; ?>" class="form-label">Dirección</label>
@@ -104,7 +122,7 @@ $clientes = $clienteModel->getClientes();
                                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" id="guardarBtn<?php echo $cliente['idcliente']; ?>" class="btn btn-primary">Guardar Cambios</button>
+                    <button type="submit" id="guardarBtn<?php echo $cliente['idcliente']; ?>" class="btn btn-primary">Guardar Cambios</button>
                 </div>
             </form>
         </div>

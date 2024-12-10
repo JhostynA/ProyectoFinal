@@ -245,3 +245,56 @@ CREATE TABLE pagos (
     FOREIGN KEY (idmodalidad) REFERENCES modalidades(idmodalidad),
     FOREIGN KEY (idpersona) REFERENCES personas(idpersona)
 );
+
+DELIMITER $$
+CREATE PROCEDURE listarPagosPorBusqueda(
+    IN searchTerm VARCHAR(100)
+)
+BEGIN
+    SELECT 
+        CONCAT(p.apellidos, ' ', p.nombres) AS trabajador,
+        op.op AS orden_produccion,
+        dop.numSecuencia AS secuencia,
+        o.operacion AS operacion,
+        pg.fecha AS fecha_pago,
+        m.modalidad AS modalidad,
+        IFNULL(pg.totalpago, 0) AS monto_pagado     
+    FROM personas p
+    LEFT JOIN pagos pg ON p.idpersona = pg.idpersona
+    LEFT JOIN produccion prod ON p.idpersona = prod.idpersona
+    LEFT JOIN detalleop_operaciones dopo ON prod.iddetop_operacion = dopo.id
+    LEFT JOIN detalleop dop ON dopo.iddetop = dop.iddetop
+    LEFT JOIN ordenesproduccion op ON dop.idop = op.idop
+    LEFT JOIN operaciones o ON dopo.idoperacion = o.idoperacion
+    LEFT JOIN modalidades m ON pg.idmodalidad = m.idmodalidad
+    WHERE 
+        CONCAT(p.apellidos, ' ', p.nombres) LIKE CONCAT('%', searchTerm, '%');
+END $$ 
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE listarPagosPorFecha(
+    IN fechaInicio DATE,
+    IN fechaFin DATE
+)
+BEGIN
+    SELECT 
+        CONCAT(p.apellidos, ' ', p.nombres) AS trabajador,
+        op.op AS orden_produccion,
+        dop.numSecuencia AS secuencia,
+        o.operacion AS operacion,
+        pg.fecha AS fecha_pago,
+        m.modalidad AS modalidad,
+        IFNULL(pg.totalpago, 0) AS monto_pagado
+    FROM pagos pg
+    INNER JOIN personas p ON pg.idpersona = p.idpersona
+    LEFT JOIN produccion prod ON p.idpersona = prod.idpersona
+    LEFT JOIN detalleop_operaciones dopo ON prod.iddetop_operacion = dopo.id
+    LEFT JOIN detalleop dop ON dopo.iddetop = dop.iddetop
+    LEFT JOIN ordenesproduccion op ON dop.idop = op.idop
+    LEFT JOIN operaciones o ON dopo.idoperacion = o.idoperacion
+    LEFT JOIN modalidades m ON pg.idmodalidad = m.idmodalidad
+    WHERE pg.fecha BETWEEN fechaInicio AND fechaFin
+    ORDER BY pg.fecha ASC;
+END $$
+DELIMITER ;

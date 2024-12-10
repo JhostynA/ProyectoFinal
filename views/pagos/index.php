@@ -7,37 +7,35 @@ $clientes = $pagosController->getClientesActivos();
 
 ?>
 
-<div class="container mt-5">
-
+<div class="container-fluid mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h4 mb-0">Pagos</h1>
-        </div>
+        <h1 class="h4 mb-0">Pagos</h1>
     </div>
 
     <div class="card mb-4">
         <div class="card-body">
             <form>
                 <div class="row g-3">
-                  <div class="col-md-3">
-                    <label for="selectCliente" class="form-label">Cliente</label>
-                    <select class="form-select" id="selectCliente" name="selectCliente">
-                        <option selected disabled>Seleccione un cliente</option>
-                        <?php foreach ($clientes as $cliente): ?>
-                            <option value="<?= htmlspecialchars($cliente['idcliente']) ?>">
-                                <?= htmlspecialchars($cliente['nombrecomercial']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+                    <div class="col-md-3">
+                        <label for="selectCliente" class="form-label">Cliente</label>
+                        <select class="form-select" id="selectCliente" name="selectCliente">
+                            <option selected disabled>Seleccione un cliente</option>
+                            <?php foreach ($clientes as $cliente): ?>
+                                <option value="<?= htmlspecialchars($cliente['idcliente']) ?>">
+                                    <?= htmlspecialchars($cliente['nombrecomercial']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
 
-                <div class="col-md-3">
-                    <label for="selectOP" class="form-label">Orden de Producción (OP)</label>
-                    <select class="form-select" id="selectOP" name="selectOP">
-                        <option selected>Seleccione una OP</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
+                    <div class="col-md-3">
+                        <label for="selectOP" class="form-label">Orden de Producción (OP)</label>
+                        <select class="form-select" id="selectOP" name="selectOP">
+                            <option selected>Seleccione una OP</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
                         <label for="selectSecuencia" class="form-label">Secuencia</label>
                         <select class="form-select" id="selectSecuencia" name="selectSecuencia">
                             <option selected>Seleccione una secuencia</option>
@@ -68,47 +66,46 @@ $clientes = $pagosController->getClientesActivos();
                 </tr>
             </thead>
             <tbody>
-                
+                <!-- Contenido dinámico -->
             </tbody>
         </table>
     </div>
-
 </div>
 
-<!-- Modal Pagar-->
+<!-- Modal Pagar -->
 <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="paymentModalLabel">Detalles de Pago</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <!-- Formulario de pago -->
-        <form id="paymentForm">
-        <input type="hidden" id="idPersona" name="idpersona">
-          <div class="mb-3">
-            <label for="paymentMethod" class="form-label">Método de Pago</label>
-            <select class="form-select" id="paymentMethod" name="paymentMethod" required>
-            <option value="1">YAPE</option>
-            <option value="2">PLIN</option>
-            <option value="3">EFECTIVO</option>
-            </select>
-          </div>
-          <div class="mb-3">
-            <label for="amountPaid" class="form-label">Monto Pagado</label>
-            <input type="number" class="form-control" id="amountPaid" name="amountPaid" placeholder="Monto Pagado" required readonly>
-          </div>
-          <div class="mb-3">
-            <label for="paymentDate" class="form-label">Fecha de Pago</label>
-            <input type="date" class="form-control" id="paymentDate" name="paymentDate" required readonly>
-          </div>
-          <button type="submit" class="btn btn-primary">Realizar Pago</button>
-        </form>
-      </div>
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentModalLabel">Detalles de Pago</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="paymentForm">
+                    <input type="hidden" id="idPersona" name="idpersona">
+                    <div class="mb-3">
+                        <label for="paymentMethod" class="form-label">Método de Pago</label>
+                        <select class="form-select" id="paymentMethod" name="paymentMethod" required>
+                            <option value="1">YAPE</option>
+                            <option value="2">PLIN</option>
+                            <option value="3">EFECTIVO</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="amountPaid" class="form-label">Monto Pagado</label>
+                        <input type="number" class="form-control" id="amountPaid" name="amountPaid" placeholder="Monto Pagado" required readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="paymentDate" class="form-label">Fecha de Pago</label>
+                        <input type="date" class="form-control" id="paymentDate" name="paymentDate" required readonly>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Realizar Pago</button>
+                </form>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
+
 
 
 <script>

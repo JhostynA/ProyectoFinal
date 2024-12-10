@@ -125,6 +125,10 @@ $clientesActivos = $clienteModel->getClientesActivos();
                             <div class="sb-nav-link-icon"><i class="fa-solid fa-list-check"></i></div>
                             Operaciones
                         </a>
+                        <a class="nav-link" href="<?= $host ?>/views/datos/datos.php">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-list-check"></i></div>
+                            Historial 
+                        </a>
                     </div>
                 </div>
             </nav>

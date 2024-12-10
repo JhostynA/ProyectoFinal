@@ -366,19 +366,18 @@ class ActionModel {
         $stmt->execute();
     }
     
-    public function getOperacionesByDetalleOp($iddetop)
-{
-    $query = "
-        SELECT doo.id AS iddetop_operacion, op.idoperacion, op.operacion, doo.cantidaO
-        FROM detalleop_operaciones doo
-        INNER JOIN operaciones op ON doo.idoperacion = op.idoperacion
-        WHERE doo.iddetop = :iddetop
-    ";
-    $stmt = $this->db->prepare($query);
-    $stmt->bindParam(':iddetop', $iddetop, PDO::PARAM_INT);
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
+    public function getOperacionesByDetalleOp($iddetop){
+        $query = "
+            SELECT doo.id AS iddetop_operacion, op.idoperacion, op.operacion, doo.cantidaO
+            FROM detalleop_operaciones doo
+            INNER JOIN operaciones op ON doo.idoperacion = op.idoperacion
+            WHERE doo.iddetop = :iddetop
+        ";
+        $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':iddetop', $iddetop, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
 
 

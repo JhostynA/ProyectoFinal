@@ -4,10 +4,10 @@ require_once '../../models/produccion/ActionModel.php';
 $clientes = (new ActionModel())->getClientesActivos();
 ?>
 
-<div class="container my-5 p-4 shadow-sm rounded bg-light">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Registrar Nueva Producción</h2>
-        <a href="<?= $host ?>/views/produccion/registrarClientes.php" class="btn btn-secondary">Administrar Clientes</a>
+<div class="container my-5 p-5 shadow-sm rounded bg-light" style="max-width: 90%; min-height: 85vh;">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <h2 class="mb-0">Registrar Nueva Producción</h2>
+        <a href="<?= $host ?>/views/produccion/registrarClientes.php" class="btn btn-secondary btn-lg">Administrar Clientes</a>
     </div>
     
     <form id="formCreateAction" method="POST" action="<?= $host ?>/views/produccion/indexP.php?action=createOrdenProduccion">
